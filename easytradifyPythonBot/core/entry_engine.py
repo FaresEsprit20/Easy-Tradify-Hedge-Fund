@@ -56,6 +56,7 @@ from core.asset_analysis_config import (
     MAX_PROBABILITY_FOR_ENTRY,
     TRADE_PROBABILITY_MINIMUM,
     ENTRY_RULE_MODES,
+    ENTRY_RULE_POLARITY,
     ENTRY_MIN_SIGNALS,
     MOMENTUM_STRENGTH_MIN,
 )
@@ -84,6 +85,14 @@ RULE_STATUS = {
     "confirmation": "WAITING_CONFIRMATION",
     "timing": "POOR_TIMING",
     "momentum": "WEAK_MOMENTUM",
+}
+
+# A rule with polarity -1 blocks for the opposite reason, so it needs its own
+# name: "WAITING_CONFIRMATION" would be actively wrong when the block happened
+# BECAUSE the bar confirmed (asset_analysis_config.ENTRY_RULE_POLARITY).
+RULE_STATUS_INVERTED = {
+    "confirmation": "ALREADY_CONFIRMED",     # the move already happened; too late
+    "discount": "ALREADY_AT_DISCOUNT",       # price sits at the zone; measured worse
 }
 
 # Tier 0 -- an entry with NO golden signal -- is disabled (2026-09-15).
@@ -702,7 +711,17 @@ class EntryEngine:
 
         def rule(name: str, passed: Optional[bool], value: Any = None, threshold: Any = None,
                  why: str = "") -> None:
-            rules[name] = {"passed": passed, "mode": modes.get(name, BLOCK),
+            # A rule measured to be backwards passes on the OPPOSITE condition
+            # (asset_analysis_config.ENTRY_RULE_POLARITY). The condition itself
+            # is still evaluated and recorded unchanged -- only what counts as
+            # passing flips -- so the record stays comparable with every
+            # decision taken before the flip.
+            polarity = ENTRY_RULE_POLARITY.get(name, 1)
+            if polarity < 0:
+                if passed is not None:
+                    passed = not passed
+                why = f"INVERTED (measured): {why}" if why else "INVERTED (measured)"
+            rules[name] = {"passed": passed, "mode": modes.get(name, BLOCK), "polarity": polarity,
                            "value": value, "threshold": threshold, "why": why}
 
         direction = str(best_direction or "").upper()
@@ -966,7 +985,8 @@ class EntryEngine:
                     f"({timing_confidence}% < {self.min_timing_confidence}%)", 3, "TIMING_ISSUE")
         final_decision, simple_action, execution, reason, star_rating, entry_quality = text
         result.update({
-            "entry_status": RULE_STATUS[first],
+            "entry_status": (RULE_STATUS_INVERTED.get(first, RULE_STATUS[first])
+                             if ENTRY_RULE_POLARITY.get(first, 1) < 0 else RULE_STATUS[first]),
             "final_decision": final_decision,
             "simple_action": simple_action,
             "execution": execution,

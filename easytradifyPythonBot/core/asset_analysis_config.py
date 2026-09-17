@@ -273,12 +273,56 @@ ENTRY_RULE_MODES = {
     "signals": "observe",         # golden signals >= ENTRY_MIN_SIGNALS          -> NO_POTENTIAL
     "probability": "block",       # floor <= probability <= MAX_PROBABILITY_FOR_ENTRY -> INSUFFICIENT_PROBABILITY
     "setup": "block",             # the winning group's own trade setup is valid -> NO_STRATEGY_SETUP
-    "discount": "observe",        # price back at the zone                       -> WAITING_DISCOUNT
+    "discount": "block",          # INVERTED (see ENTRY_RULE_POLARITY)           -> ALREADY_AT_DISCOUNT
     "discount_quality": "block",  # zone on the trade's side, quality and score  -> POOR_DISCOUNT
-    "confirmation": "observe",    # the last closed bar confirms the direction   -> WAITING_CONFIRMATION
+    "confirmation": "block",      # INVERTED (see ENTRY_RULE_POLARITY)           -> ALREADY_CONFIRMED
     "timing": "observe",          # tick micro-structure timing confidence       -> POOR_TIMING
     "momentum": "observe",        # the momentum group's strength for this side  -> WEAK_MOMENTUM
 }
+
+# ---------------------------------------------------------------------------
+# Rule polarity -- two rules are backwards, measured (2026-09-17)
+# ---------------------------------------------------------------------------
+# On the 60,853-decision replay of the final engine, orientation chosen on the
+# EARLIER half and confirmed on the LATER half
+# (tradify_study/entry_edges_v1/invert_entry.py):
+#
+#   confirmation  the bar confirmed the side -> 28.0% won, -0.272R gross
+#                 the bar did NOT confirm    -> 30.3% won, -0.220R gross
+#                 backwards in EVERY category and BOTH halves (10/10).
+#                 Mechanism: waiting for a confirmation candle means entering
+#                 after the move has already happened.
+#
+#   discount      price at the discount      -> 26.4% won, -0.314R gross
+#                 price away from it         -> 29.3% won, -0.243R gross
+#                 same direction, every category, both halves.
+#
+# polarity -1 => the rule passes when its condition is FALSE. The condition is
+# still measured and recorded exactly as before; only what counts as passing is
+# flipped. Worth about +0.05R gross. Gates only block where they are measured to
+# help -- that standard is what found these, and it is what they now satisfy.
+ENTRY_RULE_POLARITY = {"confirmation": -1, "discount": -1}
+
+# ---------------------------------------------------------------------------
+# Direction inversion -- the engine's chosen side loses to its own opposite
+# ---------------------------------------------------------------------------
+# Every decision scored BOTH ways on the same bars, same entry, same stop and
+# target distances (60,853 decisions, 15 FX markets):
+#
+#                       won %   free %   edge    gross R   net R
+#   engine's side       29.2%   38.1%    -8.8    -0.237    -0.798
+#   OPPOSITE side       32.0%   38.1%    -6.1    -0.168    -0.729
+#
+# +2.4 points in the earlier half, +2.7 in the later, positive in both live
+# categories. The tick tape says the same from a different angle: fading the
+# signed flow is right ~54% of the time. The engine is trend-following at a
+# scale where price reverts.
+#
+# HONEST LIMIT: this reduces the loss, it does not create a profit. BOTH sides
+# lose -- the opposite side is still -0.168R gross and -0.729R net, because a
+# ~6-point deficit is present on both and is structural (enter at the ask, exit
+# at the bid, and a bar touching both levels counts as the stop). Demo only.
+INVERT_ENTRY_DIRECTION = True
 
 # Golden signals an entry needs (momentum burst, absorption, volume spike, at a
 # point of interest, volume imbalance). Entries with none were right 17% of the
