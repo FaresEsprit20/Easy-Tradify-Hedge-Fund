@@ -1,0 +1,4800 @@
+{
+ "version": 2,
+ "fitted": "2026-09-15 18:58",
+ "decision_mode": "shadow",
+ "test_start_ts": 1786056320,
+ "model_decides_direction": true,
+ "entry_floor": 80.0,
+ "max_cost_r": null,
+ "group_order": [
+  "CONTEXT",
+  "CROSS_ASSET",
+  "MEAN_REVERSION",
+  "MOMENTUM",
+  "ORDER_FLOW",
+  "SMC",
+  "STRUCTURE",
+  "TREND",
+  "WAVE"
+ ],
+ "groups": {
+  "CONTEXT": {
+   "features": [
+    {
+     "name": "r:expected_value:0",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 0
+    },
+    {
+     "name": "r:expected_value:7@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 7,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:0@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:3@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:1@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:3",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 3
+    },
+    {
+     "name": "r:expected_value:2@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 2,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:5@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:3@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 3,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:4@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 4,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:0@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 0,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:6@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 6,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:2",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 2
+    },
+    {
+     "name": "r:expected_value:2@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:7",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 7
+    },
+    {
+     "name": "r:expected_value:1",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 1
+    },
+    {
+     "name": "r:expected_value:1@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:2@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 2,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:4",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 4
+    },
+    {
+     "name": "r:expected_value:0@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 0,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:3@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 3,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:4@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 4,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:5",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 5
+    },
+    {
+     "name": "r:expected_value:4@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:6",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 6
+    },
+    {
+     "name": "r:expected_value:6@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:6@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 6,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:7@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 7,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:7@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 7,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:3@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 3,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:5@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 5,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:7@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 7,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:5@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 5,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:2@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 2,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:1@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 1,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:4@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 4,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:6@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 6,
+     "condition": "trending"
+    },
+    {
+     "name": "f:indicators.expected_value.recommendation@ranging",
+     "kind": "field",
+     "field": "indicators.expected_value.recommendation",
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:9",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 9
+    },
+    {
+     "name": "r:expected_value:9@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 9,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:12@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 12,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:14@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 14,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:15@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 15,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:9@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 9,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:12",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 12
+    },
+    {
+     "name": "r:expected_value:12@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 12,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:14",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 14
+    },
+    {
+     "name": "r:expected_value:11",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 11
+    },
+    {
+     "name": "r:expected_value:11@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 11,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:14@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 14,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:12@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 12,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:13@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 13,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:14@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 14,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:8",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 8
+    },
+    {
+     "name": "r:expected_value:8@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 8,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:10",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 10
+    },
+    {
+     "name": "r:expected_value:13",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 13
+    },
+    {
+     "name": "r:expected_value:15",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 15
+    },
+    {
+     "name": "r:expected_value:8@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 8,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:8@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 8,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:9@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 9,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:10@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 10,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:10@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 10,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:10@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 10,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:10@newyork",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 10,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:expected_value:11@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 11,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:11@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 11,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:11@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 11,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:12@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 12,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:13@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 13,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:13@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 13,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:expected_value:14@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 14,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:15@trending",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 15,
+     "condition": "trending"
+    },
+    {
+     "name": "r:expected_value:15@ranging",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 15,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:expected_value:15@compressed",
+     "kind": "rule",
+     "component": "expected_value",
+     "index": 15,
+     "condition": "compressed"
+    }
+   ],
+   "coef": [
+    0.24762,
+    -0.21346,
+    0.11892,
+    0.42966,
+    -0.13623,
+    0.01572,
+    -0.23688,
+    -0.66167,
+    0.23026,
+    0.14152,
+    0.11445,
+    -0.0238,
+    0.16997,
+    0.16997,
+    0.03288,
+    0.11171,
+    0.16449,
+    0.21806,
+    0.11184,
+    0.10778,
+    -0.43471,
+    -0.10737,
+    0.1939,
+    -0.28019,
+    -0.1408,
+    -0.28535,
+    -0.08476,
+    0.05044,
+    -0.10123,
+    0.01396,
+    0.10439,
+    -0.1441,
+    -0.10357,
+    0.14159,
+    0.03418,
+    0.18476,
+    -0.05718,
+    -0.06057,
+    0.11171,
+    0.16449,
+    -0.28019,
+    -0.28535,
+    -0.21346,
+    -0.13623,
+    0.11184,
+    0.14152,
+    -0.1408,
+    0.01572,
+    0.42966,
+    -0.0238,
+    -0.10737,
+    -0.66167,
+    -0.08476,
+    0.24762,
+    0.11892,
+    0.16997,
+    0.1939,
+    0.03288,
+    0.11445,
+    0.10778,
+    0.03418,
+    0.14159,
+    -0.23688,
+    0.21806,
+    0.16997,
+    0.01396,
+    0.23026,
+    -0.43471,
+    0.18476,
+    -0.10357,
+    0.10439,
+    -0.05718,
+    -0.1441,
+    -0.10123,
+    0.05044
+   ],
+   "intercept": 0.0
+  },
+  "CROSS_ASSET": {
+   "features": [
+    {
+     "name": "r:gnn:0",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 0
+    },
+    {
+     "name": "r:gnn:1",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 1
+    },
+    {
+     "name": "r:gnn:0@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:1@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "f:gnn.analysis.recommendation@london",
+     "kind": "field",
+     "field": "gnn.analysis.recommendation",
+     "condition": "london"
+    },
+    {
+     "name": "r:gnn:4",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 4
+    },
+    {
+     "name": "r:gnn:5",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 5
+    },
+    {
+     "name": "e:ccy_strength_60",
+     "kind": "edge",
+     "edge": "ccy_strength_60",
+     "scale": 3.9600000381469727,
+     "discrete": false
+    },
+    {
+     "name": "e:ccy_strength_60@ranging",
+     "kind": "edge",
+     "edge": "ccy_strength_60",
+     "scale": 3.9600000381469727,
+     "discrete": false,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:gnn:4@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:5@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:6",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 6
+    },
+    {
+     "name": "r:gnn:7",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 7
+    },
+    {
+     "name": "e:ccy_strength_60@compressed",
+     "kind": "edge",
+     "edge": "ccy_strength_60",
+     "scale": 3.9600000381469727,
+     "discrete": false,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:gnn:6@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:7@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 7,
+     "condition": "newyork"
+    },
+    {
+     "name": "e:ccy_strength_60@trending",
+     "kind": "edge",
+     "edge": "ccy_strength_60",
+     "scale": 3.9600000381469727,
+     "discrete": false,
+     "condition": "trending"
+    },
+    {
+     "name": "r:gnn:14@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 14,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:15@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 15,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:8@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 8,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:9@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 9,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:12@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 12,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:13@newyork",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 13,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:gnn:8",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 8
+    },
+    {
+     "name": "r:gnn:9",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 9
+    },
+    {
+     "name": "r:gnn:12",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 12
+    },
+    {
+     "name": "r:gnn:13",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 13
+    },
+    {
+     "name": "r:gnn:14",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 14
+    },
+    {
+     "name": "r:gnn:15",
+     "kind": "rule",
+     "component": "gnn",
+     "index": 15
+    }
+   ],
+   "coef": [
+    0.01763,
+    0.01763,
+    0.10832,
+    0.10832,
+    -0.15315,
+    0.01763,
+    0.01763,
+    -0.03515,
+    -0.07727,
+    0.10832,
+    0.10832,
+    0.01763,
+    0.01763,
+    -0.06589,
+    0.10832,
+    0.10832,
+    -0.0667,
+    0.10832,
+    0.10832,
+    0.10832,
+    0.10832,
+    0.10832,
+    0.10832,
+    0.01763,
+    0.01763,
+    0.01763,
+    0.01763,
+    0.01763,
+    0.01763
+   ],
+   "intercept": 0.0
+  },
+  "MEAN_REVERSION": {
+   "features": [
+    {
+     "name": "r:rsi:7@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 7,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:bollinger:0@newyork",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:bollinger:0",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 0
+    },
+    {
+     "name": "r:bollinger:0@compressed",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 0,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:bollinger:1@expanded",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 1,
+     "condition": "expanded"
+    },
+    {
+     "name": "r:bollinger:0@ranging",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 0,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:rsi:7",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 7
+    },
+    {
+     "name": "r:bollinger:0@trending",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 0,
+     "condition": "trending"
+    },
+    {
+     "name": "r:rsi:14@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 14,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:6",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 6
+    },
+    {
+     "name": "r:rsi:1",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 1
+    },
+    {
+     "name": "r:rsi:2@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:3@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:4@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:5@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:7@trending",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 7,
+     "condition": "trending"
+    },
+    {
+     "name": "r:rsi:3",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 3
+    },
+    {
+     "name": "r:rsi:4",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 4
+    },
+    {
+     "name": "r:rsi:5",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 5
+    },
+    {
+     "name": "r:rsi:2",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 2
+    },
+    {
+     "name": "f:indicators.rsi.adaptive.recommendation@expanded",
+     "kind": "field",
+     "field": "indicators.rsi.adaptive.recommendation",
+     "condition": "expanded"
+    },
+    {
+     "name": "r:rsi:7@compressed",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 7,
+     "condition": "compressed"
+    },
+    {
+     "name": "f:indicators.stochastic.adaptive.recommendation@expanded",
+     "kind": "field",
+     "field": "indicators.stochastic.adaptive.recommendation",
+     "condition": "expanded"
+    },
+    {
+     "name": "r:rsi:6@trending",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 6,
+     "condition": "trending"
+    },
+    {
+     "name": "f:indicators.stochastic.recommendation@expanded",
+     "kind": "field",
+     "field": "indicators.stochastic.recommendation",
+     "condition": "expanded"
+    },
+    {
+     "name": "r:rsi:2@ranging",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 2,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:rsi:3@ranging",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 3,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:rsi:4@ranging",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 4,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:rsi:5@ranging",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 5,
+     "condition": "ranging"
+    },
+    {
+     "name": "f:indicators.rsi.adaptive.recommendation",
+     "kind": "field",
+     "field": "indicators.rsi.adaptive.recommendation"
+    },
+    {
+     "name": "f:indicators.rsi.recommendation@london",
+     "kind": "field",
+     "field": "indicators.rsi.recommendation",
+     "condition": "london"
+    },
+    {
+     "name": "r:bollinger:1@newyork",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:9",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 9
+    },
+    {
+     "name": "r:rsi:10",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 10
+    },
+    {
+     "name": "r:rsi:11",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 11
+    },
+    {
+     "name": "r:rsi:12",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 12
+    },
+    {
+     "name": "r:rsi:13",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 13
+    },
+    {
+     "name": "r:rsi:14",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 14
+    },
+    {
+     "name": "r:bollinger:1",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 1
+    },
+    {
+     "name": "r:rsi:10@ranging",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 10,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:rsi:10@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 10,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:11@ranging",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 11,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:rsi:11@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 11,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:12@ranging",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 12,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:rsi:12@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 12,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:13@ranging",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 13,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:rsi:13@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 13,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:rsi:14@trending",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 14,
+     "condition": "trending"
+    },
+    {
+     "name": "r:rsi:6@newyork",
+     "kind": "rule",
+     "component": "rsi",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:bollinger:1@trending",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 1,
+     "condition": "trending"
+    },
+    {
+     "name": "r:bollinger:1@ranging",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:bollinger:1@compressed",
+     "kind": "rule",
+     "component": "bollinger",
+     "index": 1,
+     "condition": "compressed"
+    }
+   ],
+   "coef": [
+    1.37811,
+    -0.1293,
+    0.224,
+    -0.03447,
+    0.30661,
+    -0.05266,
+    0.22409,
+    0.04705,
+    -0.7346,
+    -0.01384,
+    0.25283,
+    0.10585,
+    0.10585,
+    0.10585,
+    0.10585,
+    -0.15902,
+    -0.0067,
+    -0.0067,
+    -0.0067,
+    -0.0067,
+    0.00111,
+    -0.17566,
+    0.09643,
+    0.22614,
+    0.06607,
+    0.0005,
+    0.0005,
+    0.0005,
+    0.0005,
+    0.00636,
+    -0.12683,
+    -0.1293,
+    0.25283,
+    -0.0067,
+    -0.0067,
+    -0.0067,
+    -0.0067,
+    -0.01384,
+    0.224,
+    0.0005,
+    0.10585,
+    0.0005,
+    0.10585,
+    0.0005,
+    0.10585,
+    0.0005,
+    0.10585,
+    0.22614,
+    -0.7346,
+    0.04705,
+    -0.05266,
+    -0.03447
+   ],
+   "intercept": 0.0
+  },
+  "MOMENTUM": {
+   "features": [
+    {
+     "name": "r:vwap:2",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 2
+    },
+    {
+     "name": "r:vwap:2@newyork",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:vwap:3",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 3
+    },
+    {
+     "name": "r:vwap:3@newyork",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:vwap:4",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 4
+    },
+    {
+     "name": "r:vwap:4@newyork",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:vwap:3@ranging",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 3,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:vwap:2@ranging",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 2,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:vwap:4@ranging",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 4,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:vwap:1",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 1
+    },
+    {
+     "name": "r:vwap:1@newyork",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:vwap:0",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 0
+    },
+    {
+     "name": "r:vwap:0@newyork",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:vwap:6@ranging",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 6,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:vwap:7@ranging",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 7,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:vwap:6",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 6
+    },
+    {
+     "name": "r:vwap:7",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 7
+    },
+    {
+     "name": "r:vwap:6@newyork",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:vwap:7@newyork",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 7,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:vwap:1@ranging",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:vwap:0@ranging",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 0,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:vwap:2@compressed",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 2,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:vwap:5@newyork",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:vwap:5",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 5
+    },
+    {
+     "name": "r:vwap:3@compressed",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 3,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:vwap:4@compressed",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 4,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:vwap:1@compressed",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 1,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:vwap:6@compressed",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 6,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:vwap:7@compressed",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 7,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:vwap:0@compressed",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 0,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:vwap:5@ranging",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 5,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:vwap:2@trending",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 2,
+     "condition": "trending"
+    },
+    {
+     "name": "r:vwap:4@trending",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 4,
+     "condition": "trending"
+    },
+    {
+     "name": "r:vwap:3@trending",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 3,
+     "condition": "trending"
+    },
+    {
+     "name": "r:vwap:5@compressed",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 5,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:vwap:0@trending",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 0,
+     "condition": "trending"
+    },
+    {
+     "name": "r:vwap:1@trending",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 1,
+     "condition": "trending"
+    },
+    {
+     "name": "r:vwap:6@trending",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 6,
+     "condition": "trending"
+    },
+    {
+     "name": "r:vwap:7@trending",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 7,
+     "condition": "trending"
+    },
+    {
+     "name": "r:macd:0@newyork",
+     "kind": "rule",
+     "component": "macd",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:vwap:5@trending",
+     "kind": "rule",
+     "component": "vwap",
+     "index": 5,
+     "condition": "trending"
+    },
+    {
+     "name": "r:macd:0",
+     "kind": "rule",
+     "component": "macd",
+     "index": 0
+    },
+    {
+     "name": "r:macd:0@ranging",
+     "kind": "rule",
+     "component": "macd",
+     "index": 0,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:macd:2@newyork",
+     "kind": "rule",
+     "component": "macd",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:macd:3@newyork",
+     "kind": "rule",
+     "component": "macd",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:macd:1@newyork",
+     "kind": "rule",
+     "component": "macd",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:macd:0@compressed",
+     "kind": "rule",
+     "component": "macd",
+     "index": 0,
+     "condition": "compressed"
+    },
+    {
+     "name": "f:vwap.above_vwap@newyork",
+     "kind": "field",
+     "field": "vwap.above_vwap",
+     "condition": "newyork"
+    },
+    {
+     "name": "r:macd:2@trending",
+     "kind": "rule",
+     "component": "macd",
+     "index": 2,
+     "condition": "trending"
+    },
+    {
+     "name": "r:macd:3@trending",
+     "kind": "rule",
+     "component": "macd",
+     "index": 3,
+     "condition": "trending"
+    },
+    {
+     "name": "r:macd:1",
+     "kind": "rule",
+     "component": "macd",
+     "index": 1
+    },
+    {
+     "name": "r:macd:0@trending",
+     "kind": "rule",
+     "component": "macd",
+     "index": 0,
+     "condition": "trending"
+    },
+    {
+     "name": "r:macd:2",
+     "kind": "rule",
+     "component": "macd",
+     "index": 2
+    },
+    {
+     "name": "r:macd:3",
+     "kind": "rule",
+     "component": "macd",
+     "index": 3
+    },
+    {
+     "name": "r:macd:2@compressed",
+     "kind": "rule",
+     "component": "macd",
+     "index": 2,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:macd:3@compressed",
+     "kind": "rule",
+     "component": "macd",
+     "index": 3,
+     "condition": "compressed"
+    },
+    {
+     "name": "f:vwap.above_vwap@compressed",
+     "kind": "field",
+     "field": "vwap.above_vwap",
+     "condition": "compressed"
+    },
+    {
+     "name": "r:macd:1@compressed",
+     "kind": "rule",
+     "component": "macd",
+     "index": 1,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:macd:5@newyork",
+     "kind": "rule",
+     "component": "macd",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:macd:6@newyork",
+     "kind": "rule",
+     "component": "macd",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:macd:7@newyork",
+     "kind": "rule",
+     "component": "macd",
+     "index": 7,
+     "condition": "newyork"
+    },
+    {
+     "name": "f:indicators.macd.recommendation@asia",
+     "kind": "field",
+     "field": "indicators.macd.recommendation",
+     "condition": "asia"
+    },
+    {
+     "name": "r:macd:4@expanded",
+     "kind": "rule",
+     "component": "macd",
+     "index": 4,
+     "condition": "expanded"
+    },
+    {
+     "name": "r:macd:5",
+     "kind": "rule",
+     "component": "macd",
+     "index": 5
+    },
+    {
+     "name": "r:macd:6",
+     "kind": "rule",
+     "component": "macd",
+     "index": 6
+    },
+    {
+     "name": "r:macd:7",
+     "kind": "rule",
+     "component": "macd",
+     "index": 7
+    },
+    {
+     "name": "f:indicators.macd.recommendation@expanded",
+     "kind": "field",
+     "field": "indicators.macd.recommendation",
+     "condition": "expanded"
+    },
+    {
+     "name": "f:indicators.macd.signal@expanded",
+     "kind": "field",
+     "field": "indicators.macd.signal",
+     "condition": "expanded"
+    },
+    {
+     "name": "r:macd:1@ranging",
+     "kind": "rule",
+     "component": "macd",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:macd:2@ranging",
+     "kind": "rule",
+     "component": "macd",
+     "index": 2,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:macd:3@ranging",
+     "kind": "rule",
+     "component": "macd",
+     "index": 3,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:macd:4@trending",
+     "kind": "rule",
+     "component": "macd",
+     "index": 4,
+     "condition": "trending"
+    },
+    {
+     "name": "r:macd:5@ranging",
+     "kind": "rule",
+     "component": "macd",
+     "index": 5,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:macd:6@ranging",
+     "kind": "rule",
+     "component": "macd",
+     "index": 6,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:macd:7@ranging",
+     "kind": "rule",
+     "component": "macd",
+     "index": 7,
+     "condition": "ranging"
+    },
+    {
+     "name": "f:rvam.signal_direction@ranging",
+     "kind": "field",
+     "field": "rvam.signal_direction",
+     "condition": "ranging"
+    },
+    {
+     "name": "f:vwap.above_vwap@ranging",
+     "kind": "field",
+     "field": "vwap.above_vwap",
+     "condition": "ranging"
+    },
+    {
+     "name": "r:macd:4@newyork",
+     "kind": "rule",
+     "component": "macd",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "e:mom_60",
+     "kind": "edge",
+     "edge": "mom_60",
+     "scale": 3.424999952316284,
+     "discrete": false
+    },
+    {
+     "name": "e:mom_60@ranging",
+     "kind": "edge",
+     "edge": "mom_60",
+     "scale": 3.424999952316284,
+     "discrete": false,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:macd:4",
+     "kind": "rule",
+     "component": "macd",
+     "index": 4
+    },
+    {
+     "name": "r:macd:4@ranging",
+     "kind": "rule",
+     "component": "macd",
+     "index": 4,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:macd:4@compressed",
+     "kind": "rule",
+     "component": "macd",
+     "index": 4,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:macd:5@compressed",
+     "kind": "rule",
+     "component": "macd",
+     "index": 5,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:macd:6@trending",
+     "kind": "rule",
+     "component": "macd",
+     "index": 6,
+     "condition": "trending"
+    },
+    {
+     "name": "r:macd:6@compressed",
+     "kind": "rule",
+     "component": "macd",
+     "index": 6,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:macd:7@trending",
+     "kind": "rule",
+     "component": "macd",
+     "index": 7,
+     "condition": "trending"
+    },
+    {
+     "name": "r:macd:7@compressed",
+     "kind": "rule",
+     "component": "macd",
+     "index": 7,
+     "condition": "compressed"
+    }
+   ],
+   "coef": [
+    -0.12311,
+    -0.12311,
+    0.37603,
+    0.37603,
+    0.05017,
+    0.05017,
+    0.72508,
+    0.18562,
+    -0.14484,
+    -0.26689,
+    -0.26689,
+    -0.40511,
+    -0.40511,
+    -0.51076,
+    -0.51076,
+    0.26825,
+    0.26825,
+    0.26825,
+    0.26825,
+    0.05498,
+    0.82916,
+    -0.45731,
+    0.03478,
+    0.52337,
+    -0.19313,
+    -0.65787,
+    0.8475,
+    0.10888,
+    0.10888,
+    -0.05699,
+    -0.21703,
+    0.0323,
+    -0.24158,
+    -0.38214,
+    -0.29199,
+    0.73387,
+    0.78022,
+    -0.07021,
+    -0.07021,
+    -0.50244,
+    -0.35958,
+    0.22159,
+    0.08781,
+    -0.05856,
+    -0.05856,
+    0.06767,
+    -0.04195,
+    -0.24443,
+    0.14056,
+    0.14056,
+    0.21702,
+    0.0485,
+    -0.19968,
+    -0.19968,
+    0.02964,
+    0.02964,
+    -0.06789,
+    0.03194,
+    0.06767,
+    -0.05856,
+    -0.05856,
+    -0.0478,
+    0.44743,
+    0.21702,
+    -0.19968,
+    -0.19968,
+    -0.05485,
+    -0.02245,
+    0.5503,
+    -0.14014,
+    -0.14014,
+    0.0485,
+    0.5503,
+    -0.14014,
+    -0.14014,
+    -0.13013,
+    0.09004,
+    -0.50244,
+    -0.04817,
+    -0.04199,
+    0.22159,
+    0.08781,
+    -0.04195,
+    0.03194,
+    0.14056,
+    0.02964,
+    0.14056,
+    0.02964
+   ],
+   "intercept": 0.0
+  },
+  "ORDER_FLOW": {
+   "features": [
+    {
+     "name": "r:volume_profile:1@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:3@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:4@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:3",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 3
+    },
+    {
+     "name": "r:volume_profile:1",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 1
+    },
+    {
+     "name": "r:volume_profile:4",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 4
+    },
+    {
+     "name": "r:volume_profile:10@expanded",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 10,
+     "condition": "expanded"
+    },
+    {
+     "name": "r:volume_profile:0@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:2@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:12@expanded",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 12,
+     "condition": "expanded"
+    },
+    {
+     "name": "r:volume_profile:3@ranging",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 3,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:volume_profile:1@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 1,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:3@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 3,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:4@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 4,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:1@ranging",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:volume_profile:0",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 0
+    },
+    {
+     "name": "r:volume_profile:1@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 1,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:3@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 3,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:11@expanded",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 11,
+     "condition": "expanded"
+    },
+    {
+     "name": "r:volume_profile:0@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 0,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:2",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 2
+    },
+    {
+     "name": "r:volume_profile:4@ranging",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 4,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:volume_profile:6@ranging",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 6,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:volume_profile:4@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 4,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:2@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 2,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:6@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:6",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 6
+    },
+    {
+     "name": "r:volume_profile:2@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 2,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:9@expanded",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 9,
+     "condition": "expanded"
+    },
+    {
+     "name": "r:volume_profile:10",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 10
+    },
+    {
+     "name": "f:indicators.volume.recommendation@expanded",
+     "kind": "field",
+     "field": "indicators.volume.recommendation",
+     "condition": "expanded"
+    },
+    {
+     "name": "r:volume_profile:11@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 11,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:14@expanded",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 14,
+     "condition": "expanded"
+    },
+    {
+     "name": "r:volume_profile:12@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 12,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:5",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 5
+    },
+    {
+     "name": "r:volume_profile:10@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 10,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:5@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:6@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 6,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:10@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 10,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:9@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 9,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:6@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 6,
+     "condition": "trending"
+    },
+    {
+     "name": "f:indicators.volume_profile.recommendation@ranging",
+     "kind": "field",
+     "field": "indicators.volume_profile.recommendation",
+     "condition": "ranging"
+    },
+    {
+     "name": "r:volume_profile:9@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 9,
+     "condition": "newyork"
+    },
+    {
+     "name": "f:indicators.volume_profile.recommendation",
+     "kind": "field",
+     "field": "indicators.volume_profile.recommendation"
+    },
+    {
+     "name": "f:final_verdict.order_flow_final_score.order_flow_recommendation@newyork",
+     "kind": "field",
+     "field": "final_verdict.order_flow_final_score.order_flow_recommendation",
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:7",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 7
+    },
+    {
+     "name": "r:volume_profile:14@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 14,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:8@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 8,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:14@ranging",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 14,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:volume_profile:12@ranging",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 12,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:volume_profile:9@ranging",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 9,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:volume_profile:11@ranging",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 11,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:volume_profile:8",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 8
+    },
+    {
+     "name": "r:volume_profile:9",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 9
+    },
+    {
+     "name": "r:volume_profile:11",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 11
+    },
+    {
+     "name": "r:volume_profile:12",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 12
+    },
+    {
+     "name": "r:volume_profile:13",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 13
+    },
+    {
+     "name": "r:volume_profile:14",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 14
+    },
+    {
+     "name": "r:volume_profile:15",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 15
+    },
+    {
+     "name": "r:volume_profile:8@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 8,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:9@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 9,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:10@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 10,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:11@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 11,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:11@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 11,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:12@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 12,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:12@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 12,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:13@newyork",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 13,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:volume_profile:14@trending",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 14,
+     "condition": "trending"
+    },
+    {
+     "name": "r:volume_profile:14@compressed",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 14,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:volume_profile:1@expanded",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 1,
+     "condition": "expanded"
+    },
+    {
+     "name": "r:volume_profile:3@expanded",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 3,
+     "condition": "expanded"
+    },
+    {
+     "name": "r:volume_profile:6@expanded",
+     "kind": "rule",
+     "component": "volume_profile",
+     "index": 6,
+     "condition": "expanded"
+    }
+   ],
+   "coef": [
+    0.15104,
+    0.01067,
+    -0.25713,
+    -0.02393,
+    -0.05773,
+    -0.03715,
+    1.08991,
+    -0.08639,
+    -0.35639,
+    -0.77762,
+    0.08011,
+    -0.31821,
+    0.02118,
+    0.056,
+    -0.13708,
+    -0.06118,
+    0.40917,
+    0.0903,
+    -0.1767,
+    0.0652,
+    0.43497,
+    -0.02734,
+    0.22336,
+    0.27222,
+    -0.1443,
+    0.06356,
+    -0.1452,
+    -0.17719,
+    0.40977,
+    0.43497,
+    -0.09376,
+    0.01067,
+    0.04028,
+    -0.25713,
+    0.31628,
+    -0.1443,
+    0.22869,
+    0.07974,
+    -0.35639,
+    0.40917,
+    -0.04375,
+    0.08342,
+    0.15104,
+    -0.02258,
+    0.06638,
+    0.38004,
+    0.06356,
+    -0.08639,
+    0.22336,
+    -0.02734,
+    -0.13708,
+    0.08011,
+    -0.06118,
+    -0.05773,
+    -0.02393,
+    -0.03715,
+    0.31628,
+    -0.1452,
+    0.38004,
+    0.0652,
+    -0.31821,
+    -0.17719,
+    0.02118,
+    0.0903,
+    0.056,
+    0.27222,
+    0.22869,
+    -0.04375,
+    0.07974,
+    0.40977,
+    -0.1767,
+    0.04028
+   ],
+   "intercept": 0.0
+  },
+  "SMC": {
+   "features": [
+    {
+     "name": "r:smc_structure:1@newyork",
+     "kind": "rule",
+     "component": "smc_structure",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:smc_structure:0@newyork",
+     "kind": "rule",
+     "component": "smc_structure",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "f:indicators.ict_concepts.type@expanded",
+     "kind": "field",
+     "field": "indicators.ict_concepts.type",
+     "condition": "expanded"
+    },
+    {
+     "name": "r:smc_structure:0",
+     "kind": "rule",
+     "component": "smc_structure",
+     "index": 0
+    },
+    {
+     "name": "r:smc_structure:1",
+     "kind": "rule",
+     "component": "smc_structure",
+     "index": 1
+    }
+   ],
+   "coef": [
+    -0.22735,
+    -0.22735,
+    -0.089,
+    0.29334,
+    0.29334
+   ],
+   "intercept": 0.0
+  },
+  "STRUCTURE": {
+   "features": [
+    {
+     "name": "r:supply_demand:0@newyork",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:supply_demand:1@newyork",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:supply_demand:0",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 0
+    },
+    {
+     "name": "r:supply_demand:1",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 1
+    },
+    {
+     "name": "r:supply_demand:2@newyork",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:supply_demand:3@newyork",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:supply_demand:4@newyork",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:supply_demand:5@newyork",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:supply_demand:2",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 2
+    },
+    {
+     "name": "r:supply_demand:3",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 3
+    },
+    {
+     "name": "r:supply_demand:4",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 4
+    },
+    {
+     "name": "r:supply_demand:5",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 5
+    },
+    {
+     "name": "r:supply_demand:0@compressed",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 0,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:supply_demand:1@compressed",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 1,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:fibonacci:1@newyork",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:fibonacci:0",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 0
+    },
+    {
+     "name": "r:supply_demand:2@compressed",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 2,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:supply_demand:3@compressed",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 3,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:supply_demand:0@trending",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 0,
+     "condition": "trending"
+    },
+    {
+     "name": "r:supply_demand:1@trending",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 1,
+     "condition": "trending"
+    },
+    {
+     "name": "r:supply_demand:4@compressed",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 4,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:supply_demand:5@compressed",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 5,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:supply_demand:2@ranging",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 2,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:supply_demand:3@ranging",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 3,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:supply_demand:4@ranging",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 4,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:supply_demand:5@ranging",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 5,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:supply_demand:2@trending",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 2,
+     "condition": "trending"
+    },
+    {
+     "name": "r:supply_demand:3@trending",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 3,
+     "condition": "trending"
+    },
+    {
+     "name": "r:fibonacci:3@newyork",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:supply_demand:0@ranging",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 0,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:supply_demand:1@ranging",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:supply_demand:4@trending",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 4,
+     "condition": "trending"
+    },
+    {
+     "name": "r:supply_demand:5@trending",
+     "kind": "rule",
+     "component": "supply_demand",
+     "index": 5,
+     "condition": "trending"
+    },
+    {
+     "name": "r:fibonacci:1",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 1
+    },
+    {
+     "name": "e:prev_day_pos@compressed",
+     "kind": "edge",
+     "edge": "prev_day_pos",
+     "scale": 0.7409999966621399,
+     "discrete": false,
+     "condition": "compressed"
+    },
+    {
+     "name": "e:day_open_side@newyork",
+     "kind": "edge",
+     "edge": "day_open_side",
+     "scale": 11.092000007629395,
+     "discrete": false,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:fibonacci:1@compressed",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 1,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:fibonacci:3@ranging",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 3,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:fibonacci:3",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 3
+    },
+    {
+     "name": "r:fibonacci:2",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 2
+    },
+    {
+     "name": "r:fibonacci:3@compressed",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 3,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:fibonacci:1@ranging",
+     "kind": "rule",
+     "component": "fibonacci",
+     "index": 1,
+     "condition": "ranging"
+    }
+   ],
+   "coef": [
+    0.12257,
+    0.12257,
+    -0.2027,
+    -0.2027,
+    0.35268,
+    0.35268,
+    0.05445,
+    0.05445,
+    0.07567,
+    0.07567,
+    0.0185,
+    0.0185,
+    0.29419,
+    0.29419,
+    0.14348,
+    0.07041,
+    -0.08423,
+    -0.08423,
+    -0.00885,
+    -0.00885,
+    -0.31879,
+    -0.31879,
+    0.17519,
+    0.17519,
+    0.01854,
+    0.01854,
+    -0.07786,
+    -0.07786,
+    0.14348,
+    -0.17793,
+    -0.17793,
+    0.06638,
+    0.06638,
+    -0.2312,
+    0.01412,
+    -0.10717,
+    0.31325,
+    0.07649,
+    -0.2312,
+    0.07041,
+    0.31325,
+    0.07649
+   ],
+   "intercept": 0.0
+  },
+  "TREND": {
+   "features": [
+    {
+     "name": "r:trend_cascade:0",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 0
+    },
+    {
+     "name": "r:trend_cascade:0@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:2@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:2",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 2
+    },
+    {
+     "name": "r:trend_cascade:1@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:2@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 2,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:1",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 1
+    },
+    {
+     "name": "r:trend_cascade:1@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:0@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 0,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:3@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:7@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 7,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:7",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 7
+    },
+    {
+     "name": "r:trend_cascade:1@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 1,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:3",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 3
+    },
+    {
+     "name": "r:trend_cascade:0@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 0,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:2@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 2,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:4@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 4,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:2@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 2,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:5@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 5,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:0@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 0,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:3@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 3,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:4",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 4
+    },
+    {
+     "name": "r:trend_cascade:4@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:7@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 7,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:7@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 7,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:5",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 5
+    },
+    {
+     "name": "r:trend_cascade:6",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 6
+    },
+    {
+     "name": "r:trend_cascade:3@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 3,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:6@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:6@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 6,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:7@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 7,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:6@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 6,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:4@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 4,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:5@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:5@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 5,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:0",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 0
+    },
+    {
+     "name": "r:h1_trend:2",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 2
+    },
+    {
+     "name": "r:h1_trend:0@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:1@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 1,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:1",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 1
+    },
+    {
+     "name": "r:h1_trend:1@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:2@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:7@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 7,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:2@trending",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 2,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:7",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 7
+    },
+    {
+     "name": "r:h1_trend:1@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:h1_trend:2@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 2,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:6@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 6,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:7@trending",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 7,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_indicator:4",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 4
+    },
+    {
+     "name": "r:trend_indicator:5",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 5
+    },
+    {
+     "name": "r:h1_trend:6@trending",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 6,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:4@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 4,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:0@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 0,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:h1_trend:6",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 6
+    },
+    {
+     "name": "r:h1_trend:0@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 0,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:2@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 2,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:6@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 6,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:7@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 7,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:h1_trend:3",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 3
+    },
+    {
+     "name": "r:h1_trend:4",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 4
+    },
+    {
+     "name": "r:h1_trend:3@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_indicator:4@ranging",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 4,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_indicator:5@ranging",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 5,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:5@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 5,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:5",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 5
+    },
+    {
+     "name": "r:trend_indicator:4@newyork",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_indicator:5@newyork",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:6@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:6@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 6,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_indicator:0@newyork",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_indicator:1@newyork",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:4@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:1@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 1,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_indicator:0",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 0
+    },
+    {
+     "name": "r:trend_indicator:1",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 1
+    },
+    {
+     "name": "r:h1_trend:7@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 7,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:12@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 12,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_indicator:0@ranging",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 0,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_indicator:1@ranging",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_indicator:3@newyork",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:15@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 15,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_indicator:2@newyork",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_indicator:0@trending",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 0,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_indicator:1@trending",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 1,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:12",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 12
+    },
+    {
+     "name": "r:trend_cascade:12@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 12,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_indicator:0@compressed",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 0,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_indicator:1@compressed",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 1,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:9",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 9
+    },
+    {
+     "name": "r:trend_cascade:9@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 9,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:14@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 14,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:9",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 9
+    },
+    {
+     "name": "r:trend_cascade:15@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 15,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:9@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 9,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:13@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 13,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:15",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 15
+    },
+    {
+     "name": "r:trend_indicator:2@trending",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 2,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_indicator:2",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 2
+    },
+    {
+     "name": "r:h1_trend:11",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 11
+    },
+    {
+     "name": "r:h1_trend:11@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 11,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_indicator:3",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 3
+    },
+    {
+     "name": "r:trend_indicator:3@trending",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 3,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:14@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 14,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_indicator:2@compressed",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 2,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_indicator:6@trending",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 6,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:12@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 12,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:15@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 15,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:15",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 15
+    },
+    {
+     "name": "r:trend_cascade:12@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 12,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:10",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 10
+    },
+    {
+     "name": "r:trend_cascade:10@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 10,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:13@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 13,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:13",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 13
+    },
+    {
+     "name": "r:trend_cascade:15@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 15,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:10",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 10
+    },
+    {
+     "name": "r:h1_trend:10@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 10,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:15@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 15,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_indicator:7@trending",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 7,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:9@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 9,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:12",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 12
+    },
+    {
+     "name": "r:trend_cascade:8",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 8
+    },
+    {
+     "name": "r:trend_cascade:8@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 8,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:10@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 10,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:10@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 10,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:13@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 13,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:12@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 12,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:14",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 14
+    },
+    {
+     "name": "r:trend_cascade:14@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 14,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:h1_trend:8",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 8
+    },
+    {
+     "name": "r:h1_trend:8@newyork",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 8,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:h1_trend:15@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 15,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:9@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 9,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:15@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 15,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:14@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 14,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:13@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 13,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:14",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 14
+    },
+    {
+     "name": "r:h1_trend:10@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 10,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:h1_trend:10@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 10,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:14@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 14,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:14@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 14,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_indicator:6",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 6
+    },
+    {
+     "name": "r:trend_indicator:7",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 7
+    },
+    {
+     "name": "r:trend_cascade:11",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 11
+    },
+    {
+     "name": "r:h1_trend:13",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 13
+    },
+    {
+     "name": "r:trend_indicator:4@trending",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 4,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_indicator:4@compressed",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 4,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_indicator:5@trending",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 5,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_indicator:5@compressed",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 5,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_indicator:6@compressed",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 6,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_indicator:6@newyork",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_indicator:7@newyork",
+     "kind": "rule",
+     "component": "trend_indicator",
+     "index": 7,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:8@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 8,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:8@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 8,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:8@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 8,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:9@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 9,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:9@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 9,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:10@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 10,
+     "condition": "trending"
+    },
+    {
+     "name": "r:trend_cascade:11@ranging",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 11,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:trend_cascade:11@compressed",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 11,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:trend_cascade:11@newyork",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 11,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:trend_cascade:14@trending",
+     "kind": "rule",
+     "component": "trend_cascade",
+     "index": 14,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:8@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 8,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:h1_trend:8@compressed",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 8,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:h1_trend:9@ranging",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 9,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:h1_trend:10@trending",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 10,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:14@trending",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 14,
+     "condition": "trending"
+    },
+    {
+     "name": "r:h1_trend:15@trending",
+     "kind": "rule",
+     "component": "h1_trend",
+     "index": 15,
+     "condition": "trending"
+    }
+   ],
+   "coef": [
+    0.18982,
+    -0.00771,
+    0.39663,
+    -0.01471,
+    -0.08325,
+    0.01787,
+    0.24377,
+    0.24377,
+    -0.09301,
+    0.07347,
+    0.05342,
+    0.20829,
+    -0.20625,
+    0.03523,
+    -0.26492,
+    -0.10814,
+    -0.45285,
+    -0.17693,
+    0.06939,
+    0.24409,
+    -0.03024,
+    0.13563,
+    0.16331,
+    0.01991,
+    -0.42554,
+    0.01855,
+    0.24252,
+    0.14574,
+    -0.49204,
+    -0.40703,
+    0.05345,
+    0.33913,
+    0.42758,
+    -0.46567,
+    -0.12858,
+    -0.36211,
+    0.23484,
+    -0.23011,
+    0.12452,
+    0.02529,
+    0.02529,
+    0.26738,
+    -0.22382,
+    -0.22195,
+    0.26871,
+    -0.10595,
+    0.2442,
+    0.14085,
+    0.10314,
+    -0.06509,
+    -0.06509,
+    0.03661,
+    0.03752,
+    -0.2625,
+    -0.00146,
+    -0.11556,
+    -0.00489,
+    0.02147,
+    -0.1556,
+    -0.02322,
+    0.27422,
+    -0.0088,
+    -0.04287,
+    -0.04287,
+    -0.04629,
+    0.15853,
+    -0.08306,
+    -0.08306,
+    -0.35633,
+    0.05692,
+    -0.08306,
+    -0.08306,
+    -0.21296,
+    0.12982,
+    -0.06509,
+    -0.06509,
+    0.0164,
+    0.03752,
+    -0.04287,
+    -0.04287,
+    0.09781,
+    0.05345,
+    0.50542,
+    0.00334,
+    0.00334,
+    0.13563,
+    0.16331,
+    0.02765,
+    0.02765,
+    0.24377,
+    0.24377,
+    -0.49204,
+    0.02529,
+    0.05342,
+    0.02529,
+    -0.46567,
+    0.20829,
+    0.04328,
+    0.46703,
+    -0.02322,
+    -0.00881,
+    -0.18442,
+    -0.33115,
+    -0.35633,
+    -0.42893,
+    0.04328,
+    -0.21296,
+    -0.22382,
+    0.26871,
+    -0.45285,
+    -0.01471,
+    0.39663,
+    -0.04629,
+    0.01854,
+    -0.42554,
+    0.23484,
+    0.26738,
+    0.01991,
+    -0.33115,
+    -0.20625,
+    0.27422,
+    0.18982,
+    -0.00771,
+    -0.10814,
+    0.01787,
+    0.06939,
+    0.42758,
+    0.24252,
+    0.33913,
+    -0.36211,
+    -0.23011,
+    0.0164,
+    0.12982,
+    -0.1556,
+    -0.40703,
+    -0.12858,
+    -0.00146,
+    0.2442,
+    -0.00489,
+    0.02147,
+    0.05692,
+    0.46703,
+    -0.18442,
+    0.03523,
+    0.15853,
+    0.00334,
+    0.02765,
+    0.00334,
+    0.02765,
+    -0.42893,
+    0.50542,
+    0.09781,
+    -0.26492,
+    -0.09301,
+    0.24409,
+    0.12452,
+    -0.08325,
+    -0.17693,
+    -0.03024,
+    0.14574,
+    0.07347,
+    0.14085,
+    -0.2625,
+    -0.11556,
+    -0.10595,
+    -0.22195,
+    0.03661,
+    0.10314
+   ],
+   "intercept": 0.0
+  },
+  "WAVE": {
+   "features": [
+    {
+     "name": "r:wave_c:13@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 13,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:0@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 0,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:1@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 1,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:2@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 2,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:3@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 3,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:4@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 4,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:6@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 6,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:0",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 0
+    },
+    {
+     "name": "r:wave_c:1",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 1
+    },
+    {
+     "name": "r:wave_c:2",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 2
+    },
+    {
+     "name": "r:wave_c:3",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 3
+    },
+    {
+     "name": "r:wave_c:4",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 4
+    },
+    {
+     "name": "r:wave_c:5@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 5,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:8",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 8
+    },
+    {
+     "name": "r:wave_c:9",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 9
+    },
+    {
+     "name": "r:wave_c:10",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 10
+    },
+    {
+     "name": "r:wave_c:11",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 11
+    },
+    {
+     "name": "r:wave_c:12",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 12
+    },
+    {
+     "name": "r:wave_c:8@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 8,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:9@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 9,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:10@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 10,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:11@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 11,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:12@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 12,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:8@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 8,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:9@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 9,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:10@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 10,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:11@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 11,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:12@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 12,
+     "condition": "newyork"
+    },
+    {
+     "name": "r:wave_c:0@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 0,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:1@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 1,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:2@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 2,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:3@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 3,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:4@ranging",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 4,
+     "condition": "ranging"
+    },
+    {
+     "name": "r:wave_c:5",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 5
+    },
+    {
+     "name": "r:wave_c:0@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 0,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:1@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 1,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:2@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 2,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:3@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 3,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:4@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 4,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:0@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 0,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:1@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 1,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:2@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 2,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:3@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 3,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:4@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 4,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:6",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 6
+    },
+    {
+     "name": "r:chart_patterns:0",
+     "kind": "rule",
+     "component": "chart_patterns",
+     "index": 0
+    },
+    {
+     "name": "r:chart_patterns:1",
+     "kind": "rule",
+     "component": "chart_patterns",
+     "index": 1
+    },
+    {
+     "name": "r:chart_patterns:2",
+     "kind": "rule",
+     "component": "chart_patterns",
+     "index": 2
+    },
+    {
+     "name": "r:chart_patterns:3",
+     "kind": "rule",
+     "component": "chart_patterns",
+     "index": 3
+    },
+    {
+     "name": "r:wave_c:14",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 14
+    },
+    {
+     "name": "r:wave_c:7",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 7
+    },
+    {
+     "name": "r:wave_c:5@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 5,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:6@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 6,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:chart_patterns:4",
+     "kind": "rule",
+     "component": "chart_patterns",
+     "index": 4
+    },
+    {
+     "name": "r:chart_patterns:5",
+     "kind": "rule",
+     "component": "chart_patterns",
+     "index": 5
+    },
+    {
+     "name": "r:chart_patterns:6",
+     "kind": "rule",
+     "component": "chart_patterns",
+     "index": 6
+    },
+    {
+     "name": "r:chart_patterns:7",
+     "kind": "rule",
+     "component": "chart_patterns",
+     "index": 7
+    },
+    {
+     "name": "r:wave_c:13",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 13
+    },
+    {
+     "name": "r:wave_c:15",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 15
+    },
+    {
+     "name": "r:wave_c:8@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 8,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:8@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 8,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:9@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 9,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:9@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 9,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:10@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 10,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:10@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 10,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:11@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 11,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:11@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 11,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:12@trending",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 12,
+     "condition": "trending"
+    },
+    {
+     "name": "r:wave_c:12@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 12,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:13@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 13,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:14@compressed",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 14,
+     "condition": "compressed"
+    },
+    {
+     "name": "r:wave_c:14@newyork",
+     "kind": "rule",
+     "component": "wave_c",
+     "index": 14,
+     "condition": "newyork"
+    }
+   ],
+   "coef": [
+    -0.11423,
+    0.00167,
+    0.00167,
+    0.00167,
+    0.00167,
+    0.00167,
+    -0.17178,
+    0.00395,
+    0.00395,
+    0.00395,
+    0.00395,
+    0.00395,
+    -0.11423,
+    0.00395,
+    0.00395,
+    0.00395,
+    0.00395,
+    0.00395,
+    -0.0121,
+    -0.0121,
+    -0.0121,
+    -0.0121,
+    -0.0121,
+    0.00167,
+    0.00167,
+    0.00167,
+    0.00167,
+    0.00167,
+    -0.0121,
+    -0.0121,
+    -0.0121,
+    -0.0121,
+    -0.0121,
+    0.36965,
+    0.00961,
+    0.00961,
+    0.00961,
+    0.00961,
+    0.00961,
+    0.02247,
+    0.02247,
+    0.02247,
+    0.02247,
+    0.02247,
+    -0.11962,
+    0.0129,
+    0.0129,
+    0.0129,
+    0.0129,
+    -0.11962,
+    0.10885,
+    -0.05891,
+    -0.00945,
+    0.0129,
+    0.0129,
+    0.0129,
+    0.0129,
+    0.36965,
+    0.10885,
+    0.00961,
+    0.02247,
+    0.00961,
+    0.02247,
+    0.00961,
+    0.02247,
+    0.00961,
+    0.02247,
+    0.00961,
+    0.02247,
+    -0.05891,
+    -0.00945,
+    -0.17178
+   ],
+   "intercept": 0.0
+  }
+ },
+ "stack": {
+  "coef": [
+   0.141,
+   0.65186,
+   0.37889,
+   0.692,
+   0.5748,
+   0.35693,
+   0.46716,
+   0.60447,
+   1.20877
+  ],
+  "intercept": 0.0
+ },
+ "policy_train": {
+  "floor": 0.8,
+  "cost_cap": null,
+  "n": 530,
+  "days": 180,
+  "buys": 86,
+  "sells": 444,
+  "buy_success_pct": 85.3,
+  "sell_success_pct": 85.2,
+  "success_pct": 85.2,
+  "net_r": 0.209,
+  "net_z": 2.09,
+  "move_atr": 2.265
+ },
+ "policy_test": {
+  "floor": 0.8,
+  "cost_cap": null,
+  "n": 478,
+  "days": 190,
+  "buys": 51,
+  "sells": 427,
+  "buy_success_pct": 83.3,
+  "sell_success_pct": 76.7,
+  "success_pct": 77.3,
+  "net_r": 0.232,
+  "net_z": 1.41,
+  "move_atr": 1.32
+ },
+ "policy_holdout": {
+  "floor": 0.8,
+  "cost_cap": null,
+  "n": 554,
+  "days": 220,
+  "buys": 87,
+  "sells": 467,
+  "buy_success_pct": 73.8,
+  "sell_success_pct": 77.5,
+  "success_pct": 77.0,
+  "net_r": 0.522,
+  "net_z": 4.08,
+  "move_atr": 1.446
+ },
+ "shadow_reason": "2026-09-15: outcomes measured on bid-only M1 bars were contaminated by rollover spread spikes (tick re-score: 11% +2R, -0.64R). Refit on tick-accurate bid/ask labels before enabling."
+}

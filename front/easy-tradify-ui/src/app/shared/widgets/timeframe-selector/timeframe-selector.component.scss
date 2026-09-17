@@ -1,0 +1,36 @@
+:host {
+  display: inline-flex;
+}
+
+.tfs {
+  display: inline-flex;
+  border: 1px solid var(--border-hairline-strong);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tfs__btn {
+  padding: 3px 7px;
+  border: none;
+  border-right: 1px solid var(--border-hairline-strong);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &:hover {
+    color: var(--text-secondary);
+  }
+
+  &.is-active {
+    background: var(--color-amber);
+    color: var(--text-on-amber);
+    font-weight: 700;
+  }
+}

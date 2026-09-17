@@ -1,0 +1,32 @@
+:host {
+  display: block;
+  height: 100dvh;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.shell__topbar {
+  flex: none;
+}
+
+.shell__body {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+
+.shell__nav {
+  flex: none;
+}
+
+.shell__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: auto;
+  padding: 12px;
+  background: var(--bg-app);
+}

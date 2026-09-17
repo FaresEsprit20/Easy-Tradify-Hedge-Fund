@@ -1,0 +1,143 @@
+<div class="container-fluid p-0 mon-page">
+  @let status = api.status();
+  @let restartInfo = api.restartStatus();
+
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <app-panel title="Monitor Control" titleHint="Starts/stops the background scanner loop that watches all tracked symbols and executes when a setup clears every gate.">
+        <button panelActions type="button" class="mon-refresh-btn" [disabled]="busy()" (click)="refresh()" title="Refresh status">↻</button>
+        <div class="mon-controls">
+          <button type="button" class="mon-btn mon-btn--jade" [disabled]="busy() || status.running" (click)="start()">Start</button>
+          <button type="button" class="mon-btn mon-btn--coral" [disabled]="busy() || !status.running" (click)="stop()">Stop</button>
+          <button type="button" class="mon-btn" [disabled]="busy()" (click)="restart()">Restart</button>
+          <button type="button" class="mon-btn" [disabled]="busy()" (click)="refresh()">Refresh</button>
+        </div>
+
+        <div class="mon-tiles">
+          <div class="mon-tile">
+            <span class="mon-tile__label">Status</span>
+            <app-status-pill [label]="status.running ? 'running' : 'stopped'" [variant]="status.running ? 'jade' : 'coral'" />
+          </div>
+          <div class="mon-tile">
+            <span class="mon-tile__label">Uptime</span>
+            <span class="mon-tile__value num">{{ uptimeDisplay() }}</span>
+          </div>
+          <div class="mon-tile">
+            <span class="mon-tile__label">Symbols Tracked</span>
+            <span class="mon-tile__value num">{{ status.symbolsTracked }}</span>
+          </div>
+          <div class="mon-tile">
+            <span class="mon-tile__label">Open Positions</span>
+            <span class="mon-tile__value num">{{ status.openPositions }}</span>
+          </div>
+        </div>
+
+        <h3 class="mon-section">Auto-Restart</h3>
+        <div class="mon-auto-restart">
+          <label class="mon-checkbox">
+            <input type="checkbox" [ngModel]="autoRestartEnabled()" (ngModelChange)="autoRestartEnabled.set($event)" name="autoEnabled" />
+            Enabled
+          </label>
+          <label class="mon-field">
+            <span class="mon-field__label">Every (min)</span>
+            <input type="number" class="num" [ngModel]="autoRestartInterval()" (ngModelChange)="autoRestartInterval.set($event)" name="autoInterval" />
+          </label>
+          <button type="button" class="mon-btn" (click)="saveAutoRestart()">Save</button>
+        </div>
+        @if (restartInfo.restartInProgress) {
+          <p class="mon-note">Restart in progress…</p>
+        } @else if (restartInfo.lastRestartAt) {
+          <p class="mon-note">Last restart: {{ restartInfo.lastRestartAt | date: 'HH:mm:ss' }}</p>
+        }
+      </app-panel>
+    </div>
+
+    <div class="col-lg-4">
+      <app-panel title="MT5 Connection">
+        <div class="mon-mt5">
+          <app-status-pill [label]="execution.mt5Connected() ? 'connected' : 'disconnected'" [variant]="execution.mt5Connected() ? 'jade' : 'coral'" />
+          @if (!execution.mt5Connected()) {
+            <div class="mon-mt5__fields">
+              <label class="mon-field">
+                <span class="mon-field__label">Login</span>
+                <input type="number" class="num" [ngModel]="mt5Login()" (ngModelChange)="mt5Login.set($event)" name="mt5Login" />
+              </label>
+              <label class="mon-field">
+                <span class="mon-field__label">Password</span>
+                <input type="password" [ngModel]="mt5Password()" (ngModelChange)="mt5Password.set($event)" name="mt5Password" />
+              </label>
+              <label class="mon-field">
+                <span class="mon-field__label">Server</span>
+                <input type="text" [ngModel]="mt5Server()" (ngModelChange)="mt5Server.set($event)" name="mt5Server" />
+              </label>
+              <label class="mon-field">
+                <span class="mon-field__label">Path (optional)</span>
+                <input type="text" [ngModel]="mt5Path()" (ngModelChange)="mt5Path.set($event)" name="mt5Path" />
+              </label>
+            </div>
+            <button type="button" class="mon-btn mon-btn--jade" [disabled]="mt5Busy()" (click)="connectMt5()">{{ mt5Busy() ? 'Connecting…' : 'Connect' }}</button>
+          } @else {
+            <span class="mon-mt5__login num">login {{ execution.mt5Login() }}</span>
+            <button type="button" class="mon-btn mon-btn--coral" [disabled]="mt5Busy()" (click)="disconnectMt5()">{{ mt5Busy() ? 'Disconnecting…' : 'Disconnect' }}</button>
+          }
+        </div>
+      </app-panel>
+
+      <app-panel title="Firebase / News / Session" class="mon-panel-spaced">
+        @let fb = api.firebaseStatus();
+        @let news = api.newsStatus();
+        @let session = api.sessionStatus();
+
+        <div class="mon-health">
+          <div class="mon-health__row">
+            <app-status-pill label="Firebase" [variant]="fb.connected ? 'jade' : 'coral'" />
+            <span class="num">queue {{ fb.queueSize }} · errors {{ fb.errors }}</span>
+          </div>
+          <div class="mon-health__row">
+            <app-status-pill label="News cache" [variant]="news.cacheHealthy ? 'jade' : 'coral'" />
+            <span class="num">{{ news.highImpactEventsToday }} high-impact today</span>
+            <button type="button" class="mon-link-btn" (click)="refreshNews()">refresh</button>
+          </div>
+          @if (news.nextEvent) {
+            <p class="mon-note">Next: {{ news.nextEvent }}</p>
+          }
+          <div class="mon-health__row">
+            <app-status-pill label="Session" [variant]="session.isMarketOpen ? 'jade' : 'amber'" />
+            <span class="num">{{ session.activeSessions.join(' / ') }}</span>
+            <button type="button" class="mon-link-btn" (click)="refreshSession()">refresh</button>
+          </div>
+        </div>
+      </app-panel>
+
+      <app-panel title="Filtered / Excluded Symbols" class="mon-panel-spaced">
+        @let filtered = api.filteredSymbols();
+        <div class="mon-filtered">
+          <p class="mon-filtered__row"><span class="mon-filtered__label">Filtered</span> {{ filtered.symbols.join(', ') || '—' }}</p>
+          <p class="mon-filtered__row"><span class="mon-filtered__label">Permanently excluded</span> {{ filtered.permanentlyExcluded.join(', ') || '—' }}</p>
+          <p class="mon-filtered__row"><span class="mon-filtered__label">Long-term excluded</span> {{ filtered.longTermExcluded.join(', ') || '—' }}</p>
+        </div>
+      </app-panel>
+    </div>
+
+    <div class="col-lg-4">
+      <app-panel title="Top Symbols" [noPadding]="true">
+        <div class="mon-top">
+          <div class="mon-top__row mon-top__row--head">
+            <span>Symbol</span>
+            <span class="num">Conf</span>
+            <span>Status</span>
+            <span>Stability</span>
+          </div>
+          @for (s of api.getTopSymbols(); track s.symbol) {
+            <div class="mon-top__row">
+              <span class="mon-top__symbol">{{ s.symbol }}</span>
+              <span class="num">{{ s.confidence }}</span>
+              <app-status-pill [label]="s.inPosition ? 'in position' : s.isActive ? 'active' : 'idle'" [variant]="s.inPosition ? 'jade' : s.isActive ? 'amber' : 'muted'" />
+              <span class="mon-top__stability">{{ s.stabilityStatus }}</span>
+            </div>
+          }
+        </div>
+      </app-panel>
+    </div>
+  </div>
+</div>

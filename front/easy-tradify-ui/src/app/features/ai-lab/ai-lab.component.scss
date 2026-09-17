@@ -1,0 +1,56 @@
+// AI layer console. All colour and motion comes from the tokens.
+
+$mono: 'IBM Plex Mono', ui-monospace, monospace;
+$cond: 'IBM Plex Sans Condensed', system-ui, sans-serif;
+
+@mixin caps($size: 11px) {
+  font-family: $cond;
+  font-size: $size;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mono, .op__weight, .op__method, .group__meta, .surface__count, .param__input {
+  font-family: $mono;
+}
+
+// Standing notice: a reviewer must not mistake a mocked result for a measurement.
+.mockbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; margin-bottom: 12px;
+  border: 1px solid var(--color-amber); background: var(--color-amber-dim);
+  border-radius: var(--radius-panel);
+}
+.mockbar__tag {
+  flex: none; font-family: $mono; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; padding: 2px 6px; border-radius: var(--radius-pill);
+  background: var(--color-amber); color: var(--text-on-amber);
+}
+.mockbar__text { font-size: 12px; color: var(--text-secondary); }
+
+// Groups
+.surface__count { margin: 0 0 10px; font-size: 11px; color: var(--text-dim); }
+.groups { display: flex; flex-direction: column; gap: 2px; }
+.group {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; min-height: var(--row-h-cozy); padding: 0 10px;
+  border: 1px solid transparent; border-radius: var(--radius-pill);
+  background: transparent; color: var(--text-secondary);
+  cursor: pointer; text-align: left; transition: background 160ms ease-out, color 160ms ease-out;
+
+  &:hover { background: var(--bg-panel-alt); color: var(--text-primary); }
+  &--active {
+    background: var(--bg-panel-raised);
+    border-color: var(--border-hairline-strong);
+    color: var(--text-primary);
+  }
+}
+.group__label { font-size: 13px; }
+.group__meta { font-size: 10px; color: var(--text-dim); }
+.group__blurb { margin: 0 0 6px; font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
+.group__module { margin: 0 0 12px; font-size: 11px; color: var(--text-dim); }
+.dot { margin: 0 6px; }
+
+// Operation picking and result presentation live in ./ai-operation and
+// ./ai-result — each keeps its own styles inside the 4 kB budget.
+.empty { margin: 0; font-size: 12px; color: var(--text-dim); }

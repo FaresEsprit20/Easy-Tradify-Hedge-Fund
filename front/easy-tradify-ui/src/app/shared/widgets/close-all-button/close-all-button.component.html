@@ -1,0 +1,3 @@
+<button type="button" class="cab" [class.cab--confirm]="confirming()" [disabled]="busy()" (click)="click()">
+  {{ confirming() ? 'Confirm close all?' : 'Close all' }}
+</button>

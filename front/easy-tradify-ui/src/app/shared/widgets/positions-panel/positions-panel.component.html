@@ -1,0 +1,135 @@
+<div class="bl">
+  <div class="bl__toolbar">
+    <input
+      type="text"
+      class="bl__search"
+      placeholder="Search symbol…"
+      autocomplete="off"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+    />
+    <span class="bl__count">{{ filteredPositions().length }} positions</span>
+  </div>
+  <div class="bl__row bl__row--head">
+    <button type="button" class="bl__sort" (click)="sortBy('symbol')">Symbol {{ sortIndicator('symbol') }}</button>
+    <span>Side</span>
+    <button type="button" class="bl__sort bl__sort--num" (click)="sortBy('qty')">Qty {{ sortIndicator('qty') }}</button>
+    <button type="button" class="bl__sort bl__sort--num" (click)="sortBy('entry')">Entry {{ sortIndicator('entry') }}</button>
+    <button type="button" class="bl__sort bl__sort--num" (click)="sortBy('mark')">Mark {{ sortIndicator('mark') }}</button>
+    <button type="button" class="bl__sort bl__sort--num" (click)="sortBy('pnl')">P&amp;L {{ sortIndicator('pnl') }}</button>
+    <button type="button" class="bl__sort bl__sort--num" (click)="sortBy('stop')">Stop {{ sortIndicator('stop') }}</button>
+    <button type="button" class="bl__sort bl__sort--num" (click)="sortBy('target')">TP1 {{ sortIndicator('target') }}</button>
+    <span class="bl__sort--num">TP2</span>
+    <span class="bl__sort--num">TP3</span>
+    <span class="bl__row-actions"></span>
+  </div>
+  @for (p of sortedPositions(); track p.ticket) {
+    <div class="bl__row" [class.bl__row--open]="expanded() === p.ticket">
+      <span class="bl__symbol">{{ p.symbol }}</span>
+      <app-status-pill [label]="p.side" [variant]="p.side === 'long' ? 'jade' : 'coral'" />
+      <span class="bl__num num">{{ p.qty }}</span>
+      <span class="bl__num num">{{ p.entry | number: '1.2-5' }}</span>
+      <span class="bl__num num" [appFlashOnUpdate]="p.mark">{{ p.mark | number: '1.2-5' }}</span>
+      <span class="bl__num num" [class.text-jade]="p.pnl >= 0" [class.text-coral]="p.pnl < 0" [appFlashOnUpdate]="p.pnl">
+        {{ p.pnl >= 0 ? '+' : '' }}{{ p.pnl | number: '1.2-2' }}
+      </span>
+      <span class="bl__num num text-coral">{{ p.stop | number: '1.2-5' }}</span>
+      <span class="bl__num num text-jade">{{ p.target | number: '1.2-5' }}</span>
+      <span class="bl__num num text-jade">{{ p.target2 != null ? (p.target2 | number: '1.2-5') : '—' }}</span>
+      <span class="bl__num num text-jade">{{ p.target3 != null ? (p.target3 | number: '1.2-5') : '—' }}</span>
+      <div class="bl__row-actions">
+        <button type="button" class="bl__close-btn" [class.bl__close-btn--confirm]="confirmClose() === p.ticket" [disabled]="busy() === p.ticket" (click)="requestClose(p.ticket)">
+          {{ confirmClose() === p.ticket ? 'Confirm?' : 'Close' }}
+        </button>
+        <button type="button" class="bl__manage-btn" (click)="toggleExpand(p)" [attr.aria-expanded]="expanded() === p.ticket">
+          {{ expanded() === p.ticket ? 'Hide' : 'Manage' }}
+        </button>
+      </div>
+    </div>
+
+    @if (expanded() === p.ticket) {
+      <div class="bl__actions">
+        <div class="bl__action-group">
+          <span class="bl__field">
+            <span class="bl__field-label">Partial close (lots)</span>
+            <input type="number" class="num" step="0.01" [min]="0.01" [max]="p.qty" [ngModel]="partialQty()" (ngModelChange)="partialQty.set($event)" />
+            <button type="button" class="bl__btn" [disabled]="busy() === p.ticket" (click)="doPartialClose(p)">Apply</button>
+          </span>
+        </div>
+
+        <div class="bl__action-group">
+          <span class="bl__field">
+            <span class="bl__field-label">Stop loss</span>
+            <input type="number" class="num" step="0.0001" [ngModel]="slValue()" (ngModelChange)="slValue.set($event)" />
+            <button type="button" class="bl__btn" [disabled]="busy() === p.ticket" (click)="saveSl(p)">Save</button>
+          </span>
+          <span class="bl__field">
+            <span class="bl__field-label">Take profit 1</span>
+            <input type="number" class="num" step="0.0001" [ngModel]="tp1Value()" (ngModelChange)="tp1Value.set($event)" />
+            <button type="button" class="bl__btn" [disabled]="busy() === p.ticket" (click)="saveTp1(p)">Save</button>
+          </span>
+          <span class="bl__field">
+            <span class="bl__field-label">Take profit 2</span>
+            <input type="number" class="num" step="0.0001" [ngModel]="tp2Value()" (ngModelChange)="tp2Value.set($event)" />
+            <button type="button" class="bl__btn" [disabled]="busy() === p.ticket" (click)="saveTp2(p)">Save</button>
+          </span>
+          <span class="bl__field">
+            <span class="bl__field-label">Take profit 3</span>
+            <input type="number" class="num" step="0.0001" [ngModel]="tp3Value()" (ngModelChange)="tp3Value.set($event)" />
+            <button type="button" class="bl__btn" [disabled]="busy() === p.ticket" (click)="saveTp3(p)">Save</button>
+          </span>
+        </div>
+
+        <div class="bl__action-group">
+          @let be = breakEvenStatus(p.ticket);
+          <button type="button" class="bl__btn" [class.bl__btn--active]="be?.hasBreakEven" [disabled]="busy() === p.ticket" (click)="toggleBreakEven(p)">
+            {{ be?.hasBreakEven ? 'Break-even: ON (click to disable)' : 'Enable break-even' }}
+          </button>
+          <app-info-hint text="Once price moves this many pips (or $) in profit, the stop loss auto-moves to the entry price — the trade can no longer close at a loss." />
+          @if (!be?.hasBreakEven) {
+            <span class="bl__field">
+              <select [ngModel]="beUnit()" (ngModelChange)="beUnit.set($event)">
+                <option value="pips">pips</option>
+                <option value="usd">USD</option>
+              </select>
+              <input type="number" class="num" step="1" [ngModel]="beValue()" (ngModelChange)="beValue.set($event)" />
+            </span>
+          } @else if (be?.breakEvenApplied) {
+            <app-status-pill label="applied" variant="jade" />
+          } @else {
+            <app-status-pill label="armed" variant="amber" />
+          }
+        </div>
+
+        <div class="bl__action-group">
+          @let trail = trailStatus(p.ticket);
+          <button type="button" class="bl__btn" [class.bl__btn--active]="!!trail" [disabled]="busy() === p.ticket" (click)="toggleTrailing(p)">
+            {{ trail ? 'Trailing: ON (click to disable)' : 'Enable trailing' }}
+          </button>
+          <app-info-hint text="Keeps the stop loss trailing behind price by this fixed distance as the trade moves in profit, locking in gains without capping the upside." />
+          @if (!trail) {
+            <span class="bl__field">
+              <select [ngModel]="trailUnit()" (ngModelChange)="trailUnit.set($event)">
+                <option value="pips">pips</option>
+                <option value="usd">USD</option>
+              </select>
+              <input type="number" class="num" step="1" [ngModel]="trailValue()" (ngModelChange)="trailValue.set($event)" />
+            </span>
+          } @else {
+            <span class="bl__trail-info num">{{ trail.distanceType === 'usd' ? '$' + trail.usdDistance : trail.pipsDistance + 'p' }}</span>
+          }
+        </div>
+      </div>
+    }
+  } @empty {
+    <div class="bl__empty">{{ search() ? 'No positions match "' + search() + '".' : 'No open positions' }}</div>
+  }
+
+  @if (filteredPositions().length > pageSize) {
+    <div class="bl__pager">
+      <button type="button" class="bl__pager-btn" [disabled]="page() === 0" (click)="prevPage()">← Prev</button>
+      <span class="bl__pager-label">Page {{ page() + 1 }} / {{ pageCount() }}</span>
+      <button type="button" class="bl__pager-btn" [disabled]="page() >= pageCount() - 1" (click)="nextPage()">Next →</button>
+    </div>
+  }
+</div>

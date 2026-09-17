@@ -1,0 +1,19 @@
+.pos-page__col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: calc(100dvh - 96px);
+  min-height: 520px;
+}
+
+.pos-page__panel {
+  min-height: 0;
+}
+
+.pos-page__panel--tall {
+  flex: 2 1 0;
+}
+
+.pos-page__panel--short {
+  flex: 1 1 0;
+}

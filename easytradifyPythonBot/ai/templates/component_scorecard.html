@@ -1,0 +1,333 @@
+<title>Component Scorecard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --paper: #F2F3EF;
+  --panel: #FAFBF8;
+  --ink: #172026;
+  --muted: #5B666B;
+  --faint: #8A948F;
+  --rule: #D6DAD3;
+  --rule-strong: #BEC4BC;
+  --accent: #23607A;
+  --accent-soft: #DCE8EC;
+  --good: #2F7A4E;
+  --good-soft: #DDEBE0;
+  --bad: #B24A2E;
+  --bad-soft: #F2E0D8;
+  --neutral: #8C8E82;
+  --neutral-soft: #E6E7E0;
+  --bar-track: #E3E6E0;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101517; --panel: #161D20; --ink: #E2E8E9; --muted: #9AA6AA; --faint: #6F7B7F;
+    --rule: #263033; --rule-strong: #35423F; --accent: #6FB1CC; --accent-soft: #1D3440;
+    --good: #6DBE8C; --good-soft: #17301F; --bad: #E4866A; --bad-soft: #3A2019;
+    --neutral: #A3A597; --neutral-soft: #262A26; --bar-track: #242C2E;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101517; --panel: #161D20; --ink: #E2E8E9; --muted: #9AA6AA; --faint: #6F7B7F;
+  --rule: #263033; --rule-strong: #35423F; --accent: #6FB1CC; --accent-soft: #1D3440;
+  --good: #6DBE8C; --good-soft: #17301F; --bad: #E4866A; --bad-soft: #3A2019;
+  --neutral: #A3A597; --neutral-soft: #262A26; --bar-track: #242C2E;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5; margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 24px; padding-block: 32px 80px; }
+h1, h2, h3 { font-family: var(--cond); text-wrap: balance; margin: 0; letter-spacing: -0.005em; }
+h1 { font-size: 34px; font-weight: 700; line-height: 1.1; }
+h2 { font-size: 24px; font-weight: 600; }
+h3 { font-size: 17px; font-weight: 600; }
+.num, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--cond); font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.muted { color: var(--muted); }
+
+header.top { display: grid; gap: 14px; padding-bottom: 22px; border-bottom: 1px solid var(--rule-strong); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.fact { display: grid; gap: 2px; }
+.fact .v { font-family: var(--mono); font-size: 20px; font-variant-numeric: tabular-nums; }
+.fact .v.bad { color: var(--bad); }
+.fact .k { font-size: 12px; color: var(--muted); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 10px 22px; font-size: 13px; color: var(--muted); align-items: center; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+
+section { margin-top: 36px; display: grid; gap: 14px; }
+.findings { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.finding { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+.finding .tag { font-family: var(--cond); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+.finding .tag.good { color: var(--good); } .finding .tag.bad { color: var(--bad); } .finding .tag.neutral { color: var(--muted); }
+.finding b { font-family: var(--cond); font-size: 16px; font-weight: 600; }
+.finding .line { font-size: 13.5px; color: var(--muted); }
+
+.controls { position: sticky; top: 0; z-index: 5; background: var(--paper); padding-block: 10px; border-bottom: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+button.chip { font: 500 13px var(--cond); letter-spacing: 0.02em; color: var(--ink); background: transparent; border: 1px solid var(--rule-strong); border-radius: 999px; padding: 4px 11px; cursor: pointer; }
+button.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+button.chip:hover { border-color: var(--accent); }
+input#search, select#sort { font: 14px var(--sans); color: var(--ink); background: var(--panel); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 5px 9px; }
+input#search { width: 200px; max-width: 100%; }
+label.toggle { font-size: 13px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.cat-head { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; padding-top: 8px; border-top: 2px solid var(--ink); }
+.cat-head .count { font-size: 13px; color: var(--muted); }
+
+.comp { display: grid; grid-template-columns: minmax(200px, 250px) 1fr; gap: 10px 20px; padding-block: 14px; border-bottom: 1px solid var(--rule); }
+.comp.dead { opacity: 0.62; }
+.comp .meta { display: grid; gap: 4px; align-content: start; }
+.comp .name { font-family: var(--cond); font-size: 16px; font-weight: 600; line-height: 1.2; }
+.comp .desc { font-size: 12.5px; color: var(--muted); }
+.badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+.badge { font-family: var(--mono); font-size: 11.5px; padding: 1px 6px; border-radius: 3px; background: var(--neutral-soft); color: var(--muted); white-space: nowrap; }
+.badge.sig { background: var(--accent-soft); color: var(--accent); }
+.badge.pos { background: var(--good-soft); color: var(--good); }
+.badge.neg { background: var(--bad-soft); color: var(--bad); }
+.badge.warn { background: transparent; border: 1px dashed var(--rule-strong); }
+
+.cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; align-content: start; }
+.cell { border: 1px solid var(--rule); border-left: 3px solid var(--neutral); border-radius: 4px; background: var(--panel); padding: 8px 10px; display: grid; gap: 5px; }
+.cell.ALIGNED { border-left-color: var(--good); }
+.cell.OPPOSED { border-left-color: var(--bad); }
+.cell.small { border-style: dashed; border-left-style: solid; }
+.cell .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.cell .state { font-family: var(--cond); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; overflow-wrap: anywhere; }
+.cell .n { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.cell .row2 { display: flex; justify-content: space-between; gap: 8px; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.pos-t { color: var(--good); } .neg-t { color: var(--bad); }
+.cell .foot { font-size: 11.5px; color: var(--faint); font-family: var(--mono); display: flex; justify-content: space-between; gap: 6px; }
+svg.wr { width: 100%; height: 16px; display: block; overflow: visible; }
+
+.empty { padding: 30px 0; color: var(--muted); }
+.notes { display: grid; gap: 10px; font-size: 14px; color: var(--muted); }
+.notes p { max-width: 90ch; }
+
+@media (max-width: 720px) {
+  .wrap { padding-inline: 16px; }
+  h1 { font-size: 27px; }
+  .comp { grid-template-columns: 1fr; }
+  .controls { position: static; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">easytradify · stored trades · no replay</div>
+    <h1>Component Scorecard</h1>
+    <p class="muted">Every piece of the entry analysis, one at a time: what the trades did when it pointed the way the trade was placed, when it pointed against, and when it had no opinion. Outcomes are the repaired broker results (rounded exits and stale profits corrected on 2026-09-15).</p>
+    <div class="facts" id="facts"></div>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--good)"></span>ALIGNED with the trade</span>
+      <span><span class="swatch" style="background:var(--neutral)"></span>NEUTRAL / value bucket</span>
+      <span><span class="swatch" style="background:var(--bad)"></span>OPPOSED to the trade</span>
+      <span>Bar: win rate with 95% CI · <span class="mono">|</span> ticks at break-even <span class="mono" id="be"></span> and overall <span class="mono" id="ov"></span></span>
+      <span>E = expectancy per trade in R (price) · net = after commission</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="h-findings">
+    <h2 id="h-findings">What stands out</h2>
+    <p class="muted">Ranked by q, the false-discovery-adjusted p across all <span id="family"></span> tests. q below 0.10 would be a finding; nothing here reaches it yet, so these are the leads to watch as trades accumulate, not rules to ship.</p>
+    <div class="findings" id="findings"></div>
+  </section>
+
+  <section aria-labelledby="h-cats">
+    <h2 id="h-cats">By category</h2>
+    <p class="muted">Per trade, each category's directional components are netted: (aligned − opposed) ÷ voting components. AGREES means net above +0.2, DISAGREES below −0.2.</p>
+    <div id="categories"></div>
+  </section>
+
+  <section aria-labelledby="h-comps">
+    <h2 id="h-comps">Component by component</h2>
+    <div class="controls">
+      <div class="chips" id="catChips" role="group" aria-label="Category filter"></div>
+      <input id="search" type="search" placeholder="Find a component…" aria-label="Find a component">
+      <select id="sort" aria-label="Sort components">
+        <option value="catalogue">Catalogue order</option>
+        <option value="q">Lowest q first</option>
+        <option value="edge">Largest edge (aligned − opposed)</option>
+        <option value="coverage">Coverage</option>
+      </select>
+      <label class="toggle"><input id="hideDead" type="checkbox" checked> Hide components that never vary</label>
+    </div>
+    <div id="components"></div>
+  </section>
+
+  <section aria-labelledby="h-notes">
+    <h2 id="h-notes">How to read the numbers</h2>
+    <div class="notes">
+      <p><b>Frame.</b> Directional readings are converted to the trade's side: “RSI says SELL” is ALIGNED on a short and OPPOSED on a long. RSI, stochastic %K and Bollinger %B are mirrored for shorts, so “&lt; 30” always means the trade side was oversold.</p>
+      <p><b>Edge</b> is expectancy when ALIGNED minus expectancy when OPPOSED, in R. A negative edge means the component was inverted on this sample. Edges built on fewer than 10 trades on either side are marked small.</p>
+      <p><b>p and q.</b> p comes from 2,000 outcome shuffles that repeat the same “pick the best state” search, so choosing the flattering bucket is paid for. q applies Benjamini–Hochberg across every component and category on the page.</p>
+      <p><b>SELL share.</b> Shorts outperformed longs in this window. A state made mostly of one direction can look predictive just by restating the direction; the share is shown on each cell.</p>
+      <p><b>Costs.</b> Price R ignores commission. Net R divides the booked result by the broker's loss at the stop; the gap (≈0.58R per trade) is the round-trip commission on stops of 1–2 pips.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+const DATA = __DATA__;
+const CATS = DATA.categories.map(c => [c.category, c.title]);
+const TITLE = Object.fromEntries(CATS);
+const overall = DATA.overall;
+const BREAKEVEN = 18.6;
+
+const fmt = (v, d = 2, sign = true) => v == null ? "–" : (sign && v > 0 ? "+" : "") + Number(v).toFixed(d);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function facts() {
+  const items = [
+    [overall.n, "closed trades scored"],
+    [overall.win_rate.toFixed(1) + "%", "win rate · CI " + overall.win_rate_ci95.join("–") + "%"],
+    [fmt(overall.expectancy_r) + "R", "expectancy, price"],
+    [fmt(overall.expectancy_net_r) + "R", "expectancy after commission", overall.expectancy_net_r < 0],
+    ["$" + overall.net_usd.toFixed(2), "net result", overall.net_usd < 0],
+    [overall.profit_factor, "profit factor"],
+  ];
+  document.getElementById("facts").innerHTML = items.map(([v, k, bad]) =>
+    `<div class="fact"><span class="v${bad ? " bad" : ""}">${esc(v)}</span><span class="k">${esc(k)}</span></div>`).join("");
+  document.getElementById("be").textContent = BREAKEVEN + "%";
+  document.getElementById("ov").textContent = overall.win_rate + "%";
+  document.getElementById("family").textContent = DATA.tests_in_family;
+}
+
+// Win-rate bar on a fixed 0–60% scale (only small cells exceed it; they clip at the edge).
+function bar(s) {
+  const W = 100, max = 60, x = v => Math.max(0, Math.min(W, (v / max) * W));
+  const [lo, hi] = s.win_rate_ci95 || [null, null];
+  const col = s.state === "ALIGNED" ? "var(--good)" : s.state === "OPPOSED" ? "var(--bad)" : "var(--neutral)";
+  return `<svg class="wr" viewBox="0 0 100 16" preserveAspectRatio="none" aria-hidden="true">
+    <rect x="0" y="5" width="100" height="6" rx="1" fill="var(--bar-track)"></rect>
+    <rect x="0" y="5" width="${x(s.win_rate)}" height="6" rx="1" fill="${col}" opacity="0.85"></rect>
+    ${lo != null ? `<rect x="${x(lo)}" y="7.5" width="${Math.max(0.4, x(hi) - x(lo))}" height="1" fill="var(--ink)" opacity="0.55"></rect>
+    <rect x="${x(lo)}" y="5" width="0.5" height="6" fill="var(--ink)" opacity="0.55"></rect>
+    <rect x="${x(hi) - 0.5}" y="5" width="0.5" height="6" fill="var(--ink)" opacity="0.55"></rect>` : ""}
+    <rect x="${x(BREAKEVEN)}" y="1" width="0.6" height="14" fill="var(--bad)"></rect>
+    <rect x="${x(overall.win_rate)}" y="1" width="0.6" height="14" fill="var(--accent)"></rect>
+  </svg>`;
+}
+
+function cell(s) {
+  const e = s.expectancy_r, net = s.expectancy_net_r;
+  return `<div class="cell ${esc(s.state)}${s.small_sample ? " small" : ""}" title="${esc(s.state)}">
+    <div class="row1"><span class="state">${esc(s.state)}</span><span class="n">n ${s.n}</span></div>
+    ${bar(s)}
+    <div class="row2"><span>${s.win_rate.toFixed(1)}% win</span><span class="${e > 0 ? "pos-t" : e < 0 ? "neg-t" : ""}">E ${fmt(e)}R</span></div>
+    <div class="foot"><span>net ${fmt(net)}R · $${s.net_usd.toFixed(0)}</span><span>SELL ${Math.round((s.sell_share ?? 0) * 100)}%</span></div>
+  </div>`;
+}
+
+function badges(c) {
+  const out = [];
+  if (c.q != null) out.push(`<span class="badge${c.q < 0.1 ? " sig" : ""}">q ${c.q.toFixed(2)}</span>`);
+  if (c.p != null) out.push(`<span class="badge">p ${c.p.toFixed(3)}</span>`);
+  if (c.edge_r != null) out.push(`<span class="badge ${c.edge_r > 0 ? "pos" : "neg"}">edge ${fmt(c.edge_r)}R${c.edge_small_sample ? " (small)" : ""}</span>`);
+  if (c.edge_win_rate != null) out.push(`<span class="badge">Δwin ${fmt(c.edge_win_rate, 1)}pt</span>`);
+  if (c.coverage != null) out.push(`<span class="badge">${c.coverage}/${overall.n} trades</span>`);
+  if (c.dead) out.push(`<span class="badge warn">${esc(c.dead)}</span>`);
+  if (c.p == null && !c.dead && c.coverage) out.push(`<span class="badge warn">too few per state to test</span>`);
+  return out.join("");
+}
+
+function findings() {
+  const pool = DATA.components.filter(c => c.q != null)
+    .concat(DATA.categories.filter(c => c.agreement && c.agreement.q != null)
+      .map(c => ({ ...c.agreement, name: c.title + " (category agreement)", category: c.category, kind: "vote" })));
+  pool.sort((a, b) => a.q - b.q || a.p - b.p);
+  const top = pool.slice(0, 9).map(c => {
+    const best = c.states.find(s => s.state === c.best_bucket) || c.states[0];
+    const rest = c.states.filter(s => s !== best);
+    const restN = rest.reduce((a, s) => a + s.n, 0);
+    const restW = restN ? rest.reduce((a, s) => a + s.win_rate * s.n, 0) / restN : null;
+    const good = c.contrast_r > 0;
+    return `<div class="finding">
+      <span class="tag ${good ? "good" : "bad"}">${esc(TITLE[c.category] || c.category)} · ${good ? "better" : "worse"} when ${esc(best.state)}</span>
+      <b>${esc(c.name)}</b>
+      <span class="line num">${esc(best.state)}: ${best.win_rate.toFixed(1)}% win, E ${fmt(best.expectancy_r)}R, n ${best.n}${restW != null ? ` · rest ${restW.toFixed(1)}%` : ""}</span>
+      <span class="line num">p ${c.p.toFixed(3)} · q ${c.q.toFixed(2)}${best.sell_share >= 0.85 || best.sell_share <= 0.15 ? " · mostly one direction" : ""}</span>
+    </div>`;
+  });
+  const dead = DATA.components.filter(c => c.dead).map(c => c.name);
+  top.push(`<div class="finding">
+    <span class="tag neutral">Never varies on these trades</span>
+    <b>${dead.length} components carry no information</b>
+    <span class="line">${dead.map(esc).join(" · ")}</span>
+  </div>`);
+  document.getElementById("findings").innerHTML = top.join("");
+}
+
+function categories() {
+  document.getElementById("categories").innerHTML = DATA.categories.map(c => {
+    const a = c.agreement;
+    return `<div class="comp">
+      <div class="meta">
+        <span class="name">${esc(c.title)}</span>
+        <span class="desc">${c.voting_members} directional of ${c.members} components</span>
+        <div class="badges">${a ? badges(a) : `<span class="badge warn">no directional components</span>`}</div>
+      </div>
+      <div class="cells">${a ? a.states.map(cell).join("") : ""}</div>
+    </div>`;
+  }).join("");
+}
+
+const state = { cat: "ALL", q: "", sort: "catalogue", hideDead: true };
+
+function chips() {
+  const all = [["ALL", "All"], ...CATS];
+  document.getElementById("catChips").innerHTML = all.map(([k, t]) =>
+    `<button type="button" class="chip" data-cat="${k}" aria-pressed="${state.cat === k}">${esc(t)}</button>`).join("");
+}
+
+function components() {
+  let list = DATA.components.map((c, i) => ({ ...c, i }));
+  if (state.cat !== "ALL") list = list.filter(c => c.category === state.cat);
+  if (state.hideDead) list = list.filter(c => !c.dead);
+  if (state.q) list = list.filter(c => (c.name + " " + c.description).toLowerCase().includes(state.q));
+  const by = {
+    catalogue: (a, b) => a.i - b.i,
+    q: (a, b) => (a.q ?? 2) - (b.q ?? 2) || (a.p ?? 2) - (b.p ?? 2),
+    edge: (a, b) => Math.abs(b.edge_r ?? -1) - Math.abs(a.edge_r ?? -1),
+    coverage: (a, b) => b.coverage - a.coverage,
+  };
+  list.sort(by[state.sort]);
+  const el = document.getElementById("components");
+  if (!list.length) { el.innerHTML = `<p class="empty">No component matches “${esc(state.q)}”. Clear the search or pick another category.</p>`; return; }
+
+  const render = c => `<div class="comp${c.dead ? " dead" : ""}">
+      <div class="meta">
+        <span class="name">${esc(c.name)}</span>
+        ${c.description ? `<span class="desc">${esc(c.description)}</span>` : ""}
+        <div class="badges">${badges(c)}</div>
+      </div>
+      <div class="cells">${c.states.map(cell).join("")}</div>
+    </div>`;
+
+  if (state.sort === "catalogue") {
+    el.innerHTML = CATS.filter(([k]) => list.some(c => c.category === k)).map(([k, t]) => {
+      const members = list.filter(c => c.category === k);
+      return `<div class="cat-head"><h3>${esc(t)}</h3><span class="count">${members.length} component${members.length === 1 ? "" : "s"}</span></div>` + members.map(render).join("");
+    }).join("");
+  } else {
+    el.innerHTML = list.map(render).join("");
+  }
+}
+
+document.getElementById("catChips").addEventListener("click", e => {
+  const b = e.target.closest("button.chip"); if (!b) return;
+  state.cat = b.dataset.cat; chips(); components();
+});
+document.getElementById("search").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); components(); });
+document.getElementById("sort").addEventListener("change", e => { state.sort = e.target.value; components(); });
+document.getElementById("hideDead").addEventListener("change", e => { state.hideDead = e.target.checked; components(); });
+
+facts(); findings(); categories(); chips(); components();
+</script>

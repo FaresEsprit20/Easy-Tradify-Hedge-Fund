@@ -1,0 +1,13 @@
+// Controls come from the global .af-* kit (styles/_auth-forms.scss).
+:host { display: block; }
+
+// A code is read back digit by digit, so it gets monospace, wide tracking and
+// centring — proportional text makes transcription errors easy to miss.
+.code {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  letter-spacing: 0.42em;
+  text-align: center;
+  text-indent: 0.42em;
+  height: 52px;
+}

@@ -1,0 +1,52 @@
+<div class="container-fluid p-0 tp-page">
+  <div class="tp-page__stats">
+    <div class="tp-page__stat">
+      <span class="tp-page__stat-label">Workers</span>
+      <span class="tp-page__stat-value num">{{ counts().total }}</span>
+    </div>
+    <div class="tp-page__stat">
+      <span class="tp-page__stat-label">Scanning</span>
+      <span class="tp-page__stat-value num text-amber">{{ counts().scanning }}</span>
+    </div>
+    <div class="tp-page__stat">
+      <span class="tp-page__stat-label">Analyzing</span>
+      <span class="tp-page__stat-value num" style="color: var(--color-info)">{{ counts().analyzing }}</span>
+    </div>
+    <div class="tp-page__stat">
+      <span class="tp-page__stat-label">Executing</span>
+      <span class="tp-page__stat-value num text-jade">{{ counts().executing }}</span>
+    </div>
+    <div class="tp-page__stat">
+      <span class="tp-page__stat-label">Idle</span>
+      <span class="tp-page__stat-value num">{{ counts().idle }}</span>
+    </div>
+    <div class="tp-page__stat">
+      <span class="tp-page__stat-label">Avg load</span>
+      <span class="tp-page__stat-value num">{{ counts().avgLoad }}%</span>
+    </div>
+    <div class="tp-page__stat">
+      <span class="tp-page__stat-label">Symbols tracked</span>
+      <span class="tp-page__stat-value num">{{ monitor.status().symbolsTracked }}</span>
+    </div>
+    <div class="tp-page__stat">
+      <span class="tp-page__stat-label">Monitor</span>
+      <span class="tp-page__stat-value num" [class.text-jade]="monitor.status().running" [class.text-coral]="!monitor.status().running">
+        {{ monitor.status().running ? 'RUNNING' : 'STOPPED' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 tp-page__panel">
+      <app-panel
+        title="Worker Thread Pool"
+        [live]="true"
+        [state]="connection.connectionState()"
+        [updatedAt]="latestChange()"
+        [noPadding]="true"
+      >
+        <app-thread-pool-panel [threads]="stream.threads()" />
+      </app-panel>
+    </div>
+  </div>
+</div>

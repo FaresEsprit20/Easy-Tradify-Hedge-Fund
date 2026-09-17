@@ -1,0 +1,100 @@
+// ============================================================================
+// Signature motion devices. Every keyframe here maps to one state-encoding
+// meaning from the motion spec — nothing decorative.
+// ============================================================================
+
+// Pulse-dot: expanding ring on a live/streaming source.
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+// Radar scan-sweep: one revolution ~3s.
+@keyframes radar-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Radar ping: a hit fades outward from the sweep pass.
+@keyframes ping-fade {
+  0% {
+    transform: scale(0.4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+// Flash-on-update: single amber wash under 500ms, never repeating.
+@keyframes flash-wash {
+  0% {
+    background-color: var(--color-amber-dim);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+// Heartbeat: brief background wash on worker/row state change.
+@keyframes heartbeat-wash {
+  0% {
+    background-color: var(--color-amber-dim);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+// Gate/coherence ticker: new line slides up and fades in.
+@keyframes ticker-slide-in {
+  from {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Skeleton loading: a soft band sweeping left-to-right while data is in flight.
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.u-flash-on-update {
+  animation: flash-wash var(--dur-flash) ease-out 1;
+}
+
+.u-heartbeat {
+  animation: heartbeat-wash var(--dur-heartbeat) ease-out 1;
+}
+
+.u-skeleton {
+  display: block;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--bg-panel-alt) 25%, var(--bg-panel-raised) 50%, var(--bg-panel-alt) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}

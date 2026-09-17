@@ -1,0 +1,55 @@
+@let h = history();
+
+<div class="th">
+  <div class="th__summary">
+    <div class="th__stat">
+      <span class="th__stat-label">Trades</span>
+      <span class="th__stat-value num">{{ h.summary.closedTrades }}</span>
+    </div>
+    <div class="th__stat">
+      <span class="th__stat-label">Net P&amp;L</span>
+      <span class="th__stat-value num" [class.text-jade]="h.summary.totalProfit >= 0" [class.text-coral]="h.summary.totalProfit < 0">
+        {{ h.summary.totalProfit >= 0 ? '+' : '' }}{{ h.summary.totalProfit | number: '1.2-2' }}
+      </span>
+    </div>
+    <div class="th__stat">
+      <span class="th__stat-label">Win rate</span>
+      <span class="th__stat-value num" [class.text-jade]="h.summary.winRate >= 50" [class.text-coral]="h.summary.winRate < 50">{{ h.summary.winRate }}%</span>
+    </div>
+    @if (h.summary.profitFactor !== null) {
+      <div class="th__stat">
+        <span class="th__stat-label">Profit factor</span>
+        <span class="th__stat-value num">{{ h.summary.profitFactor }}</span>
+      </div>
+    }
+    @if (h.trades.length > 1) {
+      <div class="th__stat th__stat--equity">
+        <span class="th__stat-label">Equity curve</span>
+        <app-sparkline [series]="cumulativePnl(h.trades)" />
+      </div>
+    }
+  </div>
+
+  <div class="th__row th__row--head">
+    <span>Symbol</span>
+    <span>Type</span>
+    <span class="th__num">Entry</span>
+    <span class="th__num">Exit</span>
+    <span class="th__num">Net</span>
+    <span class="th__num">Closed</span>
+  </div>
+  @for (t of h.trades; track t.entryTicket) {
+    <div class="th__row" [class.th__row--win]="t.netProfit >= 0" [class.th__row--loss]="t.netProfit < 0">
+      <span class="th__symbol">{{ t.symbol }}</span>
+      <span [class.text-jade]="t.type === 'BUY'" [class.text-coral]="t.type === 'SELL'">{{ t.type }}</span>
+      <span class="th__num num">{{ t.entryPrice | number: '1.2-5' }}</span>
+      <span class="th__num num">{{ t.exitPrice | number: '1.2-5' }}</span>
+      <span class="th__num num" [class.text-jade]="t.netProfit >= 0" [class.text-coral]="t.netProfit < 0">
+        {{ t.netProfit >= 0 ? '+' : '' }}{{ t.netProfit | number: '1.2-2' }}
+      </span>
+      <span class="th__num num">{{ t.exitTime ? formatTime(t.exitTime) : '—' }}</span>
+    </div>
+  } @empty {
+    <div class="th__empty">No closed trades yet — closed positions appear here.</div>
+  }
+</div>

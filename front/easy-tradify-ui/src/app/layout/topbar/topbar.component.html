@@ -1,0 +1,93 @@
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__brand-mark">EASY TRADIFY</span>
+    <span class="topbar__brand-sub">HEDGE FUND</span>
+  </div>
+
+  <button type="button" class="topbar__account" (click)="toggleAccount()" [class.is-open]="showAccount()">
+    @let account = stream.accountSummary();
+    <div class="topbar__stat">
+      <span class="topbar__stat-label">EQUITY</span>
+      <span class="topbar__stat-value num">{{ account.equity | number: '1.2-2' }}</span>
+    </div>
+    <div class="topbar__stat">
+      <span class="topbar__stat-label">BALANCE</span>
+      <span class="topbar__stat-value num">{{ account.balance | number: '1.2-2' }}</span>
+    </div>
+    <div class="topbar__stat">
+      <span class="topbar__stat-label">DAY P&amp;L</span>
+      <span class="topbar__stat-value num" [class.text-jade]="account.dayPnl >= 0" [class.text-coral]="account.dayPnl < 0">
+        {{ account.dayPnl >= 0 ? '+' : '' }}{{ account.dayPnl | number: '1.2-2' }} ({{ account.dayPnlPct }}%)
+      </span>
+    </div>
+    <div class="topbar__stat">
+      <span class="topbar__stat-label">MARGIN LVL</span>
+      <span class="topbar__stat-value num">{{ account.marginLevelPct | number: '1.0-0' }}%</span>
+    </div>
+    <span class="topbar__account-chevron">{{ showAccount() ? '▴' : '▾' }}</span>
+  </button>
+
+  @if (showAccount()) {
+    @let full = fullAccount();
+    <div class="topbar__account-panel">
+      <div class="topbar__account-row">
+        <span class="topbar__account-label">Login</span>
+        <span class="topbar__account-value num">#{{ full.login }}</span>
+      </div>
+      <div class="topbar__account-row">
+        <span class="topbar__account-label">Leverage</span>
+        <span class="topbar__account-value num">1:{{ full.leverage }}</span>
+      </div>
+      <div class="topbar__account-row">
+        <span class="topbar__account-label">Currency</span>
+        <span class="topbar__account-value num">{{ full.currency }}</span>
+      </div>
+      <div class="topbar__account-row">
+        <span class="topbar__account-label">Margin used</span>
+        <span class="topbar__account-value num">{{ full.margin | number: '1.2-2' }}</span>
+      </div>
+      <div class="topbar__account-row">
+        <span class="topbar__account-label">Free margin</span>
+        <span class="topbar__account-value num">{{ full.freeMargin | number: '1.2-2' }}</span>
+      </div>
+      <div class="topbar__account-row">
+        <span class="topbar__account-label">Margin level</span>
+        <span class="topbar__account-value num">{{ full.marginLevel | number: '1.0-0' }}%</span>
+      </div>
+    </div>
+  }
+
+  <div class="topbar__status">
+    <button type="button" class="topbar__palette" (click)="palette.open()" title="Jump to a page or symbol">
+      <span>⌕ Jump to…</span>
+      <kbd>⌘K</kbd>
+    </button>
+    <button type="button" class="topbar__conn" (click)="toggleConnection()">
+      <app-pulse-dot [state]="connection.connectionState()" />
+      <span class="num">{{ connection.connectionState() === 'disconnected' ? 'DISCONNECTED' : 'LIVE' }}</span>
+    </button>
+    <span class="topbar__clock num">{{ clock() }}</span>
+
+    @if (auth.user(); as user) {
+      <div class="user">
+        <button
+          type="button"
+          class="user__btn"
+          (click)="toggleUser()"
+          [title]="user.email"
+          [attr.aria-expanded]="showUser()">
+          <span class="user__initials">{{ initials() }}</span>
+        </button>
+
+        @if (showUser()) {
+          <div class="user__menu" role="menu">
+            <div class="user__email">{{ user.email }}</div>
+            <button type="button" class="user__action" role="menuitem" (click)="signOut()">
+              Sign out
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</header>

@@ -1,0 +1,226 @@
+:host {
+  display: block;
+  height: 100%;
+  padding: 12px;
+  overflow: auto;
+}
+
+.ticket {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ticket__symbol {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ticket__side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.ticket__side-btn {
+  padding: 8px 0;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+
+  &--buy.is-active {
+    background: var(--color-jade-dim);
+    border-color: var(--color-jade);
+    color: var(--color-jade);
+  }
+  &--sell.is-active {
+    background: var(--color-coral-dim);
+    border-color: var(--color-coral);
+    color: var(--color-coral);
+  }
+}
+
+.ticket__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+
+  &--3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  &--4 {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+}
+
+.ticket__symbol-select {
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ticket__section {
+  margin: 4px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-hairline);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.ticket__calc-btn {
+  padding: 8px 0;
+  border-radius: 2px;
+  border: 1px dashed var(--color-amber);
+  background: transparent;
+  color: var(--color-amber);
+  font-family: var(--font-condensed);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--color-amber-dim);
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.ticket__calc-result {
+  padding: 10px;
+  border: 1px solid var(--border-hairline-strong);
+  background: var(--bg-panel-alt);
+}
+
+.ticket__calc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+}
+
+.ticket__calc-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &--hero {
+    grid-column: 1 / -1;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+}
+
+.ticket__calc-label {
+  font-family: var(--font-condensed);
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ticket__calc-value {
+  font-size: 11px;
+  color: var(--text-primary);
+
+  &--hero {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-amber);
+  }
+}
+
+.ticket__calc-warnings {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.ticket__calc-warning {
+  margin: 0;
+  color: var(--color-coral);
+  font-size: 10px;
+}
+
+.ticket__mgmt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  select,
+  input {
+    padding: 5px 6px;
+    font-size: 10.5px;
+  }
+}
+
+.ticket__mgmt-value {
+  width: 64px;
+}
+
+.ticket__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  input {
+    accent-color: var(--color-amber);
+  }
+}
+
+.ticket__result {
+  margin: 0;
+  padding-top: 6px;
+  font-size: 10.5px;
+  color: var(--color-jade);
+}
+
+.ticket__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ticket__label {
+  font-family: var(--font-condensed);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ticket__execute {
+  margin-top: 4px;
+  padding: 10px 0;
+  border: none;
+  border-radius: 2px;
+  background: var(--color-amber);
+  color: var(--text-on-amber);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+
+  &.is-flash {
+    animation: flash-wash var(--dur-flash) ease-out 1;
+  }
+
+  &:hover {
+    filter: brightness(1.08);
+  }
+}

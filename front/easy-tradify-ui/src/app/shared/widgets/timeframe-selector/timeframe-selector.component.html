@@ -1,0 +1,5 @@
+<div class="tfs">
+  @for (tf of timeframes; track tf) {
+    <button type="button" class="tfs__btn" [class.is-active]="value() === tf" (click)="change.emit(tf)">{{ tf }}</button>
+  }
+</div>

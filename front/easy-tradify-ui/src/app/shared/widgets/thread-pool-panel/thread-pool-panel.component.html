@@ -1,0 +1,50 @@
+<div class="tp">
+  <div class="tp__toolbar">
+    <button type="button" class="tp__filter" [class.is-active]="statusFilter() === null" (click)="setFilter(null)">All</button>
+    @for (s of statuses; track s) {
+      <button type="button" class="tp__filter" [class]="'tp__filter--' + s" [class.is-active]="statusFilter() === s" (click)="setFilter(s)">{{ s }}</button>
+    }
+  </div>
+
+  <div class="tp__row tp__row--head">
+    <span>ID</span>
+    <span>Status</span>
+    <span>Symbol</span>
+    <span>Load</span>
+    <span class="tp__elapsed">Elapsed</span>
+  </div>
+
+  @for (t of filteredThreads(); track t.id) {
+    <div class="tp__row tp__row--clickable" [appHeartbeat]="t.changedAt" (click)="toggleExpand(t.id)">
+      <span class="tp__id num">{{ t.id }}</span>
+      <app-status-pill [label]="t.status" [variant]="variant(t.status)" />
+      <span class="tp__symbol num">{{ t.symbol ?? '—' }}</span>
+      <app-activity-meter [levels]="t.load" />
+      <span class="tp__elapsed num">{{ elapsed(t.startedAt) }}</span>
+    </div>
+
+    @if (expanded() === t.id) {
+      <div class="tp__detail">
+        <div class="tp__detail-stat">
+          <span class="tp__detail-label">Avg load</span>
+          <span class="tp__detail-value num">{{ avgLoad(t.load) }}%</span>
+        </div>
+        <div class="tp__detail-stat">
+          <span class="tp__detail-label">Started</span>
+          <span class="tp__detail-value num">{{ t.startedAt | date: 'HH:mm:ss' }}</span>
+        </div>
+        <div class="tp__detail-stat">
+          <span class="tp__detail-label">Last change</span>
+          <span class="tp__detail-value num">{{ t.changedAt | date: 'HH:mm:ss' }}</span>
+        </div>
+        <div class="tp__detail-bars">
+          @for (v of t.load; track $index) {
+            <div class="tp__detail-bar" [style.height.%]="v * 100" [class.is-hot]="v > 0.75"></div>
+          }
+        </div>
+      </div>
+    }
+  } @empty {
+    <div class="tp__empty">No workers match this filter.</div>
+  }
+</div>

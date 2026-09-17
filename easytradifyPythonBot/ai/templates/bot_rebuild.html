@@ -1,0 +1,153 @@
+<title>Engine Rebuild Scorecard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --paper: #F2F3EF; --panel: #FAFBF8; --ink: #172026; --muted: #5B666B; --faint: #8A948F;
+  --rule: #D6DAD3; --rule-strong: #BEC4BC; --accent: #23607A; --accent-soft: #DCE8EC;
+  --good: #2F7A4E; --good-soft: #DDEBE0; --bad: #B24A2E; --bad-soft: #F2E0D8;
+  --warn: #9A6B12; --warn-soft: #F1E6CC; --neutral-soft: #E6E7E0; --track: #E3E6E0;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101517; --panel: #161D20; --ink: #E2E8E9; --muted: #9AA6AA; --faint: #6F7B7F;
+    --rule: #263033; --rule-strong: #35423F; --accent: #6FB1CC; --accent-soft: #1D3440;
+    --good: #6DBE8C; --good-soft: #17301F; --bad: #E4866A; --bad-soft: #3A2019;
+    --warn: #E0B35A; --warn-soft: #3A2E14; --neutral-soft: #262A26; --track: #242C2E;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101517; --panel: #161D20; --ink: #E2E8E9; --muted: #9AA6AA; --faint: #6F7B7F;
+  --rule: #263033; --rule-strong: #35423F; --accent: #6FB1CC; --accent-soft: #1D3440;
+  --good: #6DBE8C; --good-soft: #17301F; --bad: #E4866A; --bad-soft: #3A2019;
+  --warn: #E0B35A; --warn-soft: #3A2E14; --neutral-soft: #262A26; --track: #242C2E;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5; margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 24px; padding-block: 32px 80px; }
+h1, h2, h3 { font-family: var(--cond); text-wrap: balance; margin: 0; }
+h1 { font-size: 34px; font-weight: 700; line-height: 1.1; }
+h2 { font-size: 24px; font-weight: 600; }
+p { margin: 0; max-width: 78ch; }
+.muted { color: var(--muted); }
+.eyebrow { font-family: var(--cond); font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+header.top { display: grid; gap: 14px; padding-bottom: 22px; border-bottom: 1px solid var(--rule-strong); }
+section { margin-top: 40px; display: grid; gap: 14px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.fact { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: grid; gap: 4px; }
+.fact .k { font-size: 13px; color: var(--muted); }
+.fact .pair { display: flex; align-items: baseline; gap: 10px; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.fact .from { color: var(--faint); font-size: 15px; text-decoration: line-through; text-decoration-thickness: 1px; }
+.fact .to { font-size: 24px; }
+.fact .note { font-size: 12.5px; color: var(--muted); }
+.tscroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--cond); font-weight: 600; font-size: 12.5px; letter-spacing: .04em; color: var(--muted); white-space: nowrap; position: sticky; top: 0; background: var(--panel); }
+td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.group-row td { background: var(--neutral-soft); font-family: var(--cond); font-weight: 600; letter-spacing: .03em; }
+.pill { font-family: var(--mono); font-size: 11.5px; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.neutral { background: var(--neutral-soft); color: var(--muted); }
+.pos { color: var(--good); } .neg { color: var(--bad); }
+.cond { font-family: var(--mono); font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.bar { position: relative; height: 8px; background: var(--track); border-radius: 2px; min-width: 90px; }
+.bar i { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent); border-radius: 2px; }
+.bar b { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--ink); opacity: .45; }
+.defects { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.defect { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: grid; gap: 6px; }
+.defect .c { font-family: var(--cond); font-weight: 600; font-size: 15px; }
+.defect .d { font-size: 13.5px; }
+.defect .f { font-size: 13px; color: var(--muted); }
+.bins { display: flex; gap: 3px; align-items: flex-end; height: 42px; }
+.bins span { flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; min-width: 6px; opacity: .85; }
+.legend { font-size: 13px; color: var(--muted); }
+@media (max-width: 720px) { .wrap { padding-inline: 16px; } h1 { font-size: 27px; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1>Engine rebuild scorecard</h1>
+    <p class="muted" id="lede"></p>
+  </header>
+
+  <section>
+    <h2>Overall</h2>
+    <div class="facts" id="overall"></div>
+  </section>
+
+  <section>
+    <h2>Categories</h2>
+    <p class="muted">Each strategy category is its own calibrated model over its validated readings. Success is the share of holdout bars where its preferred side matched the next 5-ATR move; the bars show hit rate by confidence band, which must rise.</p>
+    <div class="tscroll"><table id="groups"></table></div>
+  </section>
+
+  <section>
+    <h2>Components, original and now</h2>
+    <p class="legend">Accuracy: direction right when the component speaks. Fires: share of bars it speaks on. Move: the 120-minute move in its direction, in ATR, after spread. Best rule: the strongest validated condition set on its own internals, found on the first 30% of the calendar, validated on the next 30%, and shown here on the last 40%. <span class="pill good">65% line</span> marks rules at or above 65% with positive expectancy.</p>
+    <div class="tscroll"><table id="components"></table></div>
+  </section>
+
+  <section>
+    <h2>Entry policy</h2>
+    <p class="muted" id="policy-lede"></p>
+    <div class="tscroll"><table id="policy"></table></div>
+  </section>
+
+  <section>
+    <h2>Logic defects fixed</h2>
+    <div class="defects" id="defects"></div>
+  </section>
+</div>
+
+<script>
+const DATA = __DATA__;
+const el = (id) => document.getElementById(id);
+const fmt = (v, d = 1, suf = "") => (v === null || v === undefined || Number.isNaN(v)) ? "—" : `${Number(v).toFixed(d)}${suf}`;
+const signed = (v, d = 3) => (v === null || v === undefined) ? "—" : `<span class="${v > 0 ? "pos" : v < 0 ? "neg" : ""}">${v > 0 ? "+" : ""}${Number(v).toFixed(d)}</span>`;
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+el("eyebrow").textContent = `Price-history study · ${DATA.snapshots.toLocaleString()} snapshots · ${DATA.symbols.length} symbols · ${DATA.period}`;
+el("lede").textContent = DATA.lede;
+
+el("overall").innerHTML = DATA.overall.map((o) => `
+  <div class="fact"><div class="k">${esc(o.label)}</div>
+  <div class="pair"><span class="from">${esc(o.original)}</span><span class="to">${esc(o.current)}</span></div>
+  <div class="note">${esc(o.note || "")}</div></div>`).join("");
+
+el("groups").innerHTML = `<thead><tr><th>Category</th><th class="n">Readings</th><th class="n">Success (unseen)</th><th class="n">AUC</th><th>Monotone</th><th>Hit rate by confidence</th></tr></thead><tbody>` +
+  DATA.groups.map((g) => {
+    const hits = (g.bins || []).filter((b) => b.n >= 50);
+    const bars = hits.map((b) => `<span title="${esc(b.bin)}: ${b.hit}% (n ${b.n})" style="height:${Math.max(4, (b.hit - 40) * 2)}px"></span>`).join("");
+    const verdict = g.verdict === "MONOTONE" ? "good" : g.verdict === "TOO_FEW_BINS" ? "neutral" : "warn";
+    return `<tr><td>${esc(g.title)}</td><td class="n">${g.features}</td><td class="n">${fmt(g.test_acc, 1, "%")}</td><td class="n">${fmt(g.auc, 3)}</td>
+      <td><span class="pill ${verdict}">${esc(g.verdict)}</span></td><td><div class="bins">${bars}</div></td></tr>`;
+  }).join("") + "</tbody>";
+
+let lastGroup = null;
+el("components").innerHTML = `<thead><tr><th>Component</th><th class="n">Original acc</th><th class="n">Fires</th><th class="n">Now acc</th><th class="n">Fires</th><th class="n">Move ATR</th><th class="n">Net R</th><th>Best validated rule</th><th class="n">Rule acc</th><th class="n">Rule move</th></tr></thead><tbody>` +
+  DATA.components.map((c) => {
+    let head = "";
+    if (c.group !== lastGroup) { head = `<tr class="group-row"><td colspan="10">${esc(c.group_title)}</td></tr>`; lastGroup = c.group; }
+    const r = c.best_rule;
+    const rule = r ? `<div class="cond">${esc(r.orientation === "inverted" ? "INVERTED · " : "")}${r.conditions.map(esc).join(" AND ")}</div>` : `<span class="muted">none validated</span>`;
+    const line = r && r.red_line ? ` <span class="pill good">65% line</span>` : "";
+    return head + `<tr><td>${esc(c.name)}</td><td class="n">${fmt(c.orig_acc, 1, "%")}</td><td class="n">${fmt(c.orig_fire, 0, "%")}</td>
+      <td class="n">${fmt(c.cur_acc, 1, "%")}</td><td class="n">${fmt(c.cur_fire, 0, "%")}</td><td class="n">${signed(c.cur_move)}</td><td class="n">${signed(c.cur_net)}</td>
+      <td>${rule}${line}</td><td class="n">${r ? fmt(r.test_acc, 1, "%") + `<div class="muted">n ${r.test_n}</div>` : "—"}</td><td class="n">${r ? signed(r.move_atr) : "—"}</td></tr>`;
+  }).join("") + "</tbody>";
+
+const P = DATA.policy || {};
+el("policy-lede").textContent = P.summary || "No policy was chosen.";
+el("policy").innerHTML = `<thead><tr><th class="n">Floor</th><th class="n">Holdout trades</th><th class="n">Success</th><th class="n">Net R</th><th class="n">Move ATR</th></tr></thead><tbody>` +
+  (P.grid || []).map((r) => `<tr${r.floor === P.floor ? ' style="font-weight:600"' : ""}><td class="n">${fmt(100 * r.floor, 1, "%")}</td><td class="n">${r.n}</td><td class="n">${fmt(r.success_pct, 1, "%")}</td><td class="n">${signed(r.net_r)}</td><td class="n">${signed(r.move_atr)}</td></tr>`).join("") + "</tbody>";
+
+el("defects").innerHTML = DATA.defects.map((d) => `<div class="defect"><div class="c">${esc(d.component)}</div><div class="d">${esc(d.defect)}</div><div class="f">${esc(d.fix)}</div></div>`).join("");
+</script>

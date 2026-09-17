@@ -1,0 +1,56 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.depth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 8px 10px;
+}
+
+.depth__col {
+  display: flex;
+  flex-direction: column;
+}
+
+.depth__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  font-size: 11px;
+  padding: 0 4px;
+
+  &--bid {
+    grid-template-columns: auto 1fr;
+  }
+}
+
+.depth__bar {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  z-index: 0;
+  opacity: 0.16;
+
+  &--ask {
+    right: 0;
+    background: var(--color-coral);
+  }
+  &--bid {
+    left: 0;
+    background: var(--color-jade);
+  }
+}
+
+.depth__size,
+.depth__price {
+  position: relative;
+  z-index: 1;
+  text-align: right;
+}

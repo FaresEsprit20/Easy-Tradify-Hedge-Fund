@@ -1,0 +1,11 @@
+<div class="log" #scroller>
+  @for (e of entries(); track e.id) {
+    <div class="log__row">
+      <span class="log__time num">{{ formatTime(e.timestamp) }}</span>
+      <app-status-pill class="log__tag" [label]="e.level" [variant]="variant(e.level)" />
+      <span class="log__message">{{ e.message }}</span>
+    </div>
+  } @empty {
+    <div class="log__empty">No activity yet…</div>
+  }
+</div>

@@ -1,0 +1,540 @@
+EXECUTIVE SUMMARY: CRITICAL GAPS & ACTION ITEMS
+IMMEDIATE PRIORITY (HIGHEST IMPACT)
+1. LIVE INVALIDATION MONITORING
+Status: Already computed but never monitored
+Action: Build monitor that checks invalidation_trigger conditions every bar while in-trade
+
+python
+# Current: decision_snapshot.py writes text
+# Needs: entry_engine.py monitors and exits on trigger
+Implementation:
+
+□ Create invalidation_monitor.py
+□ Parse stored invalidation conditions from trade records
+□ Check conditions against live price each bar
+□ Trigger exit before SL when thesis breaks
+2. EXIT & POSITION MANAGEMENT OVERHAUL
+Status: Only time/session-based exit exists
+Action: Implement two-tiered exit system
+
+Tier 1: Structure-Based Breakeven + Trailing
+
+□ Detect swing points using existing swing detector
+□ Move stop to entry after price clears nearest swing
+□ Ratchet stop to each new swing point in direction
+□ Converts round-trip losers to scratch trades
+Tier 2: Partial-Profit Ladder
+
+□ Split position into thirds at TP1/TP2/TP3
+□ Close 1/3 at each target
+□ Move stop to entry after TP1 hit
+□ Let remainder run with trailing stop
+MEDIUM PRIORITY (ACCURACY & DISCIPLINE)
+3. CONVICTION-SCALED POSITION SIZING
+Status: target_risk_usd flat constant everywhere
+Action: Size off best_probability tiers
+
+□ Map probability to size multiplier:
+75-80%: 0.5× base
+
+80-90%: 1.0× base
+
+90-95%: 1.5× base
+
+95%+: 2.0× base (capped)
+
+□ Replace flat risk across all setups
+□ Calculate actual position size: (target_risk_usd × multiplier) / stop_distance
+4. SIGNAL-DECAY / CHASE GUARD
+Status: Nonexistent
+Action: Prevent chasing moved setups
+
+□ Measure: current price vs. setup formation price
+□ Define threshold: price_move > 0.5 × ATR(14)
+□ If exceeded: derate probability by 20% or invalidate
+□ Compare: R:R at formation vs. current R:R
+□ Reject if current R:R < original R:R × 0.7
+UNABLE TO CONFIRM (NEED FILE ACCESS)
+5. VERIFY EXISTING IMPLEMENTATIONS
+Requires inspection of these files to confirm if already handled:
+
+□ session_manager.py - Killzone/session-quality weighting
+□ news_veto.py - Granularity of news-risk response
+□ entry_engine.py - Probability floor implementation
+DEPLOYMENT ROADMAP
+Phase 1 (Week 1): Core Exit System
+Live invalidation monitoring
+
+Structure-based breakeven + trailing
+
+Partial-profit ladder
+
+Phase 2 (Week 2): Quality & Accuracy
+Conviction-scaled sizing
+
+Signal-decay guard
+
+Phase 3 (Week 3): Verification
+Verify existing implementations
+
+CRITICAL OBSERVATION
+The system is asymmetric:
+
+Entry: Highly sophisticated
+
+Exit: Bare minimum
+
+Real-world impact:
+
+Mediocre entry + disciplined exit > Great entry + no exit
+
+This imbalance costs more than any remaining indicator gap
+
+"Elite" performance lives in the exit logic, not entry logic
+
+
+
+Yes. With **Daily Loss Circuit Breaker** and **Noise-Floor Stop completely removed**, the proposal becomes a cleaner upgrade focused on **signal quality, independence of evidence, market regime, and entry confirmation**.
+
+## Final architecture
+
+The goal is **not to add dozens of indicators**. The goal is to make your existing system understand *why* multiple signals agree and whether the market conditions actually support taking that trade.
+
+### 1. Decorrelate the confluence — highest priority
+
+Your current weighted voting can accidentally count the same information multiple times.
+
+For example:
+
+* RSI → bullish
+* Stochastic → bullish
+* MACD → bullish
+
+These are all largely measuring momentum.
+
+Instead, organize signals into independent families:
+
+| Family         | Examples                                            |
+| -------------- | --------------------------------------------------- |
+| **Momentum**   | RSI, Stochastic, MACD                               |
+| **Structure**  | SMC, BOS, CHoCH, swing structure                    |
+| **Volume**     | Volume profile, volume imbalance                    |
+| **Volatility** | ATR, Bollinger Bands, ADR                           |
+| **Levels**     | Support/resistance, Fibonacci, psychological levels |
+| **Patterns**   | Elliott Wave, Wyckoff, candlestick patterns         |
+
+The system then evaluates **families**, rather than pretending every indicator is an independent vote.
+
+So:
+
+> 13 indicators agreeing ≠ 13 independent confirmations.
+
+It might actually represent only 5–6 independent pieces of evidence.
+
+This is probably the **single most important improvement**.
+
+---
+
+# 2. Use the existing volume imbalance
+
+Your system already calculates:
+
+`ask_volume / bid_volume`
+
+but apparently doesn't use it afterward.
+
+That's wasted information.
+
+It should become part of the **Volume family** and provide information about buying/selling pressure.
+
+For example:
+
+**Strong buying imbalance + bullish structure + bullish displacement**
+
+is much more meaningful than simply:
+
+**RSI + Stochastic + MACD = BUY**
+
+---
+
+# 3. Add psychological/round-number levels
+
+Add a dedicated layer for prices such as:
+
+* `1.1500`
+* `1.1550`
+* `1.1600`
+
+etc.
+
+These levels can act as additional context even when your swing detector doesn't identify them as traditional support/resistance.
+
+The important point is that this should be **confluence**, not an automatic buy/sell signal.
+
+---
+
+# 4. Make Fibonacci independent
+
+Currently Fibonacci apparently exists only inside Elliott Wave.
+
+Instead, create a standalone Fibonacci layer.
+
+For a recent significant swing:
+
+```text
+Swing Low ─────────────── Swing High
+              ↓
+       38.2%
+       50.0%
+       61.8%
+```
+
+Then check whether the potential entry zone overlaps an important Fibonacci level.
+
+For example:
+
+```text
+H1 bullish structure
+        +
+61.8% retracement
+        +
+H1 order block
+        +
+M15 bullish structure
+```
+
+That's substantially stronger confluence than Fibonacci being dependent on an Elliott Wave count.
+
+---
+
+# 5. Add ADR exhaustion
+
+The system should understand **how much of the day's normal movement has already happened**.
+
+For example:
+
+```text
+Average Daily Range = 100 pips
+Today's movement    = 85 pips
+ADR consumed        = 85%
+```
+
+At that point, blindly chasing another breakout is less attractive.
+
+So the system can adjust its interpretation:
+
+### Low ADR consumption
+
+Continuation/breakout setups can remain viable.
+
+### Very high ADR consumption
+
+Continuation becomes less attractive and mean-reversion setups become more interesting.
+
+This is contextual information rather than another simple BUY/SELL indicator.
+
+---
+
+# 6. DXY cross-check for USD pairs
+
+For USD-related pairs, the system can use DXY as **cross-market context**.
+
+Example:
+
+```text
+EURUSD → bullish
+DXY    → bearish
+```
+
+That's supportive.
+
+But:
+
+```text
+EURUSD → bullish
+DXY    → strongly bullish
+```
+
+creates a contradiction worth considering.
+
+Importantly, **DXY should not receive the same weight as an independent trading system**, especially for EURUSD because of the relationship between EUR and DXY.
+
+It's better treated as a **cross-market confirmation/disagreement factor**.
+
+---
+
+# 7. Displacement confirmation
+
+This is one of the strongest entry-quality improvements.
+
+Instead of:
+
+```text
+Price reaches order block
+        ↓
+BUY
+```
+
+require evidence that price actually reacts.
+
+For example:
+
+```text
+Price reaches zone
+        ↓
+Strong bullish displacement
+        ↓
+BUY
+```
+
+This helps distinguish:
+
+> "Price touched the zone."
+
+from:
+
+> "The market actually demonstrated strong reaction from the zone."
+
+That can filter many weak order-block/FVG entries.
+
+---
+
+# 8. Retest confirmation for breakouts
+
+Instead of entering immediately when resistance breaks:
+
+```text
+Resistance ─────────
+             ↑
+          breakout
+             ↑ BUY
+```
+
+the system can wait for:
+
+```text
+Resistance ─────────
+             ↑ breakout
+             │
+             ↓ retest
+             ↑
+            BUY
+```
+
+The idea is to verify that the broken resistance actually behaves like support.
+
+This specifically targets **false breakouts and breakout traps**.
+
+---
+
+# 9. Nested HTF/LTF zones
+
+A lower-timeframe zone should not automatically receive the same quality score as one backed by higher-timeframe structure.
+
+For example:
+
+```text
+H1 bullish zone
+       ↓
+M15 bullish zone
+       ↓
+M1 bullish order block
+       ↓
+Entry
+```
+
+That's a much stronger setup than:
+
+```text
+M1 order block
+       ↓
+Entry
+```
+
+So the system should reward **multi-timeframe alignment**.
+
+---
+
+# 10. Regime gating
+
+This goes beyond simply changing the score.
+
+If the market is classified as:
+
+### RANGING
+
+The system should **suppress breakout strategies** and favor:
+
+* support reactions
+* resistance reactions
+* mean reversion
+
+### TRENDING
+
+The system should favor:
+
+* breakouts
+* pullbacks
+* continuation
+* trend-following setups
+
+This is different from merely reducing a score.
+
+**Weighting says:**
+
+> "I don't like this setup as much."
+
+**Gating says:**
+
+> "This type of setup isn't allowed to trigger in this regime."
+
+That is much stronger.
+
+---
+
+# 11. Hard disagreement detection
+
+Don't always average everything into one score.
+
+Imagine:
+
+```text
+SMC       → BUY 90%
+Wyckoff   → SELL 85%
+Momentum  → BUY 75%
+Volume    → BUY 80%
+```
+
+A normal weighted system might simply output:
+
+```text
+BUY 70%
+```
+
+But that's hiding important information.
+
+Instead:
+
+```text
+SIGNAL: BUY
+
+WARNING:
+HIGH-CONVICTION DISAGREEMENT
+
+SMC     → BUY
+Wyckoff → SELL
+```
+
+The system can then downgrade or reject the setup depending on your rules.
+
+The key idea is:
+
+> **Independent disagreement is information.**
+
+---
+
+# 12. Risk/reward floor
+
+This remains in the design because you only asked to remove the **daily loss circuit breaker** and **noise-floor stop**.
+
+The system should maintain a minimum R:R requirement.
+
+For example:
+
+```text
+Minimum R:R = 1:1.2
+```
+
+If:
+
+```text
+Risk = $35
+```
+
+then the minimum acceptable potential reward would be approximately:
+
+```text
+$42
+```
+
+Even if the AI believes the probability of winning is extremely high.
+
+The reason is simple: probability estimates can be wrong, while the actual stop/target relationship is directly measurable.
+
+---
+
+# Final system
+
+So your upgraded decision pipeline becomes:
+
+```text
+                 MARKET DATA
+                      │
+                      ↓
+              INDICATOR ENGINE
+                      │
+          ┌───────────┴───────────┐
+          ↓                       ↓
+    STRUCTURE ANALYSIS      MARKET CONTEXT
+          │                       │
+          │                 ADR / DXY / Levels
+          │                       │
+          └───────────┬───────────┘
+                      ↓
+             DECORRELATED FAMILIES
+                      │
+       ┌──────────────┼──────────────┐
+       ↓              ↓              ↓
+   Momentum       Structure       Volume
+       ↓              ↓              ↓
+   Volatility       Levels         Patterns
+                      │
+                      ↓
+                REGIME DETECTION
+                      │
+             ┌────────┴────────┐
+             ↓                 ↓
+          TRENDING           RANGING
+             ↓                 ↓
+      continuation          reversal
+      breakouts             mean-reversion
+             └────────┬────────┘
+                      ↓
+             ENTRY VALIDATION
+                      │
+        ┌─────────────┼─────────────┐
+        ↓             ↓             ↓
+   Displacement     Retest       Nested zones
+        │             │             │
+        └─────────────┼─────────────┘
+                      ↓
+             DISAGREEMENT CHECK
+                      ↓
+                R:R VALIDATION
+                      ↓
+                 BUY / SELL
+```
+
+### Explicitly NOT included
+
+❌ Daily loss circuit breaker
+❌ Noise-floor `ATR` stop
+
+And importantly, **removing those two does not weaken the core signal architecture**. They are separate risk-management mechanisms. The major improvement here is making the **entry decision itself much more intelligent and less redundant**.
+
+
+
+Before I keep piling on features — one honest thing, then more ideas, because it affects which ideas are actually worth building.
+
+"Exponential profits" isn't a realistic target for rule-based confluence stacking on EURUSD. That pair is one of the most liquid, efficiently-priced instruments that exists — the retail technical patterns this system detects (FVGs, order blocks, Wyckoff phases) are visible to, and already priced in by, the same institutions whose flow creates them. Stacking more rules doesn't compound into an edge; past a point it compounds into overfitting to your own mental model of how price should behave — more ways to feel confident, not more ways to be right. You already found the actual constraint on this yourself, indirectly: nothing in this codebase has ever been checked against a real outcome. Every enhancement I've suggested across three rounds — old and new — is a plausible story, not a verified one.
+
+So the single most powerful thing I can suggest isn't a new rule. It's this: you already have attach_outcome() sitting unused in decision_snapshot.py. Wire a lightweight shadow-log — every time the system would have entered, record the setup, let price play out, call attach_outcome() automatically N bars later or at SL/TP. No ML, no learned weights, just a running tally per rule ("of the last 50 times the order-flow signal fired, how often was it right"). That's the difference between a system that sounds elite and one you actually know is. It's the only thing on this whole list that tells you whether to keep any of the rest.
+
+With that said — more genuinely new ideas, not filler:
+
+Equilibrium veto, not just soft weighting. When price sits in the dead-center of a range, your reward-to-risk is capped by geometry alone — you're equidistant from both range edges — regardless of how bullish the indicators look. This is the one filter that doesn't depend on being right about direction at all, just on refusing structurally bad payoffs. Currently premium_discount.EQUILIBRIUM is just a classification, not a gate.
+Use your own liquidity pools as real TP targets. You already wired liquidity pools into the probability score — extend that: size TP1/TP2/TP3 off the actual next pool/swing point instead of fixed distances. Free upgrade from data you already compute.
+Compression-before-expansion (NR4/NR7-style). A period of narrowing range (inside bars) followed by a breakout is statistically more reliable than a breakout from an already-expanded range. Purely mechanical, currently absent.
+Consensus dispersion, not just weighted score. 11 indicators voting BUY and 1 SELL should be scored differently than 6 BUY / 5 SELL / 2 NEUTRAL even if the weighted math lands on the same number — right now only the magnitude is measured, not how unanimous it is.
+Volatility regime transition, not just level. Catching ATR expanding out of a compressed base is a different (and often more tradeable) signal than "ATR is currently high." You track the level; you don't track the slope.
+Two-clean-legs structure requirement. Require genuine, unretraced impulse structure in the trade direction before trusting a pullback as "continuation" — guards against choppy structure that only pattern-matches as trending.

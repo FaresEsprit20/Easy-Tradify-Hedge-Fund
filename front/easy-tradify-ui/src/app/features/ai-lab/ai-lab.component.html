@@ -1,0 +1,75 @@
+<div class="ai-lab">
+  <!-- Standing notice. The console is deliberately not wired to the backend
+       yet, and a reviewer must not mistake a mocked result for a measurement. -->
+  <div class="mockbar" role="note">
+    <span class="mockbar__tag">INTERFACE ONLY</span>
+    <span class="mockbar__text">
+      Not connected to the AI service. Every result below is a local mock —
+      the endpoint each operation will call is shown with it.
+    </span>
+  </div>
+
+  <div class="row g-3">
+    <!-- ------------------------------------------------------ -->
+    <!-- GROUPS                                                  -->
+    <!-- ------------------------------------------------------ -->
+    <div class="col-12 col-xl-3">
+      <app-panel
+        title="AI Surface"
+        titleHint="Every operable endpoint in ai/ai_controller.py (:5002) plus the trade store (:5011), grouped by owning Python module.">
+        <p class="surface__count">
+          {{ groups.length }} groups · {{ totalOperations() }} operations
+        </p>
+
+        <nav class="groups">
+          @for (g of groups; track g.id) {
+            <button
+              type="button"
+              class="group"
+              [class.group--active]="g.id === groupId()"
+              (click)="selectGroup(g.id)">
+              <span class="group__label">{{ g.label }}</span>
+              <span class="group__meta">{{ g.operations.length }}</span>
+            </button>
+          }
+        </nav>
+      </app-panel>
+    </div>
+
+    <!-- ------------------------------------------------------ -->
+    <!-- OPERATION                                               -->
+    <!-- ------------------------------------------------------ -->
+    <div class="col-12 col-xl-5">
+      <app-panel [title]="group().label">
+        <app-ai-operation
+          [group]="group()"
+          [operation]="operation()"
+          [resolvedPath]="resolvedPath()"
+          [running]="api.running()"
+          [values]="currentValues()"
+          (selectOperation)="selectOperation($event)"
+          (paramChange)="patchParam($event.param, $event.value)"
+          (run)="execute()"
+          (cancel)="cancelRun()" />
+      </app-panel>
+    </div>
+
+    <!-- ------------------------------------------------------ -->
+    <!-- RUN + RESULT                                            -->
+    <!-- ------------------------------------------------------ -->
+    <div class="col-12 col-xl-4">
+      <app-panel title="Process" titleHint="Stages are the substance of a result, not overhead — a search spends most of its time in the permutation null and the FDR correction.">
+        @if (api.stages().length) {
+          <app-process-runner [stages]="api.stages()" [running]="api.running()" />
+        } @else {
+          <p class="empty">No run yet. Pick an operation and run it.</p>
+        }
+      </app-panel>
+
+      <div class="mt-3">
+        <app-ai-result [result]="api.lastResult()" [history]="api.history()" />
+      </div>
+
+    </div>
+  </div>
+</div>

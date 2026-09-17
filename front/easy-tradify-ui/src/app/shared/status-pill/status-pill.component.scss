@@ -1,0 +1,38 @@
+:host {
+  display: inline-flex;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  white-space: nowrap;
+
+  &--jade {
+    color: var(--color-jade);
+    background: var(--color-jade-dim);
+  }
+  &--coral {
+    color: var(--color-coral);
+    background: var(--color-coral-dim);
+  }
+  &--amber {
+    color: var(--color-amber);
+    background: var(--color-amber-dim);
+  }
+  &--info {
+    color: var(--color-info);
+    background: var(--color-info-dim);
+  }
+  &--muted {
+    color: var(--text-secondary);
+    background: var(--bg-panel-raised);
+  }
+}

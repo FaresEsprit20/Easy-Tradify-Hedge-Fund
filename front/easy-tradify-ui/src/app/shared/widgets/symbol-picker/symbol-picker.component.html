@@ -1,0 +1,43 @@
+<div class="sp">
+  <button type="button" class="sp__trigger num" (click)="toggle()">
+    <span>{{ value() }}</span>
+    <span class="sp__chevron" [class.is-open]="open()">▾</span>
+  </button>
+
+  @if (open() && panelPosition(); as pos) {
+    <div class="sp__panel" [style.top.px]="pos.top" [style.left.px]="pos.left">
+      <input
+        type="text"
+        class="sp__search"
+        placeholder="Search symbol…"
+        autocomplete="off"
+        [ngModel]="query()"
+        (ngModelChange)="query.set($event)"
+        (keydown.escape)="onEscape()"
+        #searchInput
+      />
+
+      <div class="sp__cats">
+        <button type="button" class="sp__cat" [class.is-active]="category() === null" (click)="setCategory(null)">All</button>
+        @for (c of categories; track c[0]) {
+          <button type="button" class="sp__cat" [class.is-active]="category() === c[0]" (click)="setCategory(c[0])">{{ c[1] }}</button>
+        }
+      </div>
+
+      <div class="sp__results">
+        @for (s of results(); track s.symbol) {
+          <button type="button" class="sp__result" [class.is-selected]="s.symbol === value()" (click)="pick(s.symbol)">
+            <span class="sp__result-symbol">{{ s.symbol }}</span>
+            <span class="sp__result-cat">{{ s.category }}</span>
+          </button>
+        } @empty {
+          <div class="sp__empty">No symbols match.</div>
+        }
+      </div>
+
+      @if (totalMatches() > results().length) {
+        <div class="sp__more">+{{ totalMatches() - results().length }} more — refine your search</div>
+      }
+    </div>
+  }
+</div>

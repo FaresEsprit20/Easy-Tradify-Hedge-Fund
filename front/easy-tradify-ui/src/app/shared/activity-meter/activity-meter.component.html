@@ -1,0 +1,5 @@
+<span class="meter">
+  @for (level of levels(); track $index) {
+    <span class="meter__bar" [style.height.%]="20 + level * 80" [class.meter__bar--hot]="level > 0.7"></span>
+  }
+</span>

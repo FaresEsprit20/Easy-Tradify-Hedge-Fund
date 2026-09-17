@@ -1,0 +1,33 @@
+:host {
+  display: inline-flex;
+}
+
+.cab {
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-hairline-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-coral);
+    color: var(--color-coral);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--confirm {
+    border-color: var(--color-coral);
+    color: var(--color-coral);
+    background: var(--color-coral-dim);
+  }
+}

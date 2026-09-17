@@ -1,0 +1,20 @@
+:host {
+  display: inline-block;
+  width: 64px;
+  height: 22px;
+}
+
+.spark {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.spark--jade {
+  stroke: var(--color-jade);
+}
+
+.spark--coral {
+  stroke: var(--color-coral);
+}

@@ -1,0 +1,35 @@
+<div class="container-fluid p-0 term">
+  <div class="row g-3">
+    <div class="col-lg-3 term__col">
+      <app-panel title="Watchlist" [live]="true" [state]="connection.connectionState()" [updatedAt]="stream.watchlist()[0]?.updatedAt ?? 0" [noPadding]="true" class="term__panel term__panel--split">
+        <app-watchlist-panel [items]="stream.watchlist()" [focusedSymbol]="focusedSymbol()" (selected)="focusSymbol($event)" />
+      </app-panel>
+      <app-panel title="Order Ticket" class="term__panel term__panel--split" [noPadding]="true">
+        <app-order-ticket-panel [symbol]="focusedSymbol()" />
+      </app-panel>
+    </div>
+
+    <div class="col-lg-6 term__col">
+      <app-panel [title]="focusedSymbol() + ' — Price Chart'" [noPadding]="true" class="term__panel term__panel--tall">
+        <div panelActions class="term__chart-actions">
+          <app-timeframe-selector [value]="timeframe()" (change)="timeframe.set($event)" />
+          <a class="term__deep-link" [routerLink]="['/analysis']" [queryParams]="{ symbol: focusedSymbol() }">Full Analysis →</a>
+        </div>
+        <app-price-chart [candles]="candles()" [priceLines]="priceLines()" />
+      </app-panel>
+      <app-panel title="Gate / Coherence" [live]="true" [state]="connection.connectionState()" [updatedAt]="gatesUpdatedAt()" [noPadding]="true" class="term__panel term__panel--short">
+        <app-gate-ticker [events]="stream.gateEvents()" />
+      </app-panel>
+    </div>
+
+    <div class="col-lg-3 term__col">
+      <app-panel title="Positions" [live]="true" [state]="connection.connectionState()" [updatedAt]="stream.positions()[0]?.updatedAt ?? 0" [noPadding]="true" class="term__panel term__panel--split">
+        <app-close-all-button panelActions />
+        <app-positions-panel [positions]="stream.positions()" />
+      </app-panel>
+      <app-panel title="Market Depth" [live]="true" [state]="connection.connectionState()" [updatedAt]="stream.marketDepth().updatedAt" [noPadding]="true" class="term__panel term__panel--split">
+        <app-market-depth-panel [depth]="stream.marketDepth()" />
+      </app-panel>
+    </div>
+  </div>
+</div>

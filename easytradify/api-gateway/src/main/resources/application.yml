@@ -1,0 +1,295 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    # ------------------------------------------------------------
+    # LOAD BALANCER
+    # ------------------------------------------------------------
+    loadbalancer:
+      # Poll Eureka rather than caching a snapshot for 35s. A service that
+      # restarts on a different instance is otherwise routed to a dead one
+      # until the cache expires, which reads as an intermittent 503.
+      cache:
+        ttl: 5s
+
+    gateway:
+      # Spring Cloud Gateway 4.3 moved this whole tree from
+      # spring.cloud.gateway.* to spring.cloud.gateway.server.webflux.*.
+      # The old prefix is deprecated AND no longer bound: routes declared
+      # under it load silently as an empty list, so the gateway starts
+      # healthy and 404s everything. /actuator/gateway/routes returning []
+      # is the tell.
+      server:
+        webflux:
+          # ----------------------------------------------------------
+          # DISCOVERY
+          # ----------------------------------------------------------
+          discovery:
+            locator:
+              # OFF deliberately. The automatic locator exposes every registered
+              # service at /SERVICE-NAME/**, which means a service is publicly
+              # reachable the moment it registers — including anything added later
+              # that was never meant to face the internet. Routes below are
+              # explicit, so exposure is a decision rather than a side effect.
+              enabled: false
+
+          # ----------------------------------------------------------
+          # ROUTES
+          # ----------------------------------------------------------
+          # Every URI is lb://<spring.application.name>. Note the portfolio
+          # service registers as "portflio_risk_management-service" — the typo is
+          # in that module's own application.properties, and the gateway must use
+          # the name actually registered, not the one that reads correctly.
+          routes:
+            - id: execution-service
+              uri: lb://execution-service
+              predicates:
+                - Path=/api/v1/execution/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: executionCB
+                    fallbackUri: forward:/fallback/execution
+
+            - id: copy-trade
+              uri: lb://execution-service
+              predicates:
+                - Path=/api/v1/copy-trade/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: copyTradeCB
+                    fallbackUri: forward:/fallback/execution
+
+            - id: monitor-service
+              uri: lb://monitor-service
+              predicates:
+                - Path=/api/v1/monitor/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: monitorCB
+                    fallbackUri: forward:/fallback/monitor
+
+            - id: portfolio-service
+              uri: lb://portflio_risk_management-service
+              predicates:
+                - Path=/api/v1/portfolio/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: portfolioCB
+                    fallbackUri: forward:/fallback/portfolio
+
+            - id: ai-service
+              uri: lb://ai-service
+              predicates:
+                - Path=/api/v1/ai/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: aiCB
+                    fallbackUri: forward:/fallback/ai
+
+            - id: trades-service
+              uri: lb://trades-service
+              predicates:
+                - Path=/api/v1/trades/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: tradesCB
+                    fallbackUri: forward:/fallback/trades
+
+            # ----------------------------------------------------------
+            # AUTH
+            # ----------------------------------------------------------
+            # Three separate routes, because the auth service answers on three
+            # unrelated path roots and only one of them looks like the others:
+            #
+            #  * the app root, where the sign-in/account endpoints live
+            #  * /oauth2/** and /login/oauth2/**, which are NOT ours to name --
+            #    Spring Security's OAuth2 client owns those paths, and the
+            #    redirect URI registered with Google points at them literally.
+            #    Rewriting or prefixing them breaks the handshake, since Google
+            #    redirects the BROWSER to a URL that must resolve here.
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/easytradify/trading/tool/v1/auth/**,/easytradify/trading/tool/v1/users/**,/easytradify/trading/tool/v1/accounts/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: authCB
+                    fallbackUri: forward:/fallback/auth
+
+            - id: auth-oauth2
+              uri: lb://auth-service
+              predicates:
+                - Path=/oauth2/**,/login/oauth2/**
+
+          # ----------------------------------------------------------
+          # DEFAULT FILTERS
+          # ----------------------------------------------------------
+          default-filters:
+            # Retry only what is safe to repeat. GET is idempotent; POST is not,
+            # and retrying a trade execution because a response was slow would
+            # place the order twice. BAD_GATEWAY / SERVICE_UNAVAILABLE are the
+            # cases where the request very likely never reached the service.
+            - name: Retry
+              args:
+                retries: 2
+                methods: GET
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE
+                backoff:
+                  firstBackoff: 50ms
+                  maxBackoff: 500ms
+                  factor: 2
+
+          # ----------------------------------------------------------
+          # CORS
+          # ----------------------------------------------------------
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                # Explicit origins, not "*": allowed-credentials cannot be used
+                # with a wildcard, and the browser rejects the response outright.
+                allowed-origins:
+                  - http://localhost:4200
+                  - http://127.0.0.1:4200
+                allowed-methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+                allowed-headers: '*'
+                allow-credentials: true
+                max-age: 3600
+
+# ============================================================
+# CIRCUIT BREAKERS
+# ============================================================
+# One breaker per backend, because the failure they exist to contain is
+# exactly "one slow service consumes every connection and the whole platform
+# stops answering". A shared breaker would reintroduce that coupling.
+#
+# HOW THE TIMEOUTS WERE CHOSEN
+# ----------------------------
+# Not uniformly, because these backends are not alike. The default
+# TimeLimiter is 1 second, which would open the AI circuit permanently: a
+# walk-forward scan runs folds and a permutation null before it answers, and
+# it is SUPPOSED to take minutes. Meanwhile a 60s allowance on monitor status
+# would let a hung monitor hold the dashboard for a minute per poll.
+#
+# Each limit below is roughly "slower than this means something is wrong",
+# per service, rather than one number that is wrong for all of them.
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        # COUNT-based, not time-based: these services see bursty, low-volume
+        # traffic, and a time window can trip on two failures that happen to
+        # land in the same second.
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        registerHealthIndicator: true
+    instances:
+      executionCB:
+        baseConfig: default
+        # Deliberately reluctant to open. A trade request that fails is far
+        # more costly to abandon than to wait on -- see FallbackController for
+        # why an execution fallback cannot report the order as not-placed.
+        minimumNumberOfCalls: 8
+        failureRateThreshold: 70
+        waitDurationInOpenState: 15s
+      copyTradeCB:
+        baseConfig: default
+        minimumNumberOfCalls: 8
+        failureRateThreshold: 70
+      monitorCB:
+        baseConfig: default
+      portfolioCB:
+        baseConfig: default
+      tradesCB:
+        baseConfig: default
+      aiCB:
+        baseConfig: default
+        # Long-running by nature, so a couple of failures says less here than
+        # elsewhere; wait longer before probing again.
+        minimumNumberOfCalls: 8
+        waitDurationInOpenState: 30s
+      authCB:
+        baseConfig: default
+        # Sign-in is the first thing a user touches. Recover quickly so a brief
+        # blip does not lock everyone out for a quarter of a minute.
+        waitDurationInOpenState: 5s
+
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 10s
+        # FALSE, and this is the important one. Cancelling a running future
+        # aborts the in-flight HTTP exchange -- on POST /execution/trade that
+        # means abandoning a request MT5 may already be filling, with no record
+        # on either side of what happened.
+        cancelRunningFuture: false
+    instances:
+      executionCB:
+        # MT5 order placement genuinely takes seconds: requote loops, weekend
+        # symbol checks, a terminal that is busy.
+        timeoutDuration: 25s
+        cancelRunningFuture: false
+      copyTradeCB:
+        timeoutDuration: 25s
+        cancelRunningFuture: false
+      monitorCB:
+        timeoutDuration: 8s
+      portfolioCB:
+        # Reads the whole closed-trade set out of Mongo to compute period
+        # statistics.
+        timeoutDuration: 15s
+      tradesCB:
+        # /stats/timeseries and /diagnostics aggregate across the collection.
+        timeoutDuration: 20s
+      aiCB:
+        # Folds, permutation null, FDR. Minutes is correct, not a fault.
+        timeoutDuration: 180s
+      authCB:
+        timeoutDuration: 10s
+
+server:
+  port: 8080
+
+# ------------------------------------------------------------
+# SERVICE DISCOVERY
+# ------------------------------------------------------------
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# ------------------------------------------------------------
+# ACTUATOR
+# ------------------------------------------------------------
+# /actuator/gateway/routes is the answer to "why is this 404ing" — it lists
+# the routes as actually loaded, which is the only reliable check that a
+# predicate matches what you think it does.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,circuitbreakers,circuitbreakerevents
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      access: unrestricted
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO

@@ -1,0 +1,105 @@
+<p class="blurb">{{ group().blurb }}</p>
+<p class="module">
+  <span class="mono">{{ group().module }}</span>
+  <span class="dot">·</span>
+  <span class="mono">port {{ group().port }}</span>
+</p>
+
+<div class="ops">
+  @for (op of group().operations; track op.id) {
+    <button
+      type="button"
+      class="op"
+      [class.op--active]="op.id === operation().id"
+      (click)="pick(op.id)">
+      <span class="method" [attr.data-method]="op.method">{{ op.method }}</span>
+      <span>{{ op.label }}</span>
+      @if (op.guarded) {
+        <span class="guard" title="Changes state — asks before running">!</span>
+      }
+    </button>
+  }
+</div>
+
+<hr class="rule" />
+
+<h3 class="title">{{ operation().label }}</h3>
+<p class="summary">{{ operation().summary }}</p>
+
+<p class="target">
+  <span class="method" [attr.data-method]="operation().method">{{ operation().method }}</span>
+  <code class="mono">{{ resolvedPath() }}</code>
+  <span class="weight">{{ weightLabel(operation()) }}</span>
+</p>
+
+@if (operation().caveat) {
+  <!-- Inline, never behind a tooltip: what this guards against is a number
+       that looks like a finding. -->
+  <div class="caveat">
+    <span class="caveat__tag">READ WITH</span>
+    <span>{{ operation().caveat }}</span>
+  </div>
+}
+
+@if (params().length) {
+  <div class="params">
+    @for (p of params(); track p.key) {
+      <label class="param">
+        <span class="param__label">{{ p.label }}</span>
+
+        @switch (p.kind) {
+          @case ('boolean') {
+            <input type="checkbox" class="param__check"
+              [checked]="$any(valueOf(p))"
+              (change)="patch(p, $any($event.target).checked)" />
+          }
+          @case ('select') {
+            <select class="param__input" [value]="$any(valueOf(p))"
+              (change)="patch(p, $any($event.target).value)">
+              @for (opt of p.options ?? []; track opt) {
+                <option [value]="opt">{{ opt || '(any)' }}</option>
+              }
+            </select>
+          }
+          @case ('number') {
+            <input type="number" class="param__input" [value]="$any(valueOf(p))"
+              (input)="patch(p, $any($event.target).value)" />
+          }
+          @default {
+            <input type="text" class="param__input" [value]="$any(valueOf(p))"
+              (input)="patch(p, $any($event.target).value)" />
+          }
+        }
+
+        @if (p.note) {
+          <span class="param__note">{{ p.note }}</span>
+        }
+      </label>
+    }
+  </div>
+}
+
+<div class="actions">
+  @if (running()) {
+    <button type="button" class="btn btn--ghost" (click)="cancel.emit()">Cancel</button>
+  } @else {
+    <button type="button" class="btn btn--run" (click)="requestRun()">
+      Run {{ operation().label }}
+    </button>
+  }
+</div>
+
+@if (pendingConfirm(); as guarded) {
+  <div class="confirm" role="alertdialog">
+    <p class="confirm__text">
+      <strong>{{ guarded.label }}</strong> changes state.
+      @if (guarded.caveat) {
+        {{ guarded.caveat }}
+      }
+    </p>
+    <div class="actions">
+      <button type="button" class="btn btn--danger" (click)="confirm()">Run it</button>
+      <button type="button" class="btn btn--ghost" (click)="dismiss()">Cancel</button>
+    </div>
+  </div>
+}

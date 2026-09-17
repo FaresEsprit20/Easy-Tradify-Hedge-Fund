@@ -1,0 +1,286 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.bl {
+  display: flex;
+  flex-direction: column;
+  min-width: max-content;
+}
+
+.bl__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-hairline-strong);
+}
+
+.bl__search {
+  flex: 1 1 auto;
+  padding: 6px 8px;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline-strong);
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  min-width: 140px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-amber);
+  }
+}
+
+.bl__count {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font-size: 9.5px;
+  white-space: nowrap;
+}
+
+.bl__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border-hairline-strong);
+}
+
+.bl__pager-btn {
+  padding: 4px 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-condensed);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--color-amber);
+    border-color: var(--color-amber);
+  }
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.bl__pager-label {
+  color: var(--text-dim);
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.bl__row {
+  display: grid;
+  grid-template-columns: 64px 52px 46px minmax(76px, 1fr) minmax(76px, 1fr) minmax(76px, 1fr) minmax(76px, 1fr) minmax(76px, 1fr) minmax(70px, 1fr) minmax(70px, 1fr) 128px;
+  align-items: center;
+  gap: 8px;
+  height: var(--row-h-compact);
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border-hairline);
+  font-size: 11px;
+
+  &--head {
+    height: 24px;
+    font-family: var(--font-condensed);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border-hairline-strong);
+  }
+
+  &--open {
+    background: var(--bg-panel-raised);
+
+    .bl__row-actions {
+      background: var(--bg-panel-raised);
+    }
+  }
+}
+
+// Pinned so Close/Manage stay reachable without scrolling past the TP1-3
+// columns — the row can grow arbitrarily wide, but the actions that matter
+// most (closing a position) must never require a horizontal scroll to find.
+.bl__row-actions {
+  position: sticky;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding-left: 8px;
+  background: var(--bg-panel);
+}
+
+.bl__symbol {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.bl__sort {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-amber);
+  }
+
+  &--num {
+    text-align: right;
+    justify-self: end;
+  }
+}
+
+.bl__num {
+  text-align: right;
+}
+
+.bl__empty {
+  padding: 12px 10px;
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.bl__close-btn {
+  padding: 4px 8px;
+  border-radius: 2px;
+  border: 1px solid var(--color-coral);
+  background: transparent;
+  color: var(--color-coral);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--color-coral-dim);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--confirm {
+    background: var(--color-coral);
+    color: var(--text-on-amber);
+  }
+}
+
+.bl__manage-btn {
+  padding: 4px 8px;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-amber);
+    color: var(--color-amber);
+  }
+
+  &[aria-expanded='true'] {
+    border-color: var(--color-amber);
+    color: var(--color-amber);
+    background: var(--color-amber-dim);
+  }
+}
+
+.bl__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background: var(--bg-panel-alt);
+  border-bottom: 1px solid var(--border-hairline);
+  font-size: 10.5px;
+}
+
+.bl__action-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bl__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  input,
+  select {
+    width: 76px;
+    padding: 4px 6px;
+    font-size: 10.5px;
+  }
+}
+
+.bl__field-label {
+  font-family: var(--font-condensed);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.bl__btn {
+  padding: 5px 9px;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-amber);
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--active {
+    color: var(--color-jade);
+    border-color: var(--color-jade);
+    background: var(--color-jade-dim);
+  }
+}
+
+.bl__trail-info {
+  color: var(--color-jade);
+}

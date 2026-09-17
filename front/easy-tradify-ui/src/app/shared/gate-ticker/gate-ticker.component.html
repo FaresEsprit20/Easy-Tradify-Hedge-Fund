@@ -1,0 +1,13 @@
+<div class="ticker" #scroller>
+  @for (event of events(); track event.id) {
+    <div class="ticker__row">
+      <span class="ticker__time num">{{ formatTime(event.timestamp) }}</span>
+      <app-status-pill class="ticker__tag" [label]="event.verdict" [variant]="pillVariant(event.verdict)" />
+      <span class="ticker__gate">{{ event.gateName }}</span>
+      <span class="ticker__symbol num">{{ event.symbol }}</span>
+      <span class="ticker__margin num">{{ event.margin }}</span>
+    </div>
+  } @empty {
+    <div class="ticker__empty">Awaiting gate events…</div>
+  }
+</div>

@@ -1,0 +1,11 @@
+<div class="op">
+  @for (o of opportunities(); track o.symbol) {
+    <div class="op__row">
+      <span class="op__symbol">{{ o.symbol }}</span>
+      <app-status-pill [label]="o.verdict" [variant]="variant(o.verdict)" />
+      <span class="op__conv num">{{ o.conviction }}</span>
+      <span class="op__gates num">{{ o.gatesPassed }}/{{ o.gatesTotal }}</span>
+      <span class="op__note">{{ o.note }}</span>
+    </div>
+  }
+</div>

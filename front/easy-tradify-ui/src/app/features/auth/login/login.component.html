@@ -1,0 +1,78 @@
+<div class="af-head">
+  <h1 class="af-title">Sign in</h1>
+  <p class="af-sub">Access the execution terminal, monitor and research layer.</p>
+</div>
+
+@if (error()) {
+  <div class="af-alert" role="alert">{{ error() }}</div>
+}
+
+@if (recaptchaMisconfigured) {
+  <div class="af-alert" role="status">
+    Bot protection is enforced by the auth service but no reCAPTCHA site key is
+    configured here, so sign-in will be rejected. Set
+    <code>recaptcha.siteKey</code> in the environment file.
+  </div>
+}
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="af-field">
+    <label class="af-label" for="login">EMAIL OR USERNAME</label>
+    <input
+      id="login"
+      class="af-input"
+      formControlName="login"
+      type="text"
+      autocomplete="username"
+      placeholder="you@example.com"
+      [attr.aria-invalid]="form.controls.login.invalid && form.controls.login.touched" />
+    @if (form.controls.login.touched && form.controls.login.invalid) {
+      <div class="af-error">Enter your email or username.</div>
+    }
+  </div>
+
+  <div class="af-field">
+    <label class="af-label" for="password">PASSWORD</label>
+    <input
+      id="password"
+      class="af-input"
+      formControlName="password"
+      type="password"
+      autocomplete="current-password"
+      placeholder="••••••••"
+      [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched" />
+    @if (form.controls.password.touched && form.controls.password.invalid) {
+      <div class="af-error">Enter your password.</div>
+    }
+  </div>
+
+  <button class="af-btn" type="submit" [disabled]="submitting()">
+    @if (submitting()) {
+      <span class="af-spin"></span>
+    } @else {
+      SIGN IN
+    }
+  </button>
+</form>
+
+<div class="af-sep">OR</div>
+
+<button class="af-btn af-btn--ghost" type="button" (click)="google()">
+  <!-- Inline rather than an <img>: one fewer request, and it cannot 404. -->
+  <svg width="15" height="15" viewBox="0 0 48 48" aria-hidden="true">
+    <path fill="#4285F4" d="M45 24c0-1.6-.1-2.7-.4-4H24v7.5h12c-.2 2-1.5 5-4.4 7l6.7 5.2C42.2 36.2 45 30.6 45 24z"/>
+    <path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.7-5.2c-1.9 1.3-4.4 2.2-7.8 2.2-6 0-11-4-12.8-9.4l-7 5.4C7.8 41 15.3 46 24 46z"/>
+    <path fill="#FBBC05" d="M11.2 28.3c-.5-1.4-.8-2.8-.8-4.3s.3-2.9.7-4.3l-7-5.4C2.8 17.2 2 20.5 2 24s.8 6.8 2.2 9.7l7-5.4z"/>
+    <path fill="#EA4335" d="M24 10.2c3.4 0 5.7 1.5 7 2.7l5.9-5.8C33.3 3.7 29.3 2 24 2 15.3 2 7.8 7 4.2 14.3l7 5.4C13 14.2 18 10.2 24 10.2z"/>
+  </svg>
+  CONTINUE WITH GOOGLE
+</button>
+
+<p class="af-hint">
+  Google sign-in reaches the same account as your password — they are linked by
+  email address, not kept as two separate users.
+</p>
+
+<div class="af-foot">
+  No account? <a routerLink="/auth/register">Create one</a>
+</div>

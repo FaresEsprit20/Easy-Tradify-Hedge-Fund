@@ -1,0 +1,161 @@
+<form class="ticket" (submit)="$event.preventDefault(); execute()">
+  <div class="ticket__row">
+    <app-symbol-picker [value]="selectedSymbol()" (change)="selectedSymbol.set($event)" />
+    <div class="ticket__side">
+      <button type="button" class="ticket__side-btn ticket__side-btn--buy" [class.is-active]="side() === 'BUY'" (click)="setSide('BUY')">BUY</button>
+      <button type="button" class="ticket__side-btn ticket__side-btn--sell" [class.is-active]="side() === 'SELL'" (click)="setSide('SELL')">SELL</button>
+    </div>
+  </div>
+
+  <h3 class="ticket__section">Size &amp; Risk</h3>
+  <div class="ticket__row">
+    <label class="ticket__field">
+      <span class="ticket__label">Trade size (USD)</span>
+      <input type="number" step="10" class="num" [ngModel]="fixedTradeSizeUsd()" (ngModelChange)="fixedTradeSizeUsd.set($event)" name="size" />
+    </label>
+    <label class="ticket__field">
+      <span class="ticket__label">Risk per trade (%)</span>
+      <input type="number" step="0.5" class="num" [ngModel]="riskPerTradePct()" (ngModelChange)="riskPerTradePct.set($event)" name="risk" />
+    </label>
+  </div>
+  <button type="button" class="ticket__calc-btn" [disabled]="previewing()" (click)="previewLot()">
+    {{ previewing() ? 'Calculating…' : 'Calculate Lot' }}
+  </button>
+  @if (lotPreview(); as preview) {
+    <div class="ticket__calc-result">
+      <div class="ticket__calc-grid">
+        <div class="ticket__calc-cell ticket__calc-cell--hero">
+          <span class="ticket__calc-label">Lot size</span>
+          <span class="ticket__calc-value ticket__calc-value--hero num">{{ preview.lot }}</span>
+        </div>
+        <div class="ticket__calc-cell">
+          <span class="ticket__calc-label">Actual risk</span>
+          <span class="ticket__calc-value num">${{ preview.actualRisk }}</span>
+        </div>
+        <div class="ticket__calc-cell">
+          <span class="ticket__calc-label">Margin required</span>
+          <span class="ticket__calc-value num">${{ preview.marginRequired }}</span>
+        </div>
+        <div class="ticket__calc-cell">
+          <span class="ticket__calc-label">Pip value</span>
+          <span class="ticket__calc-value num">${{ preview.pipValue }}</span>
+        </div>
+        <div class="ticket__calc-cell">
+          <span class="ticket__calc-label">Current price</span>
+          <span class="ticket__calc-value num">{{ preview.currentPrice }}</span>
+        </div>
+        <div class="ticket__calc-cell">
+          <span class="ticket__calc-label">Stop loss</span>
+          <span class="ticket__calc-value num text-coral">{{ preview.stopLossPrice }} ({{ preview.stopLossPips }}p)</span>
+        </div>
+        <div class="ticket__calc-cell">
+          <span class="ticket__calc-label">Take profit</span>
+          <span class="ticket__calc-value num text-jade">{{ preview.takeProfitPrice }}</span>
+        </div>
+        <div class="ticket__calc-cell">
+          <span class="ticket__calc-label">Target risk / margin</span>
+          <span class="ticket__calc-value num">${{ preview.targetRisk }} / ${{ preview.targetMargin }}</span>
+        </div>
+        <div class="ticket__calc-cell">
+          <span class="ticket__calc-label">Risk % / margin %</span>
+          <span class="ticket__calc-value num">{{ preview.riskPercent }}% / {{ preview.marginPercent }}%</span>
+        </div>
+      </div>
+      @if (preview.warnings.length) {
+        <div class="ticket__calc-warnings">
+          @for (w of preview.warnings; track w) {
+            <p class="ticket__calc-warning">⚠ {{ w }}</p>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <h3 class="ticket__section">Stop &amp; Targets</h3>
+  <label class="ticket__field">
+    <span class="ticket__label">Stop loss (blank = auto)</span>
+    <input type="number" step="0.0001" class="num" [ngModel]="stopLossPrice()" (ngModelChange)="stopLossPrice.set($event)" name="sl" />
+  </label>
+  <div class="ticket__row ticket__row--3">
+    <label class="ticket__field">
+      <span class="ticket__label">TP1</span>
+      <input type="number" step="0.0001" class="num" [ngModel]="takeProfit1()" (ngModelChange)="takeProfit1.set($event)" name="tp1" />
+    </label>
+    <label class="ticket__field">
+      <span class="ticket__label">TP2</span>
+      <input type="number" step="0.0001" class="num" [ngModel]="takeProfit2()" (ngModelChange)="takeProfit2.set($event)" name="tp2" />
+    </label>
+    <label class="ticket__field">
+      <span class="ticket__label">TP3</span>
+      <input type="number" step="0.0001" class="num" [ngModel]="takeProfit3()" (ngModelChange)="takeProfit3.set($event)" name="tp3" />
+    </label>
+  </div>
+
+  <h3 class="ticket__section">Order Meta</h3>
+  <div class="ticket__row">
+    <label class="ticket__field">
+      <span class="ticket__label">Magic</span>
+      <input type="number" class="num" [ngModel]="magic()" (ngModelChange)="magic.set($event)" name="magic" />
+    </label>
+    <label class="ticket__field">
+      <span class="ticket__label">Comment</span>
+      <input type="text" [ngModel]="comment()" (ngModelChange)="comment.set($event)" name="comment" />
+    </label>
+  </div>
+  <div class="ticket__row ticket__row--4">
+    <label class="ticket__field">
+      <span class="ticket__label">Deviation</span>
+      <input type="number" class="num" [ngModel]="deviation()" (ngModelChange)="deviation.set($event)" name="deviation" />
+    </label>
+    <label class="ticket__field">
+      <span class="ticket__label">Max spread</span>
+      <input type="number" class="num" [ngModel]="maxSpread()" (ngModelChange)="maxSpread.set($event)" name="maxSpread" />
+    </label>
+    <label class="ticket__field">
+      <span class="ticket__label">Max/symbol</span>
+      <input type="number" class="num" [ngModel]="maxTradesPerSymbol()" (ngModelChange)="maxTradesPerSymbol.set($event)" name="maxPerSymbol" />
+    </label>
+    <label class="ticket__field">
+      <span class="ticket__label">Max trades</span>
+      <input type="number" class="num" [ngModel]="maxSimultaneousTrades()" (ngModelChange)="maxSimultaneousTrades.set($event)" name="maxTrades" />
+    </label>
+  </div>
+
+  <h3 class="ticket__section">Position Management</h3>
+  <div class="ticket__mgmt-row">
+    <label class="ticket__checkbox">
+      <input type="checkbox" [ngModel]="breakEvenEnabled()" (ngModelChange)="breakEvenEnabled.set($event)" name="beEnabled" />
+      Break-even
+    </label>
+    @if (breakEvenEnabled()) {
+      <select [ngModel]="breakEvenUnit()" (ngModelChange)="breakEvenUnit.set($event)" name="beUnit">
+        <option value="pips">pips</option>
+        <option value="usd">USD</option>
+      </select>
+      <input type="number" class="num ticket__mgmt-value" [ngModel]="breakEvenValue()" (ngModelChange)="breakEvenValue.set($event)" name="beValue" />
+    }
+  </div>
+  <div class="ticket__mgmt-row">
+    <label class="ticket__checkbox">
+      <input type="checkbox" [ngModel]="trailingEnabled()" (ngModelChange)="trailingEnabled.set($event)" name="trailEnabled" />
+      Trailing stop
+    </label>
+    @if (trailingEnabled()) {
+      <select [ngModel]="trailingUnit()" (ngModelChange)="trailingUnit.set($event)" name="trailUnit">
+        <option value="pips">pips</option>
+        <option value="usd">USD</option>
+      </select>
+      <input type="number" class="num ticket__mgmt-value" [ngModel]="trailingValue()" (ngModelChange)="trailingValue.set($event)" name="trailValue" />
+    }
+  </div>
+
+  <button type="submit" class="ticket__execute" [class.is-flash]="justSubmitted()" [disabled]="submitting()">
+    {{ submitting() ? 'Executing…' : (actionLabel() ?? (side() + ' ' + selectedSymbol())) }}
+  </button>
+
+  @if (lastResult(); as result) {
+    <p class="ticket__result">
+      Ticket {{ result.ticket }} · {{ result.volume }} lots @ {{ result.price }} · SL {{ result.stopLoss }} · risk ${{ result.actualRiskUsd }}
+    </p>
+  }
+</form>

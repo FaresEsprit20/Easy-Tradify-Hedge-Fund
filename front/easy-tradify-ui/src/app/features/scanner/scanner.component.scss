@@ -1,0 +1,44 @@
+.h-panel-xl {
+  height: calc(100dvh - 96px);
+  min-height: 480px;
+}
+
+.scanner__radar {
+  width: 100%;
+  height: calc(100% - 28px);
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.scanner__legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  padding-bottom: 8px;
+}
+
+.scanner__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+
+  &--jade {
+    background: var(--color-jade);
+  }
+  &--amber {
+    background: var(--color-amber);
+  }
+  &--coral {
+    background: var(--color-coral);
+  }
+}

@@ -1,0 +1,8 @@
+// Controls come from the global .af-* kit (styles/_auth-forms.scss).
+:host { display: block; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-primary);
+}

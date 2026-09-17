@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.trading</groupId>
+        <artifactId>easytradify</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>auth</artifactId>
+    <name>Auth Service</name>
+    <description>Authentication, OAuth2 sign-in, two-factor and account management</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.trading</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+
+        <!-- ==========================================================
+             SECURITY
+             ========================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!--
+          The OAuth2 client: the half that performs the handshake with Google
+          and hands back an OAuth2AuthenticationToken.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+
+        <!--
+          The resource server: the half that validates the tokens this service
+          issues. Both are needed, and they are not the same thing — this app is
+          the client during sign-in and the resource server on every request
+          afterwards.
+
+          Note the tokens are OPAQUE, not JWTs, so validation goes through
+          OAuth2ResourceServer (an OpaqueTokenIntrospector) and hits the
+          database on each call. That is the cost of being able to revoke a
+          session instantly instead of waiting for a signature to expire.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+
+        <!-- ==========================================================
+             PERSISTENCE
+             ========================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ==========================================================
+             SERVICE DISCOVERY
+             ========================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!-- ==========================================================
+             SUPPORTING LIBRARIES
+             ========================================================== -->
+
+        <!--
+          Base32 and HMAC helpers for TotpService. The TOTP implementation is
+          hand-written against RFC 6238 rather than pulled from a library, so
+          this is the only thing it needs.
+        -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+
+        <!--
+          Reads the OAuth2 client id/secret from a .env file so they stay out of
+          application.properties and out of git. See DotenvInitializer.
+        -->
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+        <!--
+          WebClient, used by PasswordResetServiceImpl and TwoFactorAuthServiceImpl
+          to call the mail/SMS senders. Only the reactive client is wanted here —
+          the service itself is servlet-based (spring-boot-starter-web comes from
+          the parent), and Boot keeps running it on Tomcat because a servlet
+          container on the classpath wins over Netty.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
+        <!-- ==========================================================
+             TEST
+             ========================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

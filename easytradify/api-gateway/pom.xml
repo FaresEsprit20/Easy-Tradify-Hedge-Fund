@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.trading</groupId>
+        <artifactId>easytradify</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>api-gateway</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!--
+          The parent pom declares spring-boot-starter-web for every module, and
+          Spring Cloud Gateway runs on Netty/WebFlux. With Spring MVC on the
+          classpath the gateway refuses to start:
+
+              Spring MVC found on classpath, which is incompatible
+              with Spring Cloud Gateway.
+
+          (GatewayClassPathWarningAutoConfiguration checks for DispatcherServlet.)
+
+          Redeclaring the starter here overrides the inherited one, and the two
+          exclusions remove exactly what conflicts — the MVC dispatcher and the
+          servlet container — while leaving spring-web, which the gateway needs.
+
+          The cleaner fix is to move spring-boot-starter-web out of the parent
+          and into the six modules that actually want it; that is a change to
+          working modules and belongs in its own pass.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-webmvc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+            <exclusions>
+                <!--
+                  spring-boot-properties-migrator only logs warnings about
+                  configuration keys renamed between Boot versions. This module
+                  is new and has no legacy keys, so it has nothing to migrate —
+                  and Boot's own documentation says to remove it once the
+                  migration is done rather than ship it.
+                -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-properties-migrator</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--
+          Resilience4j, via Spring Cloud's reactive CircuitBreaker abstraction.
+          The `reactor` variant is required: the gateway runs on WebFlux, and the
+          servlet flavour of this starter blocks the event loop it is meant to
+          protect.
+        -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+        </dependency>
+
+        <!-- Eureka: routes resolve by service name, not hardcoded host:port. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!-- Client-side load balancing behind lb:// URIs. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
+        <!-- Health, and /actuator/gateway/routes for route introspection. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

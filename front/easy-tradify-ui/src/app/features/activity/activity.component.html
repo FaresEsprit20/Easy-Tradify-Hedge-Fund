@@ -1,0 +1,117 @@
+<div class="container-fluid p-0 act-page">
+  <div class="act-tabs">
+    <button type="button" class="act-tab" [class.is-active]="tab() === 'log'" (click)="setTab('log')">Activity Log</button>
+    <button type="button" class="act-tab" [class.is-active]="tab() === 'executions'" (click)="setTab('executions')">
+      Executions <span class="act-tab__count">{{ executions().length }}</span>
+    </button>
+    <button type="button" class="act-tab" [class.is-active]="tab() === 'closed'" (click)="setTab('closed')">
+      Closed Trades <span class="act-tab__count">{{ closedTrades().length }}</span>
+    </button>
+    <button type="button" class="act-clear" (click)="clearLogs()">Clear all logs</button>
+  </div>
+
+  @if (tab() === 'log') {
+    <div class="row">
+      <div class="col-12 h-panel-xl">
+        <app-panel title="Execution &amp; Activity Log" [live]="true" [state]="connection.connectionState()" [updatedAt]="latestUpdate()" [noPadding]="true">
+          <div panelActions class="act-filters">
+            <input type="text" class="act-search" placeholder="Search message or symbol…" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+            <div class="act-levels">
+              <button type="button" class="act-level" [class.is-active]="levelFilter() === null" (click)="setLevel(null)">All</button>
+              @for (l of levels; track l) {
+                <button type="button" class="act-level" [class]="'act-level--' + l" [class.is-active]="levelFilter() === l" (click)="setLevel(l)">{{ l }}</button>
+              }
+            </div>
+          </div>
+          <app-activity-log-panel [entries]="filteredLog()" />
+        </app-panel>
+      </div>
+    </div>
+  }
+
+  @if (tab() === 'executions') {
+    <div class="row g-3">
+      <div class="col-12 act-stats">
+        <div class="act-stat"><span class="act-stat__label">Total</span><span class="act-stat__value num">{{ executionStats().total }}</span></div>
+        <div class="act-stat"><span class="act-stat__label">Success</span><span class="act-stat__value num text-jade">{{ executionStats().success }}</span></div>
+        <div class="act-stat"><span class="act-stat__label">Failed</span><span class="act-stat__value num text-coral">{{ executionStats().failed }}</span></div>
+        <div class="act-stat"><span class="act-stat__label">Success rate</span><span class="act-stat__value num">{{ executionStats().successRate }}%</span></div>
+      </div>
+      <div class="col-12 h-panel-xl">
+        <app-panel title="Execution Log (from hybrid_monitor.py)" [noPadding]="true">
+          <div class="act-table">
+            <div class="act-row act-row--head">
+              <button type="button" class="act-sort" (click)="sortExecBy('timestamp')">Time</button>
+              <button type="button" class="act-sort" (click)="sortExecBy('symbol')">Symbol</button>
+              <span>Type</span>
+              <span>Status</span>
+              <span>Ticket</span>
+              <span>Entry</span>
+              <span>Stop</span>
+              <span>Target</span>
+              <button type="button" class="act-sort act-sort--num" (click)="sortExecBy('volume')">Volume</button>
+            </div>
+            @for (e of sortedExecutions(); track e.timestamp + e.symbol) {
+              <div class="act-row">
+                <span class="num act-dim">{{ formatTime(e.timestamp) }}</span>
+                <span class="act-symbol">{{ e.symbol }}</span>
+                <span [class.text-jade]="e.orderType === 'BUY'" [class.text-coral]="e.orderType === 'SELL'">{{ e.orderType }}</span>
+                <app-status-pill [label]="e.success ? 'filled' : 'rejected'" [variant]="e.success ? 'jade' : 'coral'" />
+                <span class="num act-dim">{{ e.ticket ?? '—' }}</span>
+                <span class="num">{{ e.entryPrice | number: '1.2-5' }}</span>
+                <span class="num text-coral">{{ e.stopLoss | number: '1.2-5' }}</span>
+                <span class="num text-jade">{{ e.takeProfit ?? '—' }}</span>
+                <span class="num">{{ e.volume }}</span>
+              </div>
+            } @empty {
+              <div class="act-empty">No executions logged yet.</div>
+            }
+          </div>
+        </app-panel>
+      </div>
+    </div>
+  }
+
+  @if (tab() === 'closed') {
+    <div class="row g-3">
+      <div class="col-12 act-stats">
+        <div class="act-stat"><span class="act-stat__label">Total closed</span><span class="act-stat__value num">{{ closedStats().total }}</span></div>
+        <div class="act-stat"><span class="act-stat__label">Wins</span><span class="act-stat__value num text-jade">{{ closedStats().wins }}</span></div>
+        <div class="act-stat"><span class="act-stat__label">Losses</span><span class="act-stat__value num text-coral">{{ closedStats().losses }}</span></div>
+        <div class="act-stat"><span class="act-stat__label">Win rate</span><span class="act-stat__value num">{{ closedStats().winRate }}%</span></div>
+        <div class="act-stat">
+          <span class="act-stat__label">Net P&amp;L</span>
+          <span class="act-stat__value num" [class.text-jade]="closedStats().totalPnl >= 0" [class.text-coral]="closedStats().totalPnl < 0">
+            {{ closedStats().totalPnl >= 0 ? '+' : '' }}{{ closedStats().totalPnl }}
+          </span>
+        </div>
+      </div>
+      <div class="col-12 h-panel-xl">
+        <app-panel title="Closed Trade Log (from hybrid_monitor.py)" [noPadding]="true">
+          <div class="act-table act-table--closed">
+            <div class="act-row act-row--head">
+              <button type="button" class="act-sort" (click)="sortClosedBy('timestamp')">Time</button>
+              <button type="button" class="act-sort" (click)="sortClosedBy('symbol')">Symbol</button>
+              <span>Ticket</span>
+              <span>Close reason</span>
+              <span>Result</span>
+              <button type="button" class="act-sort act-sort--num" (click)="sortClosedBy('profit')">P&amp;L</button>
+            </div>
+            @for (t of sortedClosedTrades(); track t.ticket) {
+              <div class="act-row">
+                <span class="num act-dim">{{ formatTime(t.timestamp) }}</span>
+                <span class="act-symbol">{{ t.symbol }}</span>
+                <span class="num act-dim">{{ t.ticket }}</span>
+                <span>{{ t.closeReason }}</span>
+                <app-status-pill [label]="t.isWinning ? 'win' : 'loss'" [variant]="t.isWinning ? 'jade' : 'coral'" />
+                <span class="num" [class.text-jade]="t.profit >= 0" [class.text-coral]="t.profit < 0">{{ t.profit >= 0 ? '+' : '' }}{{ t.profit }}</span>
+              </div>
+            } @empty {
+              <div class="act-empty">No closed trades logged yet.</div>
+            }
+          </div>
+        </app-panel>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,264 @@
+<div class="container-fluid p-0 risk-page">
+  <div class="risk-tabs">
+    <button type="button" class="risk-tab" [class.is-active]="tab() === 'status'" (click)="setTab('status')">Status</button>
+    <button type="button" class="risk-tab" [class.is-active]="tab() === 'settings'" (click)="setTab('settings')">Settings</button>
+  </div>
+
+  @if (tab() === 'status') {
+    @let status = api.getStatus();
+    @let compliance = api.getFundedCompliance();
+
+    <div class="row g-3">
+      <div class="col-12">
+        <app-panel [title]="status.trading.isAllowed ? 'Trading Allowed' : 'Trading Blocked'">
+          <button panelActions type="button" class="risk-refresh-btn" [disabled]="refreshing()" (click)="refreshStatus()">
+            {{ refreshing() ? 'Refreshing…' : 'Refresh' }}
+          </button>
+          <div class="risk-banner">
+            <app-status-pill [label]="status.trading.riskLevel" [variant]="status.trading.isAllowed ? 'jade' : 'coral'" />
+            @if (status.trading.blockedReasons.length) {
+              <span class="risk-banner__reasons">{{ status.trading.blockedReasons.join(' · ') }}</span>
+            } @else {
+              <span class="risk-banner__reasons">No active restrictions</span>
+            }
+            <span class="risk-banner__account num">
+              {{ status.account.currency }} {{ status.account.balance | number: '1.2-2' }} equity {{ status.account.equity | number: '1.2-2' }} · {{ status.account.leverage }}:1
+            </span>
+          </div>
+        </app-panel>
+      </div>
+
+      <div class="col-lg-4">
+        <app-panel title="Daily">
+          <div class="risk-stats">
+            <span class="risk-stat num" [class.text-jade]="status.daily.netProfitUsd >= 0" [class.text-coral]="status.daily.netProfitUsd < 0">
+              {{ status.daily.netProfitUsd >= 0 ? '+' : '' }}{{ status.daily.netProfitUsd | number: '1.2-2' }} ({{ status.daily.netProfitPercent }}%)
+            </span>
+            <span class="risk-stat-line">{{ status.daily.trades }} trades · {{ status.daily.winRate }}% win rate</span>
+            <span class="risk-stat-line">Remaining loss budget: {{ status.daily.remainingLossPercent }}%</span>
+            <span class="risk-stat-line">Consecutive losses: {{ status.daily.consecutiveLosses }}</span>
+          </div>
+        </app-panel>
+      </div>
+
+      <div class="col-lg-4">
+        <app-panel title="Monthly">
+          <div class="risk-stats">
+            <span class="risk-stat num" [class.text-jade]="status.monthly.netProfitUsd >= 0" [class.text-coral]="status.monthly.netProfitUsd < 0">
+              {{ status.monthly.netProfitUsd >= 0 ? '+' : '' }}{{ status.monthly.netProfitUsd | number: '1.2-2' }} ({{ status.monthly.netProfitPercent }}%)
+            </span>
+            <span class="risk-stat-line">{{ status.monthly.trades }} trades · {{ status.monthly.winRate }}% win rate</span>
+            <span class="risk-stat-line">Remaining loss budget: {{ status.monthly.remainingLossPercent }}%</span>
+          </div>
+        </app-panel>
+      </div>
+
+      <div class="col-lg-4">
+        <app-panel title="Year to Date">
+          <div class="risk-stats">
+            <span class="risk-stat num" [class.text-jade]="status.ytd.netProfitUsd >= 0" [class.text-coral]="status.ytd.netProfitUsd < 0">
+              {{ status.ytd.netProfitUsd >= 0 ? '+' : '' }}{{ status.ytd.netProfitUsd | number: '1.2-2' }} ({{ status.ytd.netProfitPercent }}%)
+            </span>
+            <span class="risk-stat-line">{{ status.ytd.trades }} trades · {{ status.ytd.winRate }}% win rate</span>
+            <span class="risk-stat-line">Remaining loss budget: {{ status.ytd.remainingLossPercent }}%</span>
+          </div>
+        </app-panel>
+      </div>
+
+      <div class="col-lg-6">
+        <app-panel title="Drawdown">
+          <div class="risk-drawdown">
+            <div class="risk-drawdown__bar">
+              <div class="risk-drawdown__fill" [style.width.%]="(status.drawdown.currentPercent / status.drawdown.maxPercent) * 100"></div>
+            </div>
+            <span class="risk-stat-line num">{{ status.drawdown.currentPercent }}% of {{ status.drawdown.maxPercent }}% max</span>
+          </div>
+        </app-panel>
+      </div>
+
+      <div class="col-lg-6">
+        <app-panel title="Funded Account Compliance">
+          <div class="risk-stats">
+            <app-status-pill [label]="compliance.compliant ? 'compliant' : 'violation'" [variant]="compliance.compliant ? 'jade' : 'coral'" />
+            <span class="risk-stat-line">{{ compliance.accountType }}</span>
+            @for (v of compliance.violations; track v) {
+              <span class="risk-stat-line text-coral">{{ v }}</span>
+            }
+          </div>
+        </app-panel>
+      </div>
+
+      <div class="col-12">
+        <app-panel title="Check Trading Allowed">
+          <p class="risk-note">Simulates a pre-trade permission check against the current portfolio limits — the same gate every order passes through before execution.</p>
+          <div class="risk-check">
+            <label class="risk-check__field">
+              <span>Requested risk for this trade (%)</span>
+              <input type="number" step="0.5" class="num" [ngModel]="checkRiskPercent()" (ngModelChange)="checkRiskPercent.set($event)" name="checkRisk" />
+            </label>
+            <button type="button" class="risk-check__btn" [disabled]="checking()" (click)="runCheck()">{{ checking() ? 'Checking…' : 'Check' }}</button>
+            @if (checkResult(); as r) {
+              <div class="risk-check__result">
+                <app-status-pill [label]="r.isTradingAllowed ? 'allowed' : 'blocked'" [variant]="r.isTradingAllowed ? 'jade' : 'coral'" />
+                <span class="risk-check__max num">max {{ r.maxRiskPerTradePercent }}%</span>
+                @if (r.reasons.length) {
+                  <span class="risk-check__reasons">{{ r.reasons.join(' · ') }}</span>
+                }
+              </div>
+            }
+          </div>
+        </app-panel>
+      </div>
+    </div>
+  } @else {
+    @let d = draft();
+    <app-panel title="Portfolio Risk Configuration">
+      <form class="risk-form" (submit)="$event.preventDefault(); save()">
+        <h3 class="risk-form__section">Trade Sizing</h3>
+        <div class="risk-form__row">
+          <label class="risk-form__field">
+            <span>Trade size (USD)</span>
+            <input type="number" class="num" [ngModel]="d.tradeSizeInUsd" (ngModelChange)="patch('tradeSizeInUsd', $event)" name="tradeSizeInUsd" />
+          </label>
+          <label class="risk-form__field">
+            <span>Max risk / trade (%)</span>
+            <input type="number" class="num" [ngModel]="d.maxRiskPerTradePercent" (ngModelChange)="patch('maxRiskPerTradePercent', $event)" name="maxRiskPerTradePercent" />
+          </label>
+          <label class="risk-form__field">
+            <span>Max drawdown (%)</span>
+            <input type="number" class="num" [ngModel]="d.maxDrawdownPercent" (ngModelChange)="patch('maxDrawdownPercent', $event)" name="maxDrawdownPercent" />
+          </label>
+        </div>
+
+        <h3 class="risk-form__section">Daily / Monthly / YTD Limits</h3>
+        <div class="risk-form__row risk-form__row--4">
+          <label class="risk-form__field">
+            <span>Daily loss (%)</span>
+            <input type="number" class="num" [ngModel]="d.maxDailyLossPercent" (ngModelChange)="patch('maxDailyLossPercent', $event)" name="maxDailyLossPercent" />
+          </label>
+          <label class="risk-form__field">
+            <span>Daily trades</span>
+            <input type="number" class="num" [ngModel]="d.maxDailyTrades" (ngModelChange)="patch('maxDailyTrades', $event)" name="maxDailyTrades" />
+          </label>
+          <label class="risk-form__field">
+            <span>Daily win target (%)</span>
+            <input type="number" class="num" [ngModel]="d.maxDailyWinTargetPercent" (ngModelChange)="patch('maxDailyWinTargetPercent', $event)" name="maxDailyWinTargetPercent" />
+          </label>
+          <label class="risk-form__field">
+            <span>Daily consecutive losses</span>
+            <input type="number" class="num" [ngModel]="d.maxDailyConsecutiveLosses" (ngModelChange)="patch('maxDailyConsecutiveLosses', $event)" name="maxDailyConsecutiveLosses" />
+          </label>
+        </div>
+        <div class="risk-form__row risk-form__row--4">
+          <label class="risk-form__field">
+            <span>Monthly loss (%)</span>
+            <input type="number" class="num" [ngModel]="d.maxMonthlyLossPercent" (ngModelChange)="patch('maxMonthlyLossPercent', $event)" name="maxMonthlyLossPercent" />
+          </label>
+          <label class="risk-form__field">
+            <span>Monthly trades</span>
+            <input type="number" class="num" [ngModel]="d.maxMonthlyTrades" (ngModelChange)="patch('maxMonthlyTrades', $event)" name="maxMonthlyTrades" />
+          </label>
+          <label class="risk-form__field">
+            <span>Monthly win target (%)</span>
+            <input type="number" class="num" [ngModel]="d.maxMonthlyWinTargetPercent" (ngModelChange)="patch('maxMonthlyWinTargetPercent', $event)" name="maxMonthlyWinTargetPercent" />
+          </label>
+          <label class="risk-form__field">
+            <span>YTD loss (%)</span>
+            <input type="number" class="num" [ngModel]="d.maxYtdLossPercent" (ngModelChange)="patch('maxYtdLossPercent', $event)" name="maxYtdLossPercent" />
+          </label>
+        </div>
+
+        <h3 class="risk-form__section">Consecutive Losses &amp; Funded Rules</h3>
+        <div class="risk-form__row">
+          <label class="risk-form__field">
+            <span>Max consecutive losses</span>
+            <input type="number" class="num" [ngModel]="d.maxConsecutiveLosses" (ngModelChange)="patch('maxConsecutiveLosses', $event)" name="maxConsecutiveLosses" />
+          </label>
+          <label class="risk-form__field">
+            <span>Funded account type</span>
+            <input type="text" [ngModel]="d.fundedAccountType" (ngModelChange)="patch('fundedAccountType', $event)" name="fundedAccountType" />
+          </label>
+          <label class="risk-form__field">
+            <span>Funded account rules</span>
+            <input type="text" [ngModel]="d.fundedAccountRules" (ngModelChange)="patch('fundedAccountRules', $event)" name="fundedAccountRules" />
+          </label>
+        </div>
+
+        <h3 class="risk-form__section">Trading Hours &amp; Execution Limits</h3>
+        <div class="risk-form__row risk-form__row--4">
+          <label class="risk-form__field">
+            <span>Start hour (UTC)</span>
+            <input type="number" class="num" [ngModel]="d.tradingStartHour" (ngModelChange)="patch('tradingStartHour', $event)" name="tradingStartHour" />
+          </label>
+          <label class="risk-form__field">
+            <span>End hour (UTC)</span>
+            <input type="number" class="num" [ngModel]="d.tradingEndHour" (ngModelChange)="patch('tradingEndHour', $event)" name="tradingEndHour" />
+          </label>
+          <label class="risk-form__field">
+            <span>Max simultaneous trades</span>
+            <input type="number" class="num" [ngModel]="d.maxSimultaneousTrades" (ngModelChange)="patch('maxSimultaneousTrades', $event)" name="maxSimultaneousTrades" />
+          </label>
+          <label class="risk-form__field">
+            <span>Max trades / symbol</span>
+            <input type="number" class="num" [ngModel]="d.maxTradesPerSymbol" (ngModelChange)="patch('maxTradesPerSymbol', $event)" name="maxTradesPerSymbol" />
+          </label>
+        </div>
+        <div class="risk-form__row risk-form__row--4">
+          <label class="risk-form__field">
+            <span>Max spread</span>
+            <input type="number" class="num" [ngModel]="d.maxSpread" (ngModelChange)="patch('maxSpread', $event)" name="maxSpread" />
+          </label>
+          <label class="risk-form__field">
+            <span>Trade deviation</span>
+            <input type="number" class="num" [ngModel]="d.tradeDeviation" (ngModelChange)="patch('tradeDeviation', $event)" name="tradeDeviation" />
+          </label>
+        </div>
+
+        <h3 class="risk-form__section">Automatic Execution Settings</h3>
+        <p class="risk-form__hint">Separate limits applied only to trades the system places for itself (auto mode) — independent of the manual limits above.</p>
+        <div class="risk-form__row risk-form__row--4">
+          <label class="risk-form__field">
+            <span>Auto max simultaneous</span>
+            <input type="number" class="num" [ngModel]="d.autoMaxSimultaneousTrades" (ngModelChange)="patch('autoMaxSimultaneousTrades', $event)" name="autoMaxSimultaneousTrades" />
+          </label>
+          <label class="risk-form__field">
+            <span>Auto max / symbol</span>
+            <input type="number" class="num" [ngModel]="d.autoMaxTradesPerSymbol" (ngModelChange)="patch('autoMaxTradesPerSymbol', $event)" name="autoMaxTradesPerSymbol" />
+          </label>
+          <label class="risk-form__field">
+            <span>Auto max spread</span>
+            <input type="number" class="num" [ngModel]="d.autoMaxSpread" (ngModelChange)="patch('autoMaxSpread', $event)" name="autoMaxSpread" />
+          </label>
+          <label class="risk-form__field">
+            <span>Auto trade deviation</span>
+            <input type="number" class="num" [ngModel]="d.autoTradeDeviation" (ngModelChange)="patch('autoTradeDeviation', $event)" name="autoTradeDeviation" />
+          </label>
+        </div>
+
+        <h3 class="risk-form__section">Break-even &amp; Trailing Defaults (automatic execution)</h3>
+        <div class="risk-form__row">
+          <label class="risk-form__checkbox">
+            <input type="checkbox" [ngModel]="d.enableBreakeven" (ngModelChange)="patch('enableBreakeven', $event)" name="enableBreakeven" />
+            Enable break-even
+          </label>
+          <label class="risk-form__field">
+            <span>Auto break-even (USD)</span>
+            <input type="number" class="num" [ngModel]="d.autoBreakevenUsd" (ngModelChange)="patch('autoBreakevenUsd', $event)" name="autoBreakevenUsd" />
+          </label>
+          <label class="risk-form__checkbox">
+            <input type="checkbox" [ngModel]="d.enableAutoTrailingStop" (ngModelChange)="patch('enableAutoTrailingStop', $event)" name="enableAutoTrailingStop" />
+            Enable auto trailing
+          </label>
+          <label class="risk-form__field">
+            <span>Auto trailing (USD)</span>
+            <input type="number" class="num" [ngModel]="d.autoTrailingStopUsd" (ngModelChange)="patch('autoTrailingStopUsd', $event)" name="autoTrailingStopUsd" />
+          </label>
+        </div>
+
+        <button type="submit" class="risk-form__save" [class.is-flash]="justSaved()" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : justSaved() ? 'Saved' : 'Save Configuration' }}
+        </button>
+      </form>
+    </app-panel>
+  }
+</div>

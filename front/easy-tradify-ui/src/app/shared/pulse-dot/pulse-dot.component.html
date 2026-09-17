@@ -1,0 +1,10 @@
+<span
+  class="dot"
+  [class.dot--live]="isLive()"
+  [class.dot--idle]="state() === 'idle'"
+  [class.dot--disconnected]="isDisconnected()"
+>
+  @if (isLive()) {
+    <span class="dot__ring"></span>
+  }
+</span>

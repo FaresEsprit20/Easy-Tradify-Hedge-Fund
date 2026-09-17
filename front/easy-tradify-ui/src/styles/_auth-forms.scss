@@ -1,0 +1,198 @@
+// ============================================================================
+// Auth form controls.
+//
+// Global rather than per-component on purpose. Angular scopes component styles
+// by duplicating them into every component that declares them, and the build
+// budgets each component's CSS separately (4kB warn / 8kB error) — so three
+// auth screens sharing one 2kB control kit would pay for it three times and
+// each drift independently.
+//
+// Every selector is `.af-` prefixed so nothing here can reach a component that
+// did not ask for it.
+// ============================================================================
+
+.af-head { margin-bottom: 22px; }
+
+.af-title {
+  margin: 0;
+  font-family: var(--font-condensed);
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.af-sub {
+  margin: 6px 0 0;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.af-field { margin-bottom: 13px; }
+
+.af-label {
+  display: block;
+  margin-bottom: 5px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.13em;
+  color: var(--text-dim);
+}
+
+.af-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 11px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline-strong);
+  border-radius: var(--radius-panel);
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+
+  &::placeholder { color: var(--text-dim); }
+
+  &:focus {
+    border-color: var(--color-jade);
+    box-shadow: 0 0 0 3px var(--color-jade-dim);
+  }
+
+  // Only after the field has been touched — colouring an untouched empty
+  // field red tells the user they made a mistake before they typed anything.
+  &.ng-invalid.ng-touched {
+    border-color: var(--color-coral);
+    box-shadow: 0 0 0 3px var(--color-coral-dim);
+  }
+
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+}
+
+.af-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.af-error {
+  margin-top: 4px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--color-coral);
+}
+
+.af-btn {
+  width: 100%;
+  height: 42px;
+  margin-top: 6px;
+  font-family: var(--font-condensed);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-on-amber);
+  background: var(--color-jade);
+  border: none;
+  border-radius: var(--radius-panel);
+  cursor: pointer;
+  transition: filter 140ms ease, transform 80ms ease;
+
+  &:hover:not(:disabled) { filter: brightness(1.08); }
+  &:active:not(:disabled) { transform: translateY(1px); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.af-btn--ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline-strong);
+
+  &:hover:not(:disabled) {
+    filter: none;
+    border-color: var(--text-dim);
+    background: var(--bg-panel-alt);
+  }
+}
+
+.af-alert {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 9px 11px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-coral);
+  background: var(--color-coral-dim);
+  border: 1px solid var(--color-coral);
+  border-radius: var(--radius-panel);
+}
+
+.af-alert--ok {
+  color: var(--color-jade);
+  background: var(--color-jade-dim);
+  border-color: var(--color-jade);
+}
+
+.af-sep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-hairline);
+  }
+}
+
+.af-foot {
+  margin-top: 18px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+
+  a {
+    color: var(--color-jade);
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.af-hint {
+  margin-top: 14px;
+  padding: 8px 10px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  border-left: 2px solid var(--border-hairline-strong);
+}
+
+// A spinner for in-flight submits: the control must show it is working, or the
+// user presses it again and sends a second sign-in attempt.
+.af-spin {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(20, 17, 10, 0.3);
+  border-top-color: var(--text-on-amber);
+  border-radius: 50%;
+  animation: af-spin 620ms linear infinite;
+}
+
+@keyframes af-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .af-spin { animation-duration: 1.6s; }
+}

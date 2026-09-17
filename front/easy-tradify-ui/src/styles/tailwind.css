@@ -1,0 +1,47 @@
+/*
+ * Kept as plain CSS, not SCSS: Dart Sass resolves a bare `@import
+ * 'tailwindcss'` via Node package resolution and inlines the package's raw
+ * entry file as literal CSS before PostCSS ever runs — which means the
+ * `@tailwindcss/postcss` plugin never sees the `@import` at-rule it needs
+ * to intercept, so no utilities and no @theme processing happen. A plain
+ * .css file bypasses the Sass compiler entirely and goes straight to
+ * PostCSS, which is where Tailwind expects to do its work.
+ */
+@import 'tailwindcss';
+
+/*
+ * The single shared token layer for the semantic palette and typography.
+ * Every component sources color/font values from these CSS custom
+ * properties (directly via var(), or via the Tailwind utilities they
+ * generate) — nothing hardcodes a hex value or font name elsewhere.
+ */
+@theme {
+  --color-jade: #2bd98e;
+  --color-jade-dim: rgba(43, 217, 142, 0.16);
+  --color-jade-glow: rgba(43, 217, 142, 0.45);
+
+  --color-coral: #f2495c;
+  --color-coral-dim: rgba(242, 73, 92, 0.16);
+  --color-coral-glow: rgba(242, 73, 92, 0.45);
+
+  --color-amber: #f0a925;
+  --color-amber-dim: rgba(240, 169, 37, 0.16);
+  --color-amber-glow: rgba(240, 169, 37, 0.5);
+
+  /* Non-semantic informational accent — reserved for the neutral
+     "ANALYZING" worker state only, never for pass/fail/veto meaning. */
+  --color-info: #4c8dff;
+  --color-info-dim: rgba(76, 141, 255, 0.16);
+
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-condensed: 'IBM Plex Condensed', 'IBM Plex Sans', sans-serif;
+  --font-sans: 'IBM Plex Sans', sans-serif;
+
+  /* NOTE: surfaces/text tokens (--bg-app, --text-primary, ...) live only
+     in styles/_tokens.scss's plain :root block, not here. Tailwind v4's
+     @theme resolves its own values statically at build time and silently
+     drops entries whose value is var(--x) pointing outside its own theme
+     scope — confirmed empirically (see git history) — so those tokens are
+     consumed directly via var() in component styles instead of being
+     routed through a Tailwind utility namespace. */
+}

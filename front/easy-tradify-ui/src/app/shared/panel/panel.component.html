@@ -1,0 +1,27 @@
+<section class="panel">
+  <span class="reticle reticle--tl" aria-hidden="true"></span>
+  <span class="reticle reticle--tr" aria-hidden="true"></span>
+
+  @if (title() || live()) {
+    <header class="panel__header">
+      @if (title()) {
+        <h2 class="panel__title">
+          {{ title() }}
+          @if (titleHint()) {
+            <app-info-hint [text]="titleHint()!" />
+          }
+        </h2>
+      }
+      <div class="panel__actions">
+        <ng-content select="[panelActions]" />
+        @if (live()) {
+          <app-live-indicator [state]="state()" [updatedAt]="updatedAt()" />
+        }
+      </div>
+    </header>
+  }
+
+  <div class="panel__body" [class.panel__body--tight]="noPadding()">
+    <ng-content />
+  </div>
+</section>

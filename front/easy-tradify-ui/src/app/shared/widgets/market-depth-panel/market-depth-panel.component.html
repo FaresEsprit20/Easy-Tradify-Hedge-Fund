@@ -1,0 +1,22 @@
+@if (depth(); as d) {
+  <div class="depth">
+    <div class="depth__col">
+      @for (level of d.asks; track level.price) {
+        <div class="depth__row depth__row--ask">
+          <span class="depth__bar depth__bar--ask" [style.width.%]="sizePct(level.size)"></span>
+          <span class="depth__size num">{{ level.size }}</span>
+          <span class="depth__price num text-coral">{{ level.price | number: '1.2-5' }}</span>
+        </div>
+      }
+    </div>
+    <div class="depth__col">
+      @for (level of d.bids; track level.price) {
+        <div class="depth__row depth__row--bid">
+          <span class="depth__price num text-jade">{{ level.price | number: '1.2-5' }}</span>
+          <span class="depth__size num">{{ level.size }}</span>
+          <span class="depth__bar depth__bar--bid" [style.width.%]="sizePct(level.size)"></span>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,15 @@
+:host {
+  display: inline-flex;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.live__label {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}

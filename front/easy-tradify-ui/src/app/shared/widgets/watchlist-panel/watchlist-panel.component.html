@@ -1,0 +1,68 @@
+<div class="wl">
+  <div class="wl__toolbar">
+    <input
+      type="text"
+      class="wl__search"
+      placeholder="Search symbol…"
+      autocomplete="off"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+    />
+    <span class="wl__count">{{ filteredItems().length }} symbols</span>
+  </div>
+  <div class="wl__row wl__row--head">
+    <button type="button" class="wl__sort" (click)="sortBy('symbol')">Symbol {{ sortIndicator('symbol') }}</button>
+    <button type="button" class="wl__sort wl__sort--num" (click)="sortBy('last')">Last {{ sortIndicator('last') }}</button>
+    <button type="button" class="wl__sort wl__sort--num" (click)="sortBy('changePct')">Chg% {{ sortIndicator('changePct') }}</button>
+    <span>Regime</span>
+    <button type="button" class="wl__sort wl__sort--num" (click)="sortBy('conviction')">Conv {{ sortIndicator('conviction') }}</button>
+    <span>Trend</span>
+  </div>
+  @for (item of sortedItems(); track item.symbol) {
+    <div class="wl__row wl__row--clickable" [class.wl__row--focused]="focusedSymbol() === item.symbol" (click)="selected.emit(item.symbol)">
+      <span class="wl__symbol">{{ item.symbol }}</span>
+      <span class="wl__num num" [appFlashOnUpdate]="item.last">{{ item.last | number: '1.2-5' }}</span>
+      <span class="wl__num num" [class.text-jade]="item.changePct >= 0" [class.text-coral]="item.changePct < 0">
+        {{ item.changePct >= 0 ? '+' : '' }}{{ item.changePct }}%
+      </span>
+      <span class="wl__regime">{{ item.regime }}</span>
+      <span class="wl__num num" [class]="convictionClass(item.conviction)">{{ item.conviction }}</span>
+      <app-sparkline [series]="item.series" />
+
+      <div class="wl__quick-actions">
+        <button
+          type="button"
+          class="wl__quick-btn wl__quick-btn--buy"
+          [disabled]="!!quickTradeBusy()"
+          (click)="quickTrade(item.symbol, 'BUY', $event)"
+          title="Quick buy {{ item.symbol }}"
+        >
+          B
+        </button>
+        <button
+          type="button"
+          class="wl__quick-btn wl__quick-btn--sell"
+          [disabled]="!!quickTradeBusy()"
+          (click)="quickTrade(item.symbol, 'SELL', $event)"
+          title="Quick sell {{ item.symbol }}"
+        >
+          S
+        </button>
+      </div>
+
+      @if (quickTradeFlash()?.symbol === item.symbol) {
+        <div class="wl__quick-flash" [class.wl__quick-flash--buy]="quickTradeFlash()?.side === 'BUY'" [class.wl__quick-flash--sell]="quickTradeFlash()?.side === 'SELL'">
+          {{ quickTradeFlash()?.side }} FILLED
+        </div>
+      }
+    </div>
+  } @empty {
+    <div class="wl__empty">No symbols match "{{ search() }}".</div>
+  }
+
+  <div class="wl__pager">
+    <button type="button" class="wl__pager-btn" [disabled]="page() === 0" (click)="prevPage()">← Prev</button>
+    <span class="wl__pager-label">Page {{ page() + 1 }} / {{ pageCount() }}</span>
+    <button type="button" class="wl__pager-btn" [disabled]="page() >= pageCount() - 1" (click)="nextPage()">Next →</button>
+  </div>
+</div>

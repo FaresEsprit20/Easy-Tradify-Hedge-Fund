@@ -1,0 +1,14 @@
+@if (error()) {
+  <div class="af-head">
+    <h1 class="af-title">Sign-in failed</h1>
+  </div>
+  <div class="af-alert" role="alert">{{ error() }}</div>
+  <button class="af-btn af-btn--ghost" type="button" (click)="backToLogin()">
+    BACK TO SIGN IN
+  </button>
+} @else {
+  <div class="wait">
+    <span class="wait__spin"></span>
+    <div class="wait__text">Completing sign-in…</div>
+  </div>
+}

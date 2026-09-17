@@ -1,0 +1,42 @@
+// ============================================================================
+// Easy Tradify design tokens — single source of truth for color, type, motion.
+// Nothing in the app should hardcode a hex value or font name outside this file.
+// ============================================================================
+
+:root {
+  // Surfaces — strict, permanent dark graphite. No light-mode fallback.
+  --bg-app: #0b0e14;
+  --bg-panel: #151921;
+  --bg-panel-alt: #1c212b;
+  --bg-panel-raised: #20262f;
+  --border-hairline: #262c38;
+  --border-hairline-strong: #333b4a;
+
+  // Text
+  --text-primary: #e7eaf0;
+  --text-secondary: #8b93a7;
+  --text-dim: #545d6e;
+  --text-on-amber: #14110a;
+
+  // NOTE: the semantic palette (jade/coral/amber/info) and the IBM Plex
+  // font stacks are declared exactly once, inside the @theme block in
+  // src/styles.scss — that is their single source of truth. Declaring them
+  // here too would create a circular `var(--x): var(--x)` alias when
+  // styles.scss maps them into Tailwind's utility namespace.
+
+  // Motion timings — every value here is load-bearing per the motion spec.
+  --dur-pulse: 1.8s;
+  --dur-sweep: 3s;
+  --dur-flash: 480ms;
+  --dur-heartbeat: 450ms;
+  --dur-ping-fade: 1s;
+  --dur-ticker-slide: 260ms;
+
+  // Row density
+  --row-h-compact: 30px;
+  --row-h-cozy: 36px;
+
+  // Radii
+  --radius-panel: 4px;
+  --radius-pill: 3px;
+}

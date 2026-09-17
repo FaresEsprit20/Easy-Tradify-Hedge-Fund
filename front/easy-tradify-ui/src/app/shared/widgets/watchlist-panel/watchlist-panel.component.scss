@@ -1,0 +1,256 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.wl {
+  display: flex;
+  flex-direction: column;
+}
+
+.wl__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-hairline-strong);
+}
+
+.wl__search {
+  flex: 1 1 auto;
+  padding: 6px 8px;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline-strong);
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-family: var(--font-mono);
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-amber);
+  }
+}
+
+.wl__count {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font-size: 9.5px;
+  white-space: nowrap;
+}
+
+.wl__empty {
+  padding: 24px 10px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.wl__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border-hairline-strong);
+  margin-top: auto;
+}
+
+.wl__pager-btn {
+  padding: 4px 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-condensed);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--color-amber);
+    border-color: var(--color-amber);
+  }
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.wl__pager-label {
+  color: var(--text-dim);
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.wl__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 60px 1fr 56px 60px 34px 68px;
+  align-items: center;
+  gap: 8px;
+  height: var(--row-h-compact);
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border-hairline);
+  font-size: 11px;
+
+  &--head {
+    height: 24px;
+    font-family: var(--font-condensed);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border-hairline-strong);
+  }
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      background: var(--bg-panel-alt);
+    }
+  }
+
+  &--focused {
+    background: var(--color-amber-dim);
+    box-shadow: inset 2px 0 0 var(--color-amber);
+  }
+}
+
+.wl__sort {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-amber);
+  }
+
+  &--num {
+    text-align: right;
+    justify-self: end;
+  }
+}
+
+.wl__symbol {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.wl__num {
+  text-align: right;
+}
+
+.wl__regime {
+  color: var(--text-dim);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+// Hover-reveal hotkey trade buttons — sit over the trend sparkline column
+// (least-critical info at a glance) rather than pushing the row wider, and
+// only intercept clicks once actually visible.
+.wl__quick-actions {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 3px;
+  padding-left: 10px;
+  background: linear-gradient(90deg, transparent, var(--bg-panel) 22%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-out;
+}
+
+.wl__row--clickable:hover .wl__quick-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wl__quick-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline-strong);
+  background: var(--bg-panel-alt);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+
+  &--buy {
+    color: var(--color-jade);
+
+    &:hover:not(:disabled) {
+      background: var(--color-jade-dim);
+      border-color: var(--color-jade);
+    }
+  }
+  &--sell {
+    color: var(--color-coral);
+
+    &:hover:not(:disabled) {
+      background: var(--color-coral-dim);
+      border-color: var(--color-coral);
+    }
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.wl__quick-flash {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+
+  &--buy {
+    color: var(--color-jade);
+    animation: wl-flash-jade 900ms ease-out 1;
+  }
+  &--sell {
+    color: var(--color-coral);
+    animation: wl-flash-coral 900ms ease-out 1;
+  }
+}
+
+@keyframes wl-flash-jade {
+  0% {
+    background-color: var(--color-jade-dim);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes wl-flash-coral {
+  0% {
+    background-color: var(--color-coral-dim);
+  }
+  100% {
+    background-color: transparent;
+  }
+}

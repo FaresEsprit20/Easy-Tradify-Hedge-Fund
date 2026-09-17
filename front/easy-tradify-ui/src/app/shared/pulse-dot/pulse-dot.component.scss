@@ -1,0 +1,35 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex: none;
+
+  &--live {
+    background: var(--color-jade);
+    box-shadow: 0 0 4px var(--color-jade-glow);
+  }
+
+  &--idle {
+    background: var(--color-amber);
+  }
+
+  &--disconnected {
+    background: var(--color-coral);
+  }
+}
+
+.dot__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--color-jade);
+  animation: pulse-ring var(--dur-pulse) ease-out infinite;
+}

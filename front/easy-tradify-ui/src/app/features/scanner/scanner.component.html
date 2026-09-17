@@ -1,0 +1,28 @@
+<div class="container-fluid p-0 scanner">
+  <div class="row g-3">
+    <div class="col-lg-6 h-panel-xl">
+      <app-panel title="Live Scanner — Radar Sweep" [live]="true" [state]="connection.connectionState()" [updatedAt]="scannerUpdatedAt()">
+        <div class="scanner__radar">
+          <app-radar-sweep [pings]="stream.scanPings()" />
+        </div>
+        <div class="scanner__legend">
+          <span class="scanner__legend-item"><span class="dot dot--jade"></span>Clean pass</span>
+          <span class="scanner__legend-item"><span class="dot dot--amber"></span>Near miss</span>
+          <span class="scanner__legend-item"><span class="dot dot--coral"></span>Veto</span>
+        </div>
+      </app-panel>
+    </div>
+
+    <div class="col-lg-3 h-panel-xl">
+      <app-panel title="Opportunities" [live]="true" [state]="connection.connectionState()" [updatedAt]="opportunitiesUpdatedAt()" [noPadding]="true">
+        <app-opportunities-panel [opportunities]="stream.opportunities()" />
+      </app-panel>
+    </div>
+
+    <div class="col-lg-3 h-panel-xl">
+      <app-panel title="Gate / Coherence" [live]="true" [state]="connection.connectionState()" [updatedAt]="gatesUpdatedAt()" [noPadding]="true">
+        <app-gate-ticker [events]="stream.gateEvents()" />
+      </app-panel>
+    </div>
+  </div>
+</div>

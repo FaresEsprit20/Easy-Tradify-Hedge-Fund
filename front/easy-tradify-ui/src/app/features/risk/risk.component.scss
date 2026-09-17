@@ -1,0 +1,245 @@
+.risk-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.risk-tab {
+  padding: 7px 16px;
+  border: 1px solid var(--border-hairline-strong);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-condensed);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+
+  &.is-active {
+    background: var(--color-amber-dim);
+    border-color: var(--color-amber);
+    color: var(--color-amber);
+  }
+}
+
+.risk-refresh-btn {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-hairline-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-amber);
+    color: var(--color-amber);
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.risk-note {
+  margin: 0 0 12px;
+  font-size: 10.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.risk-check {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.risk-check__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+
+  input {
+    width: 100px;
+  }
+}
+
+.risk-check__btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 2px;
+  background: var(--color-amber);
+  color: var(--text-on-amber);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.risk-check__result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+
+.risk-check__max {
+  color: var(--text-secondary);
+}
+
+.risk-check__reasons {
+  color: var(--text-dim);
+}
+
+.risk-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+
+.risk-banner__reasons {
+  color: var(--text-secondary);
+}
+
+.risk-banner__account {
+  margin-left: auto;
+  color: var(--text-dim);
+}
+
+.risk-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.risk-stat {
+  font-size: 18px;
+}
+
+.risk-stat-line {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+}
+
+.risk-drawdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.risk-drawdown__bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-panel-alt);
+  overflow: hidden;
+}
+
+.risk-drawdown__fill {
+  height: 100%;
+  background: var(--color-amber);
+}
+
+.risk-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.risk-form__section {
+  margin: 10px 0 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-hairline);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+
+  &:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+.risk-form__hint {
+  margin: -2px 0 4px;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.risk-form__row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+
+  &--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.risk-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-dim);
+
+  input {
+    width: 100%;
+  }
+}
+
+.risk-form__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: end;
+  padding-bottom: 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  input {
+    accent-color: var(--color-amber);
+  }
+}
+
+.risk-form__save {
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 2px;
+  background: var(--color-amber);
+  color: var(--text-on-amber);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  &.is-flash {
+    animation: flash-wash var(--dur-flash) ease-out 1;
+  }
+}

@@ -1,0 +1,148 @@
+// Staged pipeline. Motion durations come from the tokens so this matches the
+// rest of the app's cadence rather than inventing its own.
+
+.runner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.runner__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.runner__caption {
+  font-family: 'IBM Plex Sans Condensed', system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.runner--running .runner__caption {
+  color: var(--color-info);
+}
+
+.runner__count {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+// ---- progress track ----
+
+.runner__track {
+  position: relative;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--bg-panel-alt);
+  overflow: hidden;
+}
+
+.runner__fill {
+  height: 100%;
+  background: var(--color-info);
+  transition: width 260ms ease-out;
+}
+
+// A travelling sheen, only while running, so a long stage still reads as
+// active rather than stalled.
+.runner--running .runner__track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(76, 141, 255, 0.55) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: runner-sheen 1.4s linear infinite;
+}
+
+@keyframes runner-sheen {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+// ---- stages ----
+
+.runner__stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  transition: color 200ms ease-out;
+}
+
+.stage__marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--border-hairline-strong);
+  color: transparent;
+  flex: none;
+}
+
+.stage__tick {
+  width: 9px;
+  height: 9px;
+}
+
+.stage[data-state='done'] {
+  color: var(--text-secondary);
+}
+
+.stage[data-state='done'] .stage__marker {
+  border-color: var(--color-jade);
+  color: var(--color-jade);
+}
+
+.stage[data-state='active'] {
+  color: var(--text-primary);
+}
+
+.stage[data-state='active'] .stage__marker {
+  border-color: var(--color-info);
+  background: var(--color-info-dim);
+  animation: pulse-ring var(--dur-pulse) ease-out infinite;
+}
+
+.stage[data-state='failed'] {
+  color: var(--color-coral);
+}
+
+.stage[data-state='failed'] .stage__marker {
+  border-color: var(--color-coral);
+  color: var(--color-coral);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .runner--running .runner__track::after,
+  .stage[data-state='active'] .stage__marker {
+    animation: none;
+  }
+
+  .runner__fill {
+    transition: none;
+  }
+}

@@ -1,0 +1,76 @@
+<div class="af-head">
+  <h1 class="af-title">Create account</h1>
+  <p class="af-sub">One account for the terminal, the monitor and the research layer.</p>
+</div>
+
+@if (done()) {
+  <div class="af-alert af-alert--ok" role="status">
+    Account created — taking you to sign in.
+  </div>
+} @else {
+  @if (error()) {
+    <div class="af-alert" role="alert">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="af-row">
+      <div class="af-field">
+        <label class="af-label" for="firstName">FIRST NAME</label>
+        <input id="firstName" class="af-input" formControlName="firstName"
+               type="text" autocomplete="given-name" placeholder="Fares" />
+      </div>
+      <div class="af-field">
+        <label class="af-label" for="lastName">LAST NAME</label>
+        <input id="lastName" class="af-input" formControlName="lastName"
+               type="text" autocomplete="family-name" placeholder="Ben Slama" />
+      </div>
+    </div>
+
+    <div class="af-field">
+      <label class="af-label" for="email">EMAIL</label>
+      <input id="email" class="af-input" formControlName="email"
+             type="email" autocomplete="email" placeholder="you@example.com" />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <div class="af-error">Enter a valid email address.</div>
+      }
+    </div>
+
+    <div class="af-field">
+      <label class="af-label" for="numTel">PHONE</label>
+      <input id="numTel" class="af-input" formControlName="numTel"
+             type="tel" inputmode="numeric" autocomplete="tel" placeholder="12345678" />
+      @if (form.controls.numTel.touched && form.controls.numTel.invalid) {
+        <div class="af-error">Phone must be exactly 8 digits.</div>
+      }
+    </div>
+
+    <div class="af-field">
+      <label class="af-label" for="password">PASSWORD</label>
+      <input id="password" class="af-input" formControlName="password"
+             type="password" autocomplete="new-password" placeholder="••••••••" />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <div class="af-error">
+          At least 8 characters, with an uppercase letter, a lowercase letter,
+          a digit and one of &#64;$!%*?&amp;-
+        </div>
+      }
+    </div>
+
+    <div class="af-field">
+      <label class="af-label" for="confirmPassword">CONFIRM PASSWORD</label>
+      <input id="confirmPassword" class="af-input" formControlName="confirmPassword"
+             type="password" autocomplete="new-password" placeholder="••••••••" />
+      @if (form.errors?.['mismatch'] && form.controls.confirmPassword.touched) {
+        <div class="af-error">Passwords do not match.</div>
+      }
+    </div>
+
+    <button class="af-btn" type="submit" [disabled]="submitting()">
+      @if (submitting()) { <span class="af-spin"></span> } @else { CREATE ACCOUNT }
+    </button>
+  </form>
+
+  <div class="af-foot">
+    Already have an account? <a routerLink="/auth/login">Sign in</a>
+  </div>
+}

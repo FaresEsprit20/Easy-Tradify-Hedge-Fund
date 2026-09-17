@@ -1,0 +1,33 @@
+@if (result(); as r) {
+  <app-panel title="Result">
+    <div panelActions>
+      <app-status-pill [label]="label(r.outcome)" [variant]="variant(r.outcome)" />
+    </div>
+
+    <p class="summary">{{ r.summary }}</p>
+
+    <dl class="meta">
+      <div><dt>Status</dt><dd>{{ r.status }}</dd></div>
+      <div><dt>Took</dt><dd>{{ r.durationMs | number: '1.0-0' }} ms</dd></div>
+      <div><dt>At</dt><dd>{{ r.startedAt | date: 'HH:mm:ss' }}</dd></div>
+    </dl>
+
+    <pre class="payload">{{ r.payload | json }}</pre>
+  </app-panel>
+}
+
+@if (history().length > 1) {
+  <div class="mt-3">
+    <app-panel title="Session runs">
+      <ul class="history">
+        @for (h of history(); track h.startedAt) {
+          <li class="history__row">
+            <span class="history__time">{{ h.startedAt | date: 'HH:mm:ss' }}</span>
+            <span class="history__op">{{ h.operationId }}</span>
+            <app-status-pill [label]="label(h.outcome)" [variant]="variant(h.outcome)" />
+          </li>
+        }
+      </ul>
+    </app-panel>
+  </div>
+}

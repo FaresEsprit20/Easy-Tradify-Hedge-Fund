@@ -1,0 +1,23 @@
+:host {
+  display: inline-flex;
+}
+
+.meter {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  width: 32px;
+}
+
+.meter__bar {
+  flex: 1 1 0;
+  min-width: 2px;
+  background: var(--text-dim);
+  border-radius: 1px;
+  transition: height 120ms ease-out;
+
+  &--hot {
+    background: var(--color-amber);
+  }
+}

@@ -1,0 +1,40 @@
+.term__col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: calc(100dvh - 96px);
+  min-height: 520px;
+}
+
+.term__panel {
+  min-height: 0;
+}
+
+.term__panel--split {
+  flex: 1 1 50%;
+}
+
+.term__panel--tall {
+  flex: 3 1 0;
+}
+
+.term__panel--short {
+  flex: 1 1 0;
+}
+
+.term__chart-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.term__deep-link {
+  color: var(--color-amber);
+  font-size: 10px;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

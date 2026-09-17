@@ -1,0 +1,43 @@
+@if (open()) {
+  <div class="cp-backdrop" (click)="onBackdropClick()">
+    <div class="cp" (click)="$event.stopPropagation()">
+      <div class="cp__search-row">
+        <span class="cp__search-icon">⌕</span>
+        <input
+          #input
+          type="text"
+          class="cp__search"
+          placeholder="Jump to a page or symbol…"
+          autocomplete="off"
+          spellcheck="false"
+          [ngModel]="query()"
+          (ngModelChange)="query.set($event)"
+        />
+        <kbd class="cp__esc">ESC</kbd>
+      </div>
+
+      <div class="cp__results">
+        @for (r of results(); track r.kind + r.key; let i = $index) {
+          <button type="button" class="cp__row" [class.cp__row--active]="i === activeIndex()" (mouseenter)="activeIndex.set(i)" (click)="choose(r)">
+            <span class="cp__row-kind" [class.cp__row-kind--symbol]="r.kind === 'symbol'">{{ r.kind === 'page' ? 'GO' : r.label.slice(0, 2) }}</span>
+            <span class="cp__row-text">
+              <span class="cp__row-label">{{ r.label }}</span>
+              <span class="cp__row-sublabel">{{ r.sublabel }}</span>
+            </span>
+            @if (i === activeIndex()) {
+              <kbd class="cp__enter">↵</kbd>
+            }
+          </button>
+        } @empty {
+          <div class="cp__empty">No pages or symbols match "{{ query() }}".</div>
+        }
+      </div>
+
+      <div class="cp__footer">
+        <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+        <span><kbd>↵</kbd> select</span>
+        <span><kbd>ESC</kbd> close</span>
+      </div>
+    </div>
+  </div>
+}

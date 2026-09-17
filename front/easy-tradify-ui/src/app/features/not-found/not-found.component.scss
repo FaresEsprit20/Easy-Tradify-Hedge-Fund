@@ -1,0 +1,28 @@
+.nf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100dvh - 96px);
+  gap: 10px;
+  color: var(--text-secondary);
+}
+
+.nf__code {
+  font-size: 48px;
+  color: var(--color-amber);
+}
+
+.nf__text {
+  margin: 0;
+}
+
+.nf__link {
+  color: var(--color-amber);
+  text-decoration: none;
+  font-size: 12px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

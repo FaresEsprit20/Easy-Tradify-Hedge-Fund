@@ -1,0 +1,20 @@
+@if (loading()) {
+  <div class="qv qv--loading">Analyzing…</div>
+} @else if (snapshot(); as s) {
+  <div class="qv">
+    <div class="qv__head">
+      <span class="qv__symbol">{{ s.symbol }}</span>
+      <app-status-pill [label]="s.decision.verdict" [variant]="variant(s.decision.verdict)" />
+      <span class="qv__stars">{{ stars(s.decision.starRating) }}</span>
+      <span class="qv__prob num">{{ s.decision.probabilityPercent }}%</span>
+    </div>
+    <div class="qv__row">
+      <span>Entry <b class="num">{{ s.decision.entry | number: '1.2-5' }}</b></span>
+      <span class="text-coral">Stop <b class="num">{{ s.decision.stop | number: '1.2-5' }}</b></span>
+      <span class="text-jade">Targets <b class="num">{{ s.decision.targets.join(' / ') }}</b></span>
+      <span>R:R <b class="num">{{ s.decision.riskRewardRatio }}</b></span>
+    </div>
+  </div>
+} @else {
+  <div class="qv qv--empty">No analysis run yet.</div>
+}

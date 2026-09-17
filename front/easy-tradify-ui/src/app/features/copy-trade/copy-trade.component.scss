@@ -1,0 +1,129 @@
+.ct-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.ct-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ct-tile__label {
+  font-family: var(--font-condensed);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ct-tile__value {
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.ct-section {
+  margin: 16px 0 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-hairline);
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.ct-note {
+  margin: 0 0 12px;
+  font-size: 10.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.ct-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ct-field__label {
+  font-family: var(--font-condensed);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ct-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.ct-side-btn {
+  padding: 8px 0;
+  border-radius: 2px;
+  border: 1px solid var(--border-hairline-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+
+  &--buy.is-active {
+    background: var(--color-jade-dim);
+    border-color: var(--color-jade);
+    color: var(--color-jade);
+  }
+  &--sell.is-active {
+    background: var(--color-coral-dim);
+    border-color: var(--color-coral);
+    color: var(--color-coral);
+  }
+}
+
+.ct-analyze-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ct-analyze-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 2px;
+  background: var(--color-amber);
+  color: var(--text-on-amber);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.ct-verdict {
+  padding: 12px;
+  background: var(--bg-panel-alt);
+  border-radius: 2px;
+}
+
+.ct-deep-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--color-amber);
+  font-size: 10.5px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

@@ -1,0 +1,45 @@
+<svg class="radar" viewBox="0 0 200 200" role="img" aria-label="Live scanner radar sweep">
+  <defs>
+    <linearGradient id="radarSweepGradient" x1="76.71" y1="13.07" x2="123.29" y2="13.07" gradientUnits="userSpaceOnUse">
+      <stop class="radar__gradient-stop radar__gradient-stop--start" offset="0%" />
+      <stop class="radar__gradient-stop radar__gradient-stop--end" offset="100%" />
+    </linearGradient>
+    <filter id="radarGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="1.4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <circle class="radar__ring radar__ring--1" cx="100" cy="100" r="30" />
+  <circle class="radar__ring radar__ring--2" cx="100" cy="100" r="59" />
+  <circle class="radar__ring radar__ring--3" cx="100" cy="100" r="88" />
+  <line class="radar__cross" x1="6" y1="100" x2="194" y2="100" />
+  <line class="radar__cross" x1="100" y1="6" x2="100" y2="194" />
+
+  @for (t of ticks; track t.angle) {
+    <line
+      class="radar__tick"
+      [class.radar__tick--major]="t.major"
+      [attr.transform]="'rotate(' + t.angle + ' 100 100)'"
+      x1="100"
+      [attr.y1]="t.major ? 5 : 7"
+      x2="100"
+      y2="12"
+    />
+  }
+
+  <g class="radar__sweep-group">
+    <path class="radar__sweep" fill="url(#radarSweepGradient)" d="M100,100 L76.71,13.07 A88,88 0 0,1 123.29,13.07 Z" />
+    <line class="radar__sweep-edge" x1="100" y1="100" x2="123.29" y2="13.07" filter="url(#radarGlow)" />
+  </g>
+
+  @for (pt of points(); track pt.id) {
+    <circle class="radar__ping-ripple" [class]="'radar__ping-ripple--' + pt.variant" [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.6" />
+    <circle class="radar__ping" [class]="'radar__ping--' + pt.variant" [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.2" filter="url(#radarGlow)" />
+  }
+
+  <circle class="radar__hub" cx="100" cy="100" r="2.5" filter="url(#radarGlow)" />
+</svg>

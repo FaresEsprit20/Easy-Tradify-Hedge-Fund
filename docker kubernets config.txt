@@ -1,0 +1,1221 @@
+# 🐳 Final Complete Docker + Kubernetes Setup for EasyTradify
+
+Here are all the final files you need for **Docker Compose** and **Kubernetes** support.
+
+---
+
+## 📁 Complete File Structure
+
+```
+easytradify/
+├── docker-compose.yml
+├── .dockerignore
+├── docker-build.sh
+├── docker-build.bat
+│
+├── k8s/
+│   ├── namespace.yaml
+│   ├── configmap.yaml
+│   ├── postgres.yaml
+│   ├── discovery.yaml
+│   ├── execution.yaml
+│   ├── monitor.yaml
+│   ├── portfolio.yaml
+│   ├── ai.yaml
+│   ├── ingress.yaml
+│   ├── hpa.yaml
+│   └── deploy-all.sh
+│
+├── discovery-server/
+│   ├── Dockerfile
+│   └── src/main/resources/
+│       └── application-docker.properties
+│
+├── execution-service/
+│   ├── Dockerfile
+│   └── src/main/resources/
+│       └── application-docker.properties
+│
+├── monitor/
+│   ├── Dockerfile
+│   └── src/main/resources/
+│       └── application-docker.properties
+│
+├── porfolio_risk_management/
+│   ├── Dockerfile
+│   └── src/main/resources/
+│       └── application-docker.properties
+│
+└── ai/
+    ├── Dockerfile
+    └── src/main/resources/
+        └── application-docker.properties
+```
+
+---
+
+## 1. DOCKER COMPOSE FILES
+
+### `docker-compose.yml`
+
+```yaml
+version: '3.8'
+
+services:
+  # ============================================================
+  # POSTGRESQL DATABASE
+  # ============================================================
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: easytradify-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: easytradify
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - easytradify-network
+    restart: unless-stopped
+
+  # ============================================================
+  # DISCOVERY SERVICE
+  # ============================================================
+
+  discovery-service:
+    build:
+      context: ./discovery-server
+      dockerfile: Dockerfile
+    container_name: easytradify-discovery
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - easytradify-network
+    restart: unless-stopped
+
+  # ============================================================
+  # EXECUTION SERVICE
+  # ============================================================
+
+  execution-service:
+    build:
+      context: ./execution-service
+      dockerfile: Dockerfile
+    container_name: easytradify-execution
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/easytradify-execution-service
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - PYTHON_EXECUTION_URL=http://host.docker.internal:5000
+      - INTERNAL_API_KEY=easy-tradify-internal-secret-key-2026
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - easytradify-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # ============================================================
+  # MONITOR SERVICE
+  # ============================================================
+
+  monitor-service:
+    build:
+      context: ./monitor
+      dockerfile: Dockerfile
+    container_name: easytradify-monitor
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/easytradify-monitor-service
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - PYTHON_MONITOR_URL=http://host.docker.internal:5001
+      - INTERNAL_API_KEY=easy-tradify-internal-secret-key-2026
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - easytradify-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # ============================================================
+  # PORTFOLIO RISK SERVICE
+  # ============================================================
+
+  portfolio-service:
+    build:
+      context: ./porfolio_risk_management
+      dockerfile: Dockerfile
+    container_name: easytradify-portfolio
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/easytradify-portfolio-service
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - PYTHON_PORTFOLIO_URL=http://host.docker.internal:5010
+      - INTERNAL_API_KEY=easy-tradify-internal-secret-key-2026
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - easytradify-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # ============================================================
+  # AI SERVICE
+  # ============================================================
+
+  ai-service:
+    build:
+      context: ./ai
+      dockerfile: Dockerfile
+    container_name: easytradify-ai
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/easytradify-ai-service
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - PYTHON_AI_URL=http://host.docker.internal:5002
+      - INTERNAL_API_KEY=easy-tradify-internal-secret-key-2026
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - easytradify-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+# ============================================================
+# VOLUMES
+# ============================================================
+
+volumes:
+  postgres_data:
+
+# ============================================================
+# NETWORKS
+# ============================================================
+
+networks:
+  easytradify-network:
+    driver: bridge
+```
+
+---
+
+### `.dockerignore`
+
+```dockerignore
+# Maven
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# Logs
+logs/
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Environment
+.env
+*.properties
+
+# Tests
+src/test/
+*.test
+*.spec
+```
+
+---
+
+### `docker-build.sh` (Linux/Mac)
+
+```bash
+#!/bin/bash
+
+echo "=========================================="
+echo "🚀 Building EasyTradify Microservices"
+echo "=========================================="
+
+# Build all modules
+echo "📦 Building JARs..."
+mvn clean package -DskipTests
+
+if [ $? -ne 0 ]; then
+    echo "❌ Build failed!"
+    exit 1
+fi
+
+# Build Docker images
+echo "🐳 Building Docker images..."
+docker-compose build
+
+echo "=========================================="
+echo "✅ Build complete!"
+echo ""
+echo "📦 To start all services:"
+echo "   docker-compose up -d"
+echo ""
+echo "📦 To view logs:"
+echo "   docker-compose logs -f"
+echo ""
+echo "📦 To stop all services:"
+echo "   docker-compose down"
+echo ""
+echo "📦 To stop and remove volumes:"
+echo "   docker-compose down -v"
+echo "=========================================="
+```
+
+### `docker-build.bat` (Windows)
+
+```batch
+@echo off
+echo ==========================================
+echo 🚀 Building EasyTradify Microservices
+echo ==========================================
+
+echo 📦 Building JARs...
+call mvn clean package -DskipTests
+
+if %errorlevel% neq 0 (
+    echo ❌ Build failed!
+    exit /b 1
+)
+
+echo 🐳 Building Docker images...
+docker-compose build
+
+echo ==========================================
+echo ✅ Build complete!
+echo.
+echo 📦 To start all services:
+echo    docker-compose up -d
+echo.
+echo 📦 To view logs:
+echo    docker-compose logs -f
+echo.
+echo 📦 To stop all services:
+echo    docker-compose down
+echo.
+echo 📦 To stop and remove volumes:
+echo    docker-compose down -v
+echo ==========================================
+```
+
+---
+
+## 2. DOCKERFILES
+
+### `discovery-server/Dockerfile`
+
+```dockerfile
+FROM openjdk:17-slim
+
+WORKDIR /app
+
+COPY target/*.jar app.jar
+
+EXPOSE 8761
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+```
+
+### `execution-service/Dockerfile`
+
+```dockerfile
+FROM openjdk:17-slim
+
+WORKDIR /app
+
+COPY target/*.jar app.jar
+
+EXPOSE 8081
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+```
+
+### `monitor/Dockerfile`
+
+```dockerfile
+FROM openjdk:17-slim
+
+WORKDIR /app
+
+COPY target/*.jar app.jar
+
+EXPOSE 8082
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+```
+
+### `porfolio_risk_management/Dockerfile`
+
+```dockerfile
+FROM openjdk:17-slim
+
+WORKDIR /app
+
+COPY target/*.jar app.jar
+
+EXPOSE 8083
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+```
+
+### `ai/Dockerfile`
+
+```dockerfile
+FROM openjdk:17-slim
+
+WORKDIR /app
+
+COPY target/*.jar app.jar
+
+EXPOSE 8084
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+```
+
+---
+
+## 3. DOCKER PROFILE CONFIGURATIONS
+
+### `discovery-server/src/main/resources/application-docker.properties`
+
+```properties
+server.port=8761
+spring.application.name=discovery-server
+
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false
+eureka.server.enable-self-preservation=false
+
+logging.level.com.netflix.eureka=INFO
+```
+
+### `execution-service/src/main/resources/application-docker.properties`
+
+```properties
+spring.application.name=execution-service
+server.port=8081
+
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=postgres
+spring.datasource.password=root
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+eureka.client.service-url.defaultZone=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+eureka.instance.prefer-ip-address=true
+eureka.instance.lease-renewal-interval-in-seconds=10
+eureka.instance.lease-expiration-duration-in-seconds=30
+
+internal.api.key=${INTERNAL_API_KEY}
+python.execution.url=${PYTHON_EXECUTION_URL}
+
+logging.level.com.trading.easytradify.execution=INFO
+```
+
+### `monitor/src/main/resources/application-docker.properties`
+
+```properties
+spring.application.name=monitor-service
+server.port=8082
+
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=postgres
+spring.datasource.password=root
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+eureka.client.service-url.defaultZone=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+eureka.instance.prefer-ip-address=true
+eureka.instance.lease-renewal-interval-in-seconds=10
+eureka.instance.lease-expiration-duration-in-seconds=30
+
+internal.api.key=${INTERNAL_API_KEY}
+python.monitor.url=${PYTHON_MONITOR_URL}
+
+logging.level.com.trading.easytradify.monitor=INFO
+```
+
+### `porfolio_risk_management/src/main/resources/application-docker.properties`
+
+```properties
+spring.application.name=portfolio-service
+server.port=8083
+
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=postgres
+spring.datasource.password=root
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+eureka.client.service-url.defaultZone=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+eureka.instance.prefer-ip-address=true
+eureka.instance.lease-renewal-interval-in-seconds=10
+eureka.instance.lease-expiration-duration-in-seconds=30
+
+internal.api.key=${INTERNAL_API_KEY}
+python.portfolio.url=${PYTHON_PORTFOLIO_URL}
+
+logging.level.com.trading.easytradify.portfolio=INFO
+```
+
+### `ai/src/main/resources/application-docker.properties`
+
+```properties
+spring.application.name=ai-service
+server.port=8084
+
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=postgres
+spring.datasource.password=root
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+eureka.client.service-url.defaultZone=${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+eureka.instance.prefer-ip-address=true
+eureka.instance.lease-renewal-interval-in-seconds=10
+eureka.instance.lease-expiration-duration-in-seconds=30
+
+internal.api.key=${INTERNAL_API_KEY}
+python.ai.url=${PYTHON_AI_URL}
+
+logging.level.com.trading.easytradify.ai=INFO
+```
+
+---
+
+## 4. KUBERNETES FILES
+
+### `k8s/namespace.yaml`
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: easytradify
+  labels:
+    app: easytradify
+    environment: production
+```
+
+### `k8s/configmap.yaml`
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: easytradify-config
+  namespace: easytradify
+data:
+  DB_HOST: postgres-service
+  DB_PORT: "5432"
+  EUREKA_URL: http://discovery-service:8761/eureka/
+  PYTHON_EXECUTION_URL: http://host.docker.internal:5000
+  PYTHON_MONITOR_URL: http://host.docker.internal:5001
+  PYTHON_AI_URL: http://host.docker.internal:5002
+  PYTHON_PORTFOLIO_URL: http://host.docker.internal:5010
+  INTERNAL_API_KEY: easy-tradify-internal-secret-key-2026
+```
+
+### `k8s/postgres.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: easytradify
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: root
+        - name: POSTGRES_DB
+          value: easytradify
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: easytradify
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: easytradify
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+```
+
+### `k8s/discovery.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery-service
+  namespace: easytradify
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discovery-service
+  template:
+    metadata:
+      labels:
+        app: discovery-service
+    spec:
+      containers:
+      - name: discovery-service
+        image: easytradify/discovery-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8761
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: EUREKA_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: discovery-service
+  namespace: easytradify
+spec:
+  selector:
+    app: discovery-service
+  ports:
+    - port: 8761
+      targetPort: 8761
+```
+
+### `k8s/execution.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: execution-service
+  namespace: easytradify
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: execution-service
+  template:
+    metadata:
+      labels:
+        app: execution-service
+    spec:
+      containers:
+      - name: execution-service
+        image: easytradify/execution-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgres-service:5432/easytradify-execution-service
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: EUREKA_URL
+        - name: PYTHON_EXECUTION_URL
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: PYTHON_EXECUTION_URL
+        - name: INTERNAL_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: INTERNAL_API_KEY
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: execution-service
+  namespace: easytradify
+spec:
+  selector:
+    app: execution-service
+  ports:
+    - port: 8081
+      targetPort: 8081
+```
+
+### `k8s/monitor.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitor-service
+  namespace: easytradify
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: monitor-service
+  template:
+    metadata:
+      labels:
+        app: monitor-service
+    spec:
+      containers:
+      - name: monitor-service
+        image: easytradify/monitor-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8082
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgres-service:5432/easytradify-monitor-service
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: EUREKA_URL
+        - name: PYTHON_MONITOR_URL
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: PYTHON_MONITOR_URL
+        - name: INTERNAL_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: INTERNAL_API_KEY
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitor-service
+  namespace: easytradify
+spec:
+  selector:
+    app: monitor-service
+  ports:
+    - port: 8082
+      targetPort: 8082
+```
+
+### `k8s/portfolio.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio-service
+  namespace: easytradify
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: portfolio-service
+  template:
+    metadata:
+      labels:
+        app: portfolio-service
+    spec:
+      containers:
+      - name: portfolio-service
+        image: easytradify/portfolio-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8083
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgres-service:5432/easytradify-portfolio-service
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: EUREKA_URL
+        - name: PYTHON_PORTFOLIO_URL
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: PYTHON_PORTFOLIO_URL
+        - name: INTERNAL_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: INTERNAL_API_KEY
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8083
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8083
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portfolio-service
+  namespace: easytradify
+spec:
+  selector:
+    app: portfolio-service
+  ports:
+    - port: 8083
+      targetPort: 8083
+```
+
+### `k8s/ai.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-service
+  namespace: easytradify
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-service
+  template:
+    metadata:
+      labels:
+        app: ai-service
+    spec:
+      containers:
+      - name: ai-service
+        image: easytradify/ai-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8084
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgres-service:5432/easytradify-ai-service
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: EUREKA_URL
+        - name: PYTHON_AI_URL
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: PYTHON_AI_URL
+        - name: INTERNAL_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: easytradify-config
+              key: INTERNAL_API_KEY
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8084
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8084
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  namespace: easytradify
+spec:
+  selector:
+    app: ai-service
+  ports:
+    - port: 8084
+      targetPort: 8084
+```
+
+### `k8s/ingress.yaml`
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: easytradify-ingress
+  namespace: easytradify
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+  - host: easytradify.local
+    http:
+      paths:
+      - path: /api/v1/execution/(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: execution-service
+            port:
+              number: 8081
+      - path: /api/v1/monitor/(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: monitor-service
+            port:
+              number: 8082
+      - path: /api/v1/portfolio/(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: portfolio-service
+            port:
+              number: 8083
+      - path: /api/v1/ai/(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-service
+            port:
+              number: 8084
+```
+
+### `k8s/hpa.yaml`
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: execution-service-hpa
+  namespace: easytradify
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: execution-service
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-service-hpa
+  namespace: easytradify
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-service
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+```
+
+### `k8s/deploy-all.sh`
+
+```bash
+#!/bin/bash
+
+echo "=========================================="
+echo "🚀 Deploying EasyTradify to Kubernetes"
+echo "=========================================="
+
+# Create namespace
+echo "📦 Creating namespace..."
+kubectl apply -f k8s/namespace.yaml
+
+# Apply configurations
+echo "📦 Applying ConfigMap..."
+kubectl apply -f k8s/configmap.yaml
+
+echo "📦 Deploying PostgreSQL..."
+kubectl apply -f k8s/postgres.yaml
+
+echo "📦 Deploying Discovery Service..."
+kubectl apply -f k8s/discovery.yaml
+
+echo "📦 Deploying Execution Service..."
+kubectl apply -f k8s/execution.yaml
+
+echo "📦 Deploying Monitor Service..."
+kubectl apply -f k8s/monitor.yaml
+
+echo "📦 Deploying Portfolio Service..."
+kubectl apply -f k8s/portfolio.yaml
+
+echo "📦 Deploying AI Service..."
+kubectl apply -f k8s/ai.yaml
+
+echo "📦 Deploying HPA..."
+kubectl apply -f k8s/hpa.yaml
+
+echo "📦 Deploying Ingress..."
+kubectl apply -f k8s/ingress.yaml
+
+echo "=========================================="
+echo "✅ Deployment complete!"
+echo ""
+echo "📊 Check status:"
+echo "   kubectl get pods -n easytradify"
+echo "   kubectl get services -n easytradify"
+echo ""
+echo "📦 Port forward to access services:"
+echo "   kubectl port-forward -n easytradify service/discovery-service 8761:8761"
+echo "   kubectl port-forward -n easytradify service/execution-service 8081:8081"
+echo "   kubectl port-forward -n easytradify service/monitor-service 8082:8082"
+echo "   kubectl port-forward -n easytradify service/portfolio-service 8083:8083"
+echo "   kubectl port-forward -n easytradify service/ai-service 8084:8084"
+echo ""
+echo "📦 Undeploy:"
+echo "   kubectl delete namespace easytradify"
+echo "=========================================="
+```
+
+---
+
+## 5. QUICK COMMANDS REFERENCE
+
+### Docker Compose Commands
+
+```bash
+# Build and start everything
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# View logs for specific service
+docker-compose logs -f execution-service
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes
+docker-compose down -v
+
+# Rebuild and restart
+docker-compose up -d --build
+
+# Check status
+docker-compose ps
+```
+
+### Kubernetes Commands
+
+```bash
+# Deploy everything
+./k8s/deploy-all.sh
+
+# Check status
+kubectl get pods -n easytradify
+kubectl get services -n easytradify
+
+# Port forward
+kubectl port-forward -n easytradify service/execution-service 8081:8081
+
+# Scale a service
+kubectl scale deployment execution-service -n easytradify --replicas=3
+
+# View logs
+kubectl logs -f -n easytradify deployment/execution-service
+
+# Undeploy everything
+kubectl delete namespace easytradify
+```
+
+---
+
+## 🎯 Summary
+
+| Component | File | Status |
+|-----------|------|--------|
+| Docker Compose | `docker-compose.yml` | ✅ Complete |
+| Dockerfiles | 5 files | ✅ Complete |
+| Docker Profiles | 5 files | ✅ Complete |
+| Kubernetes | 11 files | ✅ Complete |
+| Build Scripts | 2 files | ✅ Complete |
+
+**Everything is ready!** 🚀

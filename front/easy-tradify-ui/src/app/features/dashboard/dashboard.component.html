@@ -1,0 +1,113 @@
+<div class="container-fluid p-0 dash">
+  <div class="row g-3">
+    <div class="col-lg-3 h-panel-xs">
+      <app-panel title="Sessions" titleHint="Which trading sessions (London, New York, Tokyo, Sydney) are currently active and whether the market is open for this symbol.">
+        <div class="dash-info">
+          <div class="dash-info__row">
+            <app-status-pill
+              [label]="monitor.sessionStatus().isMarketOpen ? 'Market open' : 'Market closed'"
+              [variant]="monitor.sessionStatus().isMarketOpen ? 'jade' : 'coral'"
+            />
+            <button type="button" class="dash-info__refresh" (click)="refreshSession()">↻</button>
+          </div>
+          <div class="dash-info__badges">
+            @for (s of monitor.sessionStatus().activeSessions; track s) {
+              <span class="dash-session-badge">{{ s }}</span>
+            } @empty {
+              <span class="dash-info__muted">No sessions active</span>
+            }
+          </div>
+        </div>
+      </app-panel>
+    </div>
+
+    <div class="col-lg-3 h-panel-xs">
+      <app-panel title="News" titleHint="High-impact economic events tracked today. The strategy's news_veto gate blocks new entries around these — price action gets unreliable when they hit.">
+        <div class="dash-info">
+          <div class="dash-info__row">
+            <app-status-pill
+              [label]="monitor.newsStatus().cacheHealthy ? 'feed healthy' : 'feed stale'"
+              [variant]="monitor.newsStatus().cacheHealthy ? 'jade' : 'amber'"
+            />
+            <button type="button" class="dash-info__refresh" (click)="refreshNews()">↻</button>
+          </div>
+          <p class="dash-info__line">{{ monitor.newsStatus().highImpactEventsToday }} high-impact events today</p>
+          @if (monitor.newsStatus().nextEvent) {
+            <p class="dash-info__line dash-info__line--amber">{{ monitor.newsStatus().nextEvent }}</p>
+          }
+        </div>
+      </app-panel>
+    </div>
+
+    <div class="col-lg-3 h-panel-xs">
+      <app-panel title="System Health" titleHint="Whether the background monitor loop and its Firebase trade-log connection are both up. If either is down, live scanning/logging has stopped.">
+        <div class="dash-info">
+          <div class="dash-info__row">
+            <span class="dash-info__label">Monitor</span>
+            <app-status-pill [label]="monitor.status().running ? 'running' : 'stopped'" [variant]="monitor.status().running ? 'jade' : 'coral'" />
+          </div>
+          <div class="dash-info__row">
+            <span class="dash-info__label">Firebase</span>
+            <app-status-pill [label]="monitor.firebaseStatus().connected ? 'connected' : 'offline'" [variant]="monitor.firebaseStatus().connected ? 'jade' : 'coral'" />
+          </div>
+          <p class="dash-info__line">{{ monitor.status().symbolsTracked }} symbols tracked · {{ monitor.status().openPositions }} open positions</p>
+        </div>
+      </app-panel>
+    </div>
+
+    <div class="col-lg-3 h-panel-xs">
+      <app-panel title="Copy Trade Manager" titleHint="Tracks positions registered through the copy-trade pipeline separately from the main monitor — its own open/closed counts and Firebase sync, independent of whether the scanner is running.">
+        <div class="dash-info">
+          <div class="dash-info__row">
+            <span class="dash-info__label">Status</span>
+            <app-status-pill [label]="copyTrade.status().running ? 'running' : 'stopped'" [variant]="copyTrade.status().running ? 'jade' : 'coral'" />
+          </div>
+          <p class="dash-info__line">{{ copyTrade.status().openTrackedPositions }} tracked positions</p>
+          <p class="dash-info__line">{{ copyTrade.status().stats.tradesRegistered }} registered · {{ copyTrade.status().stats.tradesClosed }} closed</p>
+        </div>
+      </app-panel>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-lg-5 h-panel-lg">
+      <app-panel title="Watchlist" [live]="true" [state]="connection.connectionState()" [updatedAt]="watchlistUpdatedAt()" [noPadding]="true">
+        <app-watchlist-panel [items]="stream.watchlist()" />
+      </app-panel>
+    </div>
+
+    <div class="col-lg-4 h-panel-lg">
+      <app-panel title="Live Scanner" [live]="true" [state]="connection.connectionState()" [updatedAt]="scannerUpdatedAt()">
+        <div class="dash__radar">
+          <app-radar-sweep [pings]="stream.scanPings()" />
+        </div>
+      </app-panel>
+    </div>
+
+    <div class="col-lg-3 h-panel-lg">
+      <app-panel title="Gate / Coherence" [live]="true" [state]="connection.connectionState()" [updatedAt]="gatesUpdatedAt()" [noPadding]="true">
+        <app-gate-ticker [events]="stream.gateEvents()" />
+      </app-panel>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-lg-5 h-panel-md">
+      <app-panel title="Positions" [live]="true" [state]="connection.connectionState()" [updatedAt]="positionsUpdatedAt()" [noPadding]="true">
+        <app-positions-panel [positions]="stream.positions()" />
+      </app-panel>
+    </div>
+
+    <div class="col-lg-4 h-panel-md">
+      <app-panel title="Opportunities" [live]="true" [state]="connection.connectionState()" [updatedAt]="opportunitiesUpdatedAt()" [noPadding]="true">
+        <app-opportunities-panel [opportunities]="stream.opportunities()" />
+      </app-panel>
+    </div>
+
+    <div class="col-lg-3 h-panel-md">
+      <app-panel title="Activity Log" [live]="true" [state]="connection.connectionState()" [updatedAt]="activityUpdatedAt()" [noPadding]="true">
+        <app-activity-log-panel [entries]="stream.activityLog()" />
+      </app-panel>
+    </div>
+  </div>
+</div>

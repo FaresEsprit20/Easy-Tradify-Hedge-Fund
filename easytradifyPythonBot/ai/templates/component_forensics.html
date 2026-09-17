@@ -1,0 +1,402 @@
+<title>Trade Forensics Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --paper: #F2F3EF; --panel: #FAFBF8; --ink: #172026; --muted: #5B666B; --faint: #8A948F;
+  --rule: #D6DAD3; --rule-strong: #BEC4BC; --accent: #23607A; --accent-soft: #DCE8EC;
+  --good: #2F7A4E; --good-soft: #DDEBE0; --bad: #B24A2E; --bad-soft: #F2E0D8;
+  --warn: #9A6B12; --warn-soft: #F1E6CC; --neutral: #8C8E82; --neutral-soft: #E6E7E0; --track: #E3E6E0;
+  --c-win: #2F7A4E; --c-spread: #C98A2B; --c-noise: #7C6BB0; --c-gave: #3F86A6; --c-wrong: #B24A2E; --c-other: #A9ADA2;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101517; --panel: #161D20; --ink: #E2E8E9; --muted: #9AA6AA; --faint: #6F7B7F;
+    --rule: #263033; --rule-strong: #35423F; --accent: #6FB1CC; --accent-soft: #1D3440;
+    --good: #6DBE8C; --good-soft: #17301F; --bad: #E4866A; --bad-soft: #3A2019;
+    --warn: #E0B35A; --warn-soft: #3A2E14; --neutral: #A3A597; --neutral-soft: #262A26; --track: #242C2E;
+    --c-win: #5FB482; --c-spread: #D9A24A; --c-noise: #9D8FD0; --c-gave: #62A8C8; --c-wrong: #E07C60; --c-other: #6E756C;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101517; --panel: #161D20; --ink: #E2E8E9; --muted: #9AA6AA; --faint: #6F7B7F;
+  --rule: #263033; --rule-strong: #35423F; --accent: #6FB1CC; --accent-soft: #1D3440;
+  --good: #6DBE8C; --good-soft: #17301F; --bad: #E4866A; --bad-soft: #3A2019;
+  --warn: #E0B35A; --warn-soft: #3A2E14; --neutral: #A3A597; --neutral-soft: #262A26; --track: #242C2E;
+  --c-win: #5FB482; --c-spread: #D9A24A; --c-noise: #9D8FD0; --c-gave: #62A8C8; --c-wrong: #E07C60; --c-other: #6E756C;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5; margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 24px; padding-block: 32px 80px; }
+h1, h2, h3, h4 { font-family: var(--cond); text-wrap: balance; margin: 0; }
+h1 { font-size: 34px; font-weight: 700; line-height: 1.1; }
+h2 { font-size: 24px; font-weight: 600; }
+h3 { font-size: 18px; font-weight: 600; }
+h4 { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+p { margin: 0; max-width: 72ch; }
+.mono, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.eyebrow { font-family: var(--cond); font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+header.top { display: grid; gap: 14px; padding-bottom: 22px; border-bottom: 1px solid var(--rule-strong); }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 30px; }
+.fact { display: grid; gap: 2px; }
+.fact .v { font-family: var(--mono); font-size: 20px; font-variant-numeric: tabular-nums; }
+.fact .v.bad { color: var(--bad); } .fact .v.good { color: var(--good); }
+.fact .k { font-size: 12px; color: var(--muted); max-width: 22ch; }
+section { margin-top: 40px; display: grid; gap: 14px; }
+
+/* anatomy */
+.anatomy { display: grid; gap: 10px; }
+.stack { display: flex; height: 30px; border-radius: 4px; overflow: hidden; border: 1px solid var(--rule); }
+.stack span { display: block; height: 100%; }
+.stack.mini { height: 10px; border-radius: 2px; }
+.keys { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.keys i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--cond); font-weight: 600; font-size: 12.5px; letter-spacing: .04em; color: var(--muted); white-space: nowrap; }
+td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.tscroll { overflow-x: auto; }
+
+/* fixes */
+.fixes { display: grid; gap: 12px; counter-reset: fix; }
+.fix { display: grid; grid-template-columns: 44px 1fr; gap: 4px 16px; padding: 16px 0; border-top: 1px solid var(--rule-strong); }
+.fix .rank { font-family: var(--mono); font-size: 22px; color: var(--accent); counter-increment: fix; }
+.fix .rank::before { content: counter(fix); }
+.fix .body { display: grid; gap: 8px; }
+.fix .row { display: grid; grid-template-columns: 90px 1fr; gap: 12px; }
+.fix .label { font-family: var(--cond); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.fix .files { font-family: var(--mono); font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.evidence { display: flex; flex-wrap: wrap; gap: 6px; }
+.ev { font-family: var(--mono); font-size: 12px; background: var(--neutral-soft); border-radius: 3px; padding: 2px 7px; }
+.ev.pos { background: var(--good-soft); color: var(--good); } .ev.neg { background: var(--bad-soft); color: var(--bad); }
+
+/* rules table */
+.cellv { display: grid; gap: 1px; font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cellv .h { color: var(--muted); font-size: 11.5px; }
+td.both { background: var(--good-soft); }
+td.none { background: transparent; }
+td.neg { background: var(--bad-soft); }
+tr.current td:first-child { font-weight: 600; }
+
+/* components */
+.controls { position: sticky; top: 0; z-index: 5; background: var(--paper); padding-block: 10px; border-bottom: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+button.chip { font: 500 13px var(--cond); color: var(--ink); background: transparent; border: 1px solid var(--rule-strong); border-radius: 999px; padding: 4px 11px; cursor: pointer; }
+button.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+button.chip:hover { border-color: var(--accent); }
+select, input[type="search"] { font: 14px var(--sans); color: var(--ink); background: var(--panel); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 5px 9px; }
+input[type="search"] { width: 200px; max-width: 100%; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cat-head { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; padding-top: 10px; margin-top: 12px; border-top: 2px solid var(--ink); }
+.comp { padding-block: 16px; border-bottom: 1px solid var(--rule); display: grid; gap: 10px; }
+.comp .head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.comp .name { font-family: var(--cond); font-size: 18px; font-weight: 600; }
+.status { font-family: var(--cond); font-size: 12px; font-weight: 600; letter-spacing: .05em; padding: 2px 8px; border-radius: 3px; background: var(--neutral-soft); color: var(--muted); }
+.status.ADDS_EDGE, .status.PREDICTIVE, .status.HAS_GOOD_STATE { background: var(--good-soft); color: var(--good); }
+.status.INVERTED, .status.HAS_BAD_STATE { background: var(--bad-soft); color: var(--bad); }
+.status.TOO_RARE, .status.PREDICTIVE_BUT_ALWAYS_AGREES { background: var(--warn-soft); color: var(--warn); }
+.comp .desc { font-size: 12.5px; color: var(--muted); }
+.twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+ul.list { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; }
+ul.list.fixlist li::marker { color: var(--accent); }
+.states td { font-size: 12.5px; }
+.states .st { font-family: var(--cond); font-weight: 600; font-size: 13px; }
+.states tr.ALIGNED td:first-child { box-shadow: inset 3px 0 0 var(--good); }
+.states tr.OPPOSED td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
+.states tr.small td { color: var(--faint); }
+.pos-t { color: var(--good); } .neg-t { color: var(--bad); }
+.notes { display: grid; gap: 10px; font-size: 14px; color: var(--muted); }
+.notes p { max-width: 92ch; }
+@media (max-width: 760px) {
+  .wrap { padding-inline: 16px; }
+  h1 { font-size: 27px; }
+  .twocol { grid-template-columns: 1fr; }
+  .fix { grid-template-columns: 1fr; }
+  .fix .row { grid-template-columns: 1fr; gap: 2px; }
+  .controls { position: static; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">easytradify · stored trades · tick paths · in-trade analysis</div>
+    <h1>Trade Forensics Playbook</h1>
+    <p class="muted">Why each trade won or lost, taken from the real price path (MT5 ticks, 8 hours from entry, all three accounts) and from the analysis re-run inside every open trade. Then every component, one at a time, and what to change, ordered by impact. Entries are the real fills; only exits are re-run.</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <section aria-labelledby="h-why">
+    <h2 id="h-why">Why the trades lose</h2>
+    <div class="anatomy">
+      <div class="stack" id="anatomyBar" role="img" aria-label="How trades ended"></div>
+      <div class="keys" id="anatomyKeys"></div>
+    </div>
+    <div class="split">
+      <div class="panel" id="panelStops"></div>
+      <div class="panel" id="panelAfter"></div>
+      <div class="panel" id="panelLev"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-fixes">
+    <h2 id="h-fixes">The fixes, biggest first</h2>
+    <p class="muted">Each change comes from reading the code next to the measurement. The evidence chips are pulled live from the component results below.</p>
+    <div class="fixes" id="fixes"></div>
+  </section>
+
+  <section aria-labelledby="h-rules">
+    <h2 id="h-rules">What makes the trades win</h2>
+    <p class="muted">Net R per trade after commission, first half / second half of the sample in time order, then win rate and total R. Green cells are positive in both halves. Rules were fixed before being scored. The last row keeps every trade and flips the ones against the trend cascade.</p>
+    <div class="tscroll"><table id="rules"></table></div>
+    <p class="muted">Exit notation: <span class="mono">2.0x|3.0</span> = stop at 2× today's stop distance, target at 3R of the new stop · <span class="mono">3.0atr|2.0</span> = stop at 3× M1 ATR, target 2R. Position size keeps the same dollar risk, so wider stops also pay proportionally less commission in R.</p>
+  </section>
+
+  <section aria-labelledby="h-grid">
+    <h2 id="h-grid">Exit grid on every trade</h2>
+    <div class="split">
+      <div class="panel"><h4>Best exits, all trades</h4><div class="tscroll"><table id="gridBest"></table></div></div>
+      <div class="panel"><h4>Today's stop distance with any target</h4><div class="tscroll"><table id="gridCurrent"></table></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-cats">
+    <h2 id="h-cats">By strategy group</h2>
+    <div class="tscroll"><table id="cats"></table></div>
+  </section>
+
+  <section aria-labelledby="h-comps">
+    <h2 id="h-comps">Component by component</h2>
+    <div class="controls">
+      <div class="chips" id="catChips" role="group" aria-label="Group filter"></div>
+      <select id="statusFilter" aria-label="Verdict filter"></select>
+      <input id="search" type="search" placeholder="Find a component…" aria-label="Find a component">
+    </div>
+    <div id="components"></div>
+  </section>
+
+  <section aria-labelledby="h-notes">
+    <h2 id="h-notes">Definitions</h2>
+    <div class="notes">
+      <p><b>Spread stop</b> — stopped on the bid/ask while the mid price never reached the stop. <b>Noise stop</b> — stopped, then price went on to the original target before moving 3R against. <b>Gave back</b> — reached +1R first, then stopped. <b>Wrong direction</b> — stopped and kept going 3R further against.</p>
+      <p><b>Direction right</b> — which barrier of 5× M1 ATR price touched first, within 8 hours. For a directional component it is judged in the component's direction; 50% is a coin. <b>Lift</b> — trade direction right when the component agreed minus when it disagreed; this is the number that says whether a component can separate good entries from bad ones.</p>
+      <p><b>Verdicts</b> — ADDS EDGE: lift positive with p &lt; 0.05. PREDICTIVE: direction accuracy CI above 50%. INVERTED: accuracy CI below 50%, or lift negative with p &lt; 0.05. NO EDGE: indistinguishable from a coin. With ~70 directional components, expect about three p &lt; 0.05 results by chance; the trend group's results are consistent across both halves, which chance rarely produces.</p>
+      <p><b>Replay check</b> — the stored stop and target re-run on the ticks reproduce the booked result on <span id="replayNote"></span> stop/target closes. That agreement is what makes the exit grid trustworthy.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+const DATA = __DATA__;
+const PB = DATA.playbook;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = (v, d = 2) => v == null ? "–" : (v > 0 ? "+" : "") + Number(v).toFixed(d);
+const CLASS_META = [
+  ["WIN_TARGET", "Reached target", "--c-win"],
+  ["LOSS_SPREAD_STOP", "Spread stop", "--c-spread"],
+  ["LOSS_NOISE_STOP", "Noise stop", "--c-noise"],
+  ["LOSS_GAVE_BACK", "Gave back +1R", "--c-gave"],
+  ["LOSS_WRONG_DIRECTION", "Wrong direction", "--c-wrong"],
+  ["LOSS_UNRESOLVED", "Unresolved", "--c-other"],
+  ["OPEN_AT_HORIZON", "Open at 8h", "--c-other"],
+];
+const byName = Object.fromEntries(DATA.components.map(c => [c.name, c]));
+const CAT_TITLE = Object.fromEntries(DATA.categories.map(c => [c.category, c.title]));
+const STATUS_LABEL = {
+  ADDS_EDGE: "ADDS EDGE", PREDICTIVE: "PREDICTIVE", INVERTED: "INVERTED", NO_DIRECTIONAL_EDGE: "NO EDGE",
+  TOO_RARE: "TOO RARE", PREDICTIVE_BUT_ALWAYS_AGREES: "ALWAYS AGREES", DESCRIPTIVE: "DESCRIPTIVE",
+  HAS_GOOD_STATE: "HAS GOOD STATE", HAS_BAD_STATE: "HAS BAD STATE",
+};
+const statusLabel = s => STATUS_LABEL[s.replace("_UNSTABLE", "")] + (s.endsWith("_UNSTABLE") ? " · unstable" : "");
+
+function stack(classes, total, mini = false) {
+  return `<div class="stack${mini ? " mini" : ""}" aria-hidden="${mini}">` + CLASS_META.map(([k, , c]) => {
+    const n = classes[k] || 0; if (!n) return "";
+    return `<span style="width:${(100 * n / total).toFixed(2)}%;background:var(${c})" title="${k}: ${n}"></span>`;
+  }).join("") + `</div>`;
+}
+
+function header() {
+  const o = DATA.overall, a = o.accuracy_5atr;
+  const current = PB.rules[0].exits["1.0x|5.0"];
+  const items = [
+    [DATA.trades_with_paths, "trades with a full tick path"],
+    [`${PB.replay_agreement.agree}/${PB.replay_agreement.n}`, "stop/target outcomes reproduced by the replay", "good"],
+    [`${a.rate}%`, "trade direction right (5 ATR barrier)"],
+    [`${PB.median_stop_pips} p`, `median stop · ${PB.median_stop_atr}× ATR`, "bad"],
+    [`${Math.round(PB.median_seconds_to_stop)} s`, "median time to stop", "bad"],
+    [`−${Number(PB.median_commission_r).toFixed(2)}R`, "commission per trade", "bad"],
+    [`${fmt(current.all)}R`, "net per trade, current bracket", "bad"],
+  ];
+  document.getElementById("facts").innerHTML = items.map(([v, k, t]) =>
+    `<div class="fact"><span class="v ${t || ""}">${esc(v)}</span><span class="k">${esc(k)}</span></div>`).join("");
+  document.getElementById("replayNote").textContent = `${PB.replay_agreement.agree} of ${PB.replay_agreement.n}`;
+}
+
+function why() {
+  const total = Object.values(PB.anatomy).reduce((a, b) => a + b, 0);
+  document.getElementById("anatomyBar").innerHTML = stack(PB.anatomy, total).replace(/^<div[^>]*>|<\/div>$/g, "");
+  document.getElementById("anatomyKeys").innerHTML = CLASS_META.filter(([k]) => PB.anatomy[k]).map(([k, label, c]) =>
+    `<span><i style="background:var(${c})"></i>${label} <span class="mono">${PB.anatomy[k]}</span></span>`).join("");
+  const d = PB.drift_mean_r;
+  document.getElementById("panelStops").innerHTML = `<h4>The stop is inside the noise</h4>
+    <table>
+      <tr><td>Median stop</td><td class="n">${PB.median_stop_pips} pips · ${PB.median_stop_atr}× ATR</td></tr>
+      <tr><td>Spread at entry</td><td class="n">${PB.median_entry_spread_r}R</td></tr>
+      <tr><td>Commission</td><td class="n">${PB.median_commission_r}R</td></tr>
+      <tr><td>Worst move, first 30 s</td><td class="n">${fmt(PB.median_mae_first_30s)}R</td></tr>
+      <tr><td>Median time to stop</td><td class="n">${Math.round(PB.median_seconds_to_stop)} s</td></tr>
+    </table>
+    <p class="muted" style="font-size:13px">A trade starts 0.17R down on spread and owes 0.58R of commission, so it needs ~0.75R just to reach zero.</p>`;
+  const af = PB.after_stop, stopsN = Object.values(af).reduce((a, b) => a + b, 0);
+  document.getElementById("panelAfter").innerHTML = `<h4>After being stopped</h4>
+    <table>
+      <tr><td>Went on to the target</td><td class="n">${af.REACHED_TARGET || 0} of ${stopsN}</td></tr>
+      <tr><td>Kept going 3R against</td><td class="n">${af.CONTINUED_AGAINST || 0} of ${stopsN}</td></tr>
+      <tr><td>Average move in trade direction</td><td class="n">5m ${fmt(d["5"])} · 15m ${fmt(d["15"])} · 60m ${fmt(d["60"])} · 4h ${fmt(d["240"])}R</td></tr>
+    </table>
+    <p class="muted" style="font-size:13px">The direction is right more often than not and the move arrives over hours; a 1.3-pip stop is taken out in minutes.</p>`;
+  document.getElementById("panelLev").innerHTML = `<h4>Leverage shrinks the stop</h4>
+    <table><tr><th>Account</th><th class="n">Trades</th><th class="n">Median stop</th><th class="n">Spread stops</th></tr>
+    ${PB.leverage.map(l => `<tr><td>1:${l.leverage}</td><td class="n">${l.n}</td><td class="n">${l.median_stop_pips} p</td><td class="n">${l.spread_stops}</td></tr>`).join("")}
+    </table>
+    <p class="muted" style="font-size:13px">The lot is sized to the margin, and more leverage allows a bigger lot, so the dollar risk buys fewer pips.</p>`;
+}
+
+function evidenceFor(name) {
+  const c = byName[name]; if (!c) return "";
+  const out = [];
+  if (c.lift) out.push(`<span class="ev ${c.lift.lift_pts > 0 ? "pos" : "neg"}">${esc(name)}: lift ${fmt(c.lift.lift_pts, 1)} pts, p ${c.lift.p}</span>`);
+  else if (c.direction_accuracy && c.direction_accuracy.rate != null) out.push(`<span class="ev">${esc(name)}: right ${c.direction_accuracy.rate}%</span>`);
+  else if (name === "Stop distance (pips)") {
+    c.states.filter(s => !s.small).forEach(s => out.push(`<span class="ev">${esc(s.state)} p: ${s.win_rate}% win, ${fmt(s.exits["1.0x|5.0"].all)}R</span>`));
+  }
+  return out.join("");
+}
+
+function fixes() {
+  document.getElementById("fixes").innerHTML = PB.diagnoses.map(f => `<article class="fix">
+    <div class="rank" aria-hidden="true"></div>
+    <div class="body">
+      <h3>${esc(f.title)}</h3>
+      <div class="row"><span class="label">Cause</span><p>${esc(f.cause)}</p></div>
+      <div class="row"><span class="label">Change</span><p>${esc(f.change)}</p></div>
+      <div class="row"><span class="label">Code</span><div class="files">${f.files.map(x => `<span>${esc(x)}</span>`).join("")}</div></div>
+      ${f.components.length ? `<div class="row"><span class="label">Evidence</span><div class="evidence">${f.components.map(evidenceFor).join("")}</div></div>` : ""}
+    </div></article>`).join("");
+}
+
+function rules() {
+  const exits = Object.keys(PB.rules[0].exits);
+  const head = `<tr><th>Rule</th><th class="n">Trades</th><th class="n">Direction right</th>${exits.map(e => `<th class="n">${esc(e)}</th>`).join("")}</tr>`;
+  const body = PB.rules.map((r, i) => `<tr class="${i === 0 ? "current" : ""}">
+    <td>${esc(r.rule)}${r.flipped_trades ? `<div class="muted" style="font-size:12px">${r.flipped_trades} trades flipped</div>` : ""}</td>
+    <td class="n">${r.n}<div class="muted" style="font-size:11.5px">${r.n_half1}/${r.n_half2}</div></td>
+    <td class="n">${r.direction_right ?? "–"}%</td>
+    ${exits.map(e => { const v = r.exits[e];
+      const cls = v.half1 > 0 && v.half2 > 0 ? "both" : (v.half1 < 0 && v.half2 < 0 ? "neg" : "none");
+      return `<td class="n ${cls}"><div class="cellv"><span class="${v.all > 0 ? "pos-t" : v.all < 0 ? "neg-t" : ""}">${fmt(v.half1)} / ${fmt(v.half2)}</span><span class="h">${v.win_rate}% win · ${fmt(v.total_r, 1)}R</span></div></td>`; }).join("")}
+  </tr>`).join("");
+  document.getElementById("rules").innerHTML = head + body;
+}
+
+function grids() {
+  const row = g => `<tr><td class="mono">${esc(g.exit)}</td><td class="n ${g.all > 0 ? "pos-t" : "neg-t"}">${fmt(g.all)}</td><td class="n">${fmt(g.half1)}</td><td class="n">${fmt(g.half2)}</td><td class="n">${g.win_rate}%</td></tr>`;
+  const head = `<tr><th>Exit</th><th class="n">Net R</th><th class="n">Half 1</th><th class="n">Half 2</th><th class="n">Win</th></tr>`;
+  document.getElementById("gridBest").innerHTML = head + PB.exit_grid.slice(0, 12).map(row).join("");
+  document.getElementById("gridCurrent").innerHTML = head + PB.exit_grid_current.map(row).join("");
+}
+
+function cats() {
+  const head = `<tr><th>Group</th><th>Adds edge / predictive</th><th>Inverted</th><th class="n">No edge</th><th>Verdicts</th></tr>`;
+  document.getElementById("cats").innerHTML = head + DATA.categories.map(c => {
+    const members = DATA.components.filter(x => x.category === c.category);
+    const good = members.filter(x => /^(ADDS_EDGE|PREDICTIVE$|PREDICTIVE_UNSTABLE)/.test(x.status)).map(x => x.name);
+    return `<tr><td><b>${esc(c.title)}</b></td>
+      <td>${good.length ? good.map(esc).join(", ") : "<span class='muted'>none</span>"}</td>
+      <td>${c.inverted.length ? c.inverted.map(esc).join(", ") : "<span class='muted'>none</span>"}</td>
+      <td class="n">${c.no_edge.length}</td>
+      <td class="muted" style="font-size:12.5px">${Object.entries(c.statuses).map(([k, v]) => `${statusLabel(k)} ${v}`).join(" · ")}</td></tr>`;
+  }).join("");
+}
+
+const state = { cat: "ALL", status: "ALL", q: "" };
+function controls() {
+  document.getElementById("catChips").innerHTML = [["ALL", "All"], ...DATA.categories.map(c => [c.category, c.title])].map(([k, t]) =>
+    `<button type="button" class="chip" data-cat="${k}" aria-pressed="${state.cat === k}">${esc(t)}</button>`).join("");
+  const statuses = [...new Set(DATA.components.map(c => c.status))];
+  document.getElementById("statusFilter").innerHTML = `<option value="ALL">All verdicts</option>` +
+    statuses.map(s => `<option value="${s}">${esc(statusLabel(s))}</option>`).join("");
+}
+
+function stateRows(c) {
+  const vote = c.kind === "vote";
+  const head = `<tr><th>State</th><th class="n">n</th><th class="n">Win</th><th class="n">${vote ? "Component right" : "Trade right"}</th><th>How trades ended</th><th class="n">Stopped → target</th><th class="n">MFE</th><th class="n">Drift 15m / 1h / 4h</th><th class="n">Current exit</th><th class="n">Best exit</th></tr>`;
+  const rows = c.states.map(s => {
+    const a = s.accuracy_5atr || {}, cur = s.exits["1.0x|5.0"] || {}, be = s.best_exit || {};
+    return `<tr class="${esc(s.state)}${s.small ? " small" : ""}">
+      <td><span class="st">${esc(s.state)}</span></td>
+      <td class="n">${s.n}</td>
+      <td class="n">${s.win_rate}%</td>
+      <td class="n">${a.rate ?? "–"}%<div class="muted" style="font-size:11px">${a.half1 ?? "–"} / ${a.half2 ?? "–"}</div></td>
+      <td style="min-width:120px">${stack(s.classes, s.n, true)}</td>
+      <td class="n">${s.stopped_then_reached_target ?? "–"}%</td>
+      <td class="n">${fmt(s.median_mfe_r)}</td>
+      <td class="n">${fmt(s.drift_15m_r)} / ${fmt(s.drift_60m_r)} / ${fmt(s.drift_240m_r)}</td>
+      <td class="n ${cur.all > 0 ? "pos-t" : "neg-t"}">${fmt(cur.all)}</td>
+      <td class="n"><span class="${be.all > 0 ? "pos-t" : "neg-t"}">${fmt(be.all)}</span><div class="muted" style="font-size:11px">${esc(be.exit || "")}</div></td>
+    </tr>`;
+  }).join("");
+  return `<div class="tscroll"><table class="states">${head}${rows}</table></div>`;
+}
+
+function components() {
+  let list = DATA.components.map((c, i) => ({ ...c, i }));
+  if (state.cat !== "ALL") list = list.filter(c => c.category === state.cat);
+  if (state.status !== "ALL") list = list.filter(c => c.status === state.status);
+  if (state.q) list = list.filter(c => (c.name + " " + c.description).toLowerCase().includes(state.q));
+  const el = document.getElementById("components");
+  if (!list.length) { el.innerHTML = `<p class="muted" style="padding:24px 0">No component matches. Clear the search or pick another group or verdict.</p>`; return; }
+  const render = c => {
+    const l = c.lift, da = c.direction_accuracy, fl = c.flips;
+    const chips = [];
+    if (da && da.rate != null) chips.push(`<span class="ev">right ${da.rate}% [${da.ci95[0]}–${da.ci95[1]}] n ${da.n}</span>`);
+    if (l) chips.push(`<span class="ev ${l.p < 0.05 ? (l.lift_pts > 0 ? "pos" : "neg") : ""}">lift ${fmt(l.lift_pts, 1)} pts · p ${l.p}</span>`);
+    if (fl && fl.flipped) chips.push(`<span class="ev">turned against ${fl.flipped}/${fl.aligned_at_entry} · exit on flip ${fmt(fl.exit_on_flip_gain_r)}R</span>`);
+    chips.push(`<span class="ev">${c.coverage} trades</span>`);
+    return `<article class="comp">
+      <div class="head"><span class="name">${esc(c.name)}</span><span class="status ${esc(c.status.replace("_UNSTABLE", ""))}">${esc(statusLabel(c.status))}</span>
+        ${c.description ? `<span class="desc">${esc(c.description)}</span>` : ""}</div>
+      <div class="evidence">${chips.join("")}</div>
+      ${(c.findings.length || c.fixes.length) ? `<div class="twocol">
+        <div><h4>What the paths show</h4>${c.findings.length ? `<ul class="list">${c.findings.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="muted">Nothing beyond the table.</p>`}</div>
+        <div><h4>Fix</h4>${c.fixes.length ? `<ul class="list fixlist">${c.fixes.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="muted">No change indicated by this sample.</p>`}</div>
+      </div>` : ""}
+      ${stateRows(c)}
+    </article>`;
+  };
+  const cats = DATA.categories.map(c => c.category);
+  el.innerHTML = cats.filter(k => list.some(c => c.category === k)).map(k => {
+    const members = list.filter(c => c.category === k);
+    return `<div class="cat-head"><h3>${esc(CAT_TITLE[k])}</h3><span class="muted" style="font-size:13px">${members.length} component${members.length === 1 ? "" : "s"}</span></div>` + members.map(render).join("");
+  }).join("");
+}
+
+document.getElementById("catChips").addEventListener("click", e => {
+  const b = e.target.closest("button.chip"); if (!b) return;
+  state.cat = b.dataset.cat;
+  document.querySelectorAll("#catChips .chip").forEach(x => x.setAttribute("aria-pressed", x.dataset.cat === state.cat));
+  components();
+});
+document.getElementById("statusFilter").addEventListener("change", e => { state.status = e.target.value; components(); });
+document.getElementById("search").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); components(); });
+
+header(); why(); fixes(); rules(); grids(); cats(); controls(); components();
+</script>

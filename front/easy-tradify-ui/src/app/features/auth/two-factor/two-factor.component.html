@@ -1,0 +1,41 @@
+<div class="af-head">
+  <h1 class="af-title">Verify it's you</h1>
+  <p class="af-sub">
+    @if (viaEmail()) {
+      We sent a six-digit code to your email. It expires in a few minutes.
+    } @else {
+      Enter the six-digit code from your authenticator app.
+    }
+  </p>
+</div>
+
+@if (error()) {
+  <div class="af-alert" role="alert">{{ error() }}</div>
+}
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="af-field">
+    <label class="af-label" for="code">VERIFICATION CODE</label>
+    <input
+      id="code"
+      class="af-input code"
+      formControlName="code"
+      type="text"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+      maxlength="6"
+      placeholder="000000"
+      autofocus />
+    @if (form.controls.code.touched && form.controls.code.invalid) {
+      <div class="af-error">Enter the six digits.</div>
+    }
+  </div>
+
+  <button class="af-btn" type="submit" [disabled]="submitting()">
+    @if (submitting()) { <span class="af-spin"></span> } @else { VERIFY }
+  </button>
+</form>
+
+<div class="af-foot">
+  <a href="#" (click)="$event.preventDefault(); cancel()">Use a different account</a>
+</div>

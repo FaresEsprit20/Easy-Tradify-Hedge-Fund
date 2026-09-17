@@ -1,0 +1,5 @@
+encoders and decoders and price evolution maps and bridge must match 100% asset analysis
+
+okay now time to fix ai adverserial so it matches 100% asset analysis
+
+make all files under ai/ai replay with correct package import , 

@@ -1,0 +1,107 @@
+:host { display: block; height: 100vh; }
+
+.auth {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  height: 100%;
+  background: var(--bg-app);
+}
+
+/* ---------------- hero ---------------- */
+.auth__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+  min-width: 0;
+  border-right: 1px solid var(--border-hairline);
+  background:
+    radial-gradient(900px 500px at 12% -10%, rgba(43, 217, 142, 0.09), transparent 60%),
+    radial-gradient(700px 460px at 92% 108%, rgba(76, 141, 255, 0.08), transparent 60%),
+    var(--bg-app);
+}
+
+.hero__brand { display: flex; align-items: center; gap: 12px; }
+
+.hero__mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-jade);
+  border-radius: var(--radius-panel);
+  color: var(--color-jade);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hero__name {
+  font-family: var(--font-condensed);
+  font-size: 17px;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+
+  b { color: var(--text-primary); font-weight: 700; }
+}
+
+.hero__sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.hero__chart { flex: 1; min-height: 0; }
+
+.hero__caps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cap {
+  padding: 9px 11px;
+  border: 1px solid var(--border-hairline);
+  border-left: 2px solid var(--color-jade);
+  border-radius: var(--radius-panel);
+  background: var(--bg-panel);
+}
+
+.cap__k {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--color-jade);
+}
+
+.cap__v {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
+
+/* ---------------- form ---------------- */
+.auth__panel {
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  overflow-y: auto;
+}
+
+.auth__form { width: 100%; max-width: 370px; }
+
+/* The hero is decoration; below 1000px the form takes the whole screen rather
+   than being pushed under a chart. */
+@media (max-width: 1000px) {
+  .auth { grid-template-columns: 1fr; }
+  .auth__hero { display: none; }
+}

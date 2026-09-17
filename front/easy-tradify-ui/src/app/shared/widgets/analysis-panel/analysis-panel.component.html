@@ -1,0 +1,105 @@
+@let s = snapshot();
+
+<div class="an">
+  <div class="an__head">
+    <div class="an__head-main">
+      <span class="an__symbol">{{ s.symbol }}</span>
+      <app-status-pill [label]="s.decision.verdict" [variant]="verdictVariant(s.decision.verdict)" />
+      <span class="an__stars" [title]="hints.starRating">{{ stars(s.decision.starRating) }}</span>
+    </div>
+    <span class="an__regime">{{ s.regime3d.combinedLabel }}</span>
+  </div>
+
+  <p class="an__verdict-label">{{ s.decision.verdictLabel }}</p>
+
+  <div class="an__metrics">
+    <div class="an__metric">
+      <span class="an__metric-label">Probability</span>
+      <span class="an__metric-value num">{{ s.decision.probabilityPercent }}%</span>
+    </div>
+    <div class="an__metric">
+      <span class="an__metric-label">Entry</span>
+      <span class="an__metric-value num">{{ s.decision.entry | number: '1.2-5' }}</span>
+    </div>
+    <div class="an__metric">
+      <span class="an__metric-label">Stop</span>
+      <span class="an__metric-value num text-coral">{{ s.decision.stop | number: '1.2-5' }}</span>
+    </div>
+    <div class="an__metric">
+      <span class="an__metric-label">Targets</span>
+      <span class="an__metric-value num text-jade">{{ s.decision.targets.join(' / ') }}</span>
+    </div>
+    <div class="an__metric">
+      <span class="an__metric-label">R:R <app-info-hint [text]="hints.riskReward" /></span>
+      <span class="an__metric-value num">{{ s.decision.riskRewardRatio }}</span>
+    </div>
+    <div class="an__metric">
+      <span class="an__metric-label">Conviction <app-info-hint [text]="hints.conviction" /></span>
+      <span class="an__metric-value num" [class.text-jade]="s.conviction.passed" [class.text-coral]="!s.conviction.passed">
+        {{ s.conviction.convictionScore | number: '1.2-2' }}
+      </span>
+    </div>
+  </div>
+
+  <section class="an__section">
+    <h3 class="an__section-title">Gate Checks <app-info-hint [text]="hints.gateChecks" /></h3>
+    <div class="an__gates">
+      @for (g of s.gates; track g.gate) {
+        <div class="an__gate-row">
+          <app-status-pill [label]="g.passed ? (g.nearMiss ? 'near' : 'pass') : 'fail'" [variant]="gatePillVariant(g.passed, g.nearMiss)" />
+          <span class="an__gate-name">{{ g.gate }}</span>
+          <app-info-hint [text]="gateHint(g.gate)" />
+          @if (g.value !== null && g.threshold !== null) {
+            <span class="an__gate-margin num">{{ g.value }} / {{ g.threshold }} {{ g.unit }}</span>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="an__section an__cases">
+    <div class="an__case">
+      <h3 class="an__section-title text-jade">Bull Case — {{ s.bullCase.confidence }}% <app-info-hint [text]="hints.bullBearCase" /></h3>
+      @for (pt of s.bullCase.supportingIndicators; track pt.indicator) {
+        <p class="an__case-point"><span class="an__case-indicator">{{ pt.indicator }}</span> — {{ pt.reason }}</p>
+      }
+    </div>
+    <div class="an__case">
+      <h3 class="an__section-title text-coral">Bear Case — {{ s.bearCase.confidence }}%</h3>
+      @for (pt of s.bearCase.supportingIndicators; track pt.indicator) {
+        <p class="an__case-point"><span class="an__case-indicator">{{ pt.indicator }}</span> — {{ pt.reason }}</p>
+      }
+    </div>
+  </section>
+
+  <section class="an__section">
+    <h3 class="an__section-title">Scenario Tree <app-info-hint [text]="hints.scenarioTree" /></h3>
+    <div class="an__scenarios">
+      <div class="an__scenario">
+        <span class="an__scenario-label text-jade">Primary — {{ s.scenarioTree.primary.probabilityPct ?? '—' }}%</span>
+        <p class="an__scenario-trigger">{{ s.scenarioTree.primary.trigger }}</p>
+      </div>
+      <div class="an__scenario">
+        <span class="an__scenario-label text-coral">Invalidation — {{ s.scenarioTree.invalidation.probabilityPct ?? '—' }}%</span>
+        <p class="an__scenario-trigger">{{ s.scenarioTree.invalidation.trigger }}</p>
+      </div>
+      <div class="an__scenario">
+        <span class="an__scenario-label">Alternate</span>
+        <p class="an__scenario-trigger">{{ s.scenarioTree.alternate.trigger }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="an__section">
+    <h3 class="an__section-title">Probability Ledger <app-info-hint [text]="hints.probabilityLedger" /></h3>
+    <div class="an__ledger">
+      @for (step of s.probabilityLedger; track step.step) {
+        <div class="an__ledger-row">
+          <span class="an__ledger-step">{{ step.step }}</span>
+          <span class="an__ledger-delta num" [class]="ledgerColor(step.delta)">{{ step.delta >= 0 ? '+' : '' }}{{ step.delta }}</span>
+          <span class="an__ledger-after num">{{ step.after }}%</span>
+        </div>
+      }
+    </div>
+  </section>
+</div>

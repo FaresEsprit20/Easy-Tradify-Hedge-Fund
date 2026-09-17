@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.log {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+.log__row {
+  display: grid;
+  grid-template-columns: 58px 56px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  animation: ticker-slide-in var(--dur-ticker-slide) ease-out;
+}
+
+.log__time {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+.log__message {
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.log__empty {
+  color: var(--text-dim);
+  padding: 8px 0;
+}

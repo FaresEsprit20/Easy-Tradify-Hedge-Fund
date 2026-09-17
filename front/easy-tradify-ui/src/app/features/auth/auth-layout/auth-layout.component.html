@@ -1,0 +1,34 @@
+<div class="auth">
+  <!-- ============ HERO ============ -->
+  <aside class="auth__hero" aria-hidden="true">
+    <div class="hero__top">
+      <div class="hero__brand">
+        <span class="hero__mark">ET</span>
+        <div>
+          <div class="hero__name">EASY<b>TRADIFY</b></div>
+          <div class="hero__sub">ALGORITHMIC EXECUTION TERMINAL</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__chart">
+      <app-market-canvas />
+    </div>
+
+    <ul class="hero__caps">
+      @for (c of capabilities; track c.k) {
+        <li class="cap">
+          <span class="cap__k">{{ c.k }}</span>
+          <span class="cap__v">{{ c.v }}</span>
+        </li>
+      }
+    </ul>
+  </aside>
+
+  <!-- ============ FORM ============ -->
+  <main class="auth__panel">
+    <div class="auth__form">
+      <router-outlet />
+    </div>
+  </main>
+</div>

@@ -1,0 +1,166 @@
+<div class="container-fluid p-0 an-page">
+  <app-panel title="Analysis Workbench">
+    <form class="an-query" (submit)="$event.preventDefault(); runAnalysis()">
+      <label class="an-query__field">
+        <span class="an-query__label">Symbol</span>
+        <app-symbol-picker [value]="symbol()" (change)="symbol.set($event)" />
+      </label>
+
+      <div class="an-query__side">
+        <button type="button" class="an-query__side-btn an-query__side-btn--buy" [class.is-active]="orderType() === 'BUY'" (click)="orderType.set('BUY')">BUY</button>
+        <button type="button" class="an-query__side-btn an-query__side-btn--sell" [class.is-active]="orderType() === 'SELL'" (click)="orderType.set('SELL')">SELL</button>
+      </div>
+
+      <label class="an-query__field">
+        <span class="an-query__label">Trade size (USD)</span>
+        <input type="number" step="10" class="num" [ngModel]="fixedTradeSizeUsd()" (ngModelChange)="fixedTradeSizeUsd.set($event)" name="size" />
+      </label>
+
+      <label class="an-query__field">
+        <span class="an-query__label">Risk / trade (%)</span>
+        <input type="number" step="0.5" class="num" [ngModel]="riskPerTradePct()" (ngModelChange)="riskPerTradePct.set($event)" name="risk" />
+      </label>
+
+      <button type="submit" class="an-query__run" [disabled]="loading()">{{ loading() ? 'Analyzing…' : 'Run Analysis' }}</button>
+    </form>
+  </app-panel>
+
+  <div class="row g-3 mt-1">
+    <div class="col-12 an-page__chart">
+      <app-panel [title]="symbol() + ' — Price Chart'" [noPadding]="true">
+        <div panelActions class="an-page__chart-actions">
+          <app-timeframe-selector [value]="timeframe()" (change)="timeframe.set($event)" />
+          <div class="an-page__overlays">
+            <span class="an-page__overlay-item">
+              <button type="button" class="an-page__overlay-chip" [class.is-active]="overlays().entryStopTargets" (click)="toggleOverlay('entryStopTargets')">Entry/Stop/TP</button>
+              <app-info-hint [text]="overlayHints.entryStopTargets" />
+            </span>
+            <span class="an-page__overlay-item">
+              <button type="button" class="an-page__overlay-chip" [disabled]="!result()" [class.is-active]="overlays().supportResistance" (click)="toggleOverlay('supportResistance')">S/R</button>
+              <app-info-hint [text]="overlayHints.supportResistance" />
+            </span>
+            <span class="an-page__overlay-item">
+              <button type="button" class="an-page__overlay-chip" [disabled]="!result()" [class.is-active]="overlays().supplyDemand" (click)="toggleOverlay('supplyDemand')">Supply/Demand</button>
+              <app-info-hint [text]="overlayHints.supplyDemand" />
+            </span>
+            <span class="an-page__overlay-item">
+              <button type="button" class="an-page__overlay-chip" [disabled]="!result()" [class.is-active]="overlays().smc" (click)="toggleOverlay('smc')">SMC</button>
+              <app-info-hint [text]="overlayHints.smc" />
+            </span>
+            <span class="an-page__overlay-item">
+              <button type="button" class="an-page__overlay-chip" [disabled]="!result()" [class.is-active]="overlays().premiumDiscount" (click)="toggleOverlay('premiumDiscount')">Premium/Discount</button>
+              <app-info-hint [text]="overlayHints.premiumDiscount" />
+            </span>
+            <span class="an-page__overlay-item">
+              <button type="button" class="an-page__overlay-chip" [disabled]="!result()" [class.is-active]="overlays().elliottWave" (click)="toggleOverlay('elliottWave')">Elliott Wave</button>
+              <app-info-hint [text]="overlayHints.elliottWave" />
+            </span>
+            <span class="an-page__overlay-item">
+              <button type="button" class="an-page__overlay-chip" [disabled]="!result()" [class.is-active]="overlays().patterns" (click)="toggleOverlay('patterns')">Patterns</button>
+              <app-info-hint [text]="overlayHints.patterns" />
+            </span>
+          </div>
+        </div>
+        <app-price-chart
+          [candles]="candles()"
+          [priceLines]="priceLines()"
+          [zones]="zones()"
+          [wavePoints]="wavePoints()"
+          [patterns]="patternMarkers()"
+          [structureEvents]="structureEvents()"
+          [levelMarkers]="levelMarkers()"
+        />
+      </app-panel>
+    </div>
+  </div>
+
+  @if (result(); as r) {
+    <div class="row g-3 mt-1">
+      <div class="col-lg-7 an-page__tall">
+        <app-panel title="Decision Snapshot" [noPadding]="true">
+          <app-analysis-panel [snapshot]="r" />
+        </app-panel>
+      </div>
+
+      <div class="col-lg-5 an-page__tall an-page__side">
+        <app-panel title="GNN Correlation" [titleHint]="hints.gnnCorrelation">
+          <div class="an-card">
+            <app-status-pill [label]="r.gnn.recommendation" [variant]="gnnVariant(r.gnn.recommendation)" />
+            <span class="an-card__stat num">score {{ r.gnn.score }}</span>
+            <span class="an-card__stat num">contribution {{ r.gnn.contribution >= 0 ? '+' : '' }}{{ r.gnn.contribution }}</span>
+            <span class="an-card__stat">{{ r.gnn.dataQuality }}</span>
+          </div>
+        </app-panel>
+
+        <app-panel title="Smart Money Concepts" [titleHint]="hints.smartMoneyConcepts">
+          <div class="an-card">
+            <app-status-pill [label]="r.smc.recommendation" [variant]="smcVariant(r.smc.recommendation)" />
+            <span class="an-card__stat num">{{ r.smc.confluenceCount }}/{{ r.smc.totalPossibleSignals }} confluence</span>
+            @for (reason of r.smc.reasons; track reason) {
+              <p class="an-card__reason">{{ reason }}</p>
+            }
+          </div>
+        </app-panel>
+
+        <app-panel title="Order Flow" [titleHint]="hints.orderFlow">
+          <div class="an-card">
+            <app-status-pill [label]="r.orderFlow.recommendation" [variant]="gnnVariant(r.orderFlow.recommendation)" />
+            <span class="an-card__stat num">contribution {{ r.orderFlow.contribution >= 0 ? '+' : '' }}{{ r.orderFlow.contribution }}</span>
+            @for (reason of r.orderFlow.reasons; track reason) {
+              <p class="an-card__reason">{{ reason }}</p>
+            }
+          </div>
+        </app-panel>
+
+        <app-panel title="Coherence &amp; Conviction" [titleHint]="hints.coherence">
+          <div class="an-card">
+            <app-status-pill [label]="r.coherence.coherent ? 'coherent' : 'violation'" [variant]="r.coherence.coherent ? 'jade' : 'coral'" />
+            <span class="an-card__stat num">{{ r.coherence.invariantsRun }} invariants checked</span>
+            <span class="an-card__stat num" [class.text-jade]="r.fullConviction.passed" [class.text-coral]="!r.fullConviction.passed">
+              conviction {{ r.fullConviction.convictionScore }} (min {{ r.fullConviction.minRequired }})
+            </span>
+            @if (!r.fullConviction.passed) {
+              <p class="an-card__reason">{{ r.fullConviction.reason }}</p>
+            }
+          </div>
+        </app-panel>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+      <div class="col-12">
+        <app-panel title="Indicator Grid">
+          <app-indicator-grid [indicators]="r.indicators" />
+        </app-panel>
+      </div>
+    </div>
+  } @else if (loading()) {
+    <div class="row g-3 mt-1">
+      <div class="col-lg-7 an-page__tall">
+        <app-panel title="Decision Snapshot" [noPadding]="true">
+          <div class="an-skel">
+            <div class="u-skeleton an-skel__line" style="width: 40%; height: 20px;"></div>
+            <div class="an-skel__grid">
+              @for (i of [1, 2, 3]; track i) {
+                <div class="u-skeleton an-skel__block"></div>
+              }
+            </div>
+            <div class="u-skeleton an-skel__line" style="width: 100%; height: 120px;"></div>
+          </div>
+        </app-panel>
+      </div>
+      <div class="col-lg-5 an-page__tall an-page__side">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <app-panel>
+            <div class="an-skel">
+              <div class="u-skeleton an-skel__line" style="width: 55%; height: 16px;"></div>
+              <div class="u-skeleton an-skel__line" style="width: 80%; height: 12px;"></div>
+            </div>
+          </app-panel>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="an-page__empty">Choose a symbol and run analysis to see the full decision snapshot.</div>
+  }
+</div>

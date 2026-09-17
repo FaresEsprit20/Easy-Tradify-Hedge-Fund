@@ -1,0 +1,91 @@
+// ============================================================================
+// Global base — surface, type, scrollbars, retokenized native primitives.
+// ============================================================================
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--color-amber-dim);
+  color: var(--text-primary);
+}
+
+// Thin instrument-panel scrollbars.
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-hairline-strong);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
+}
+
+// Numeric alignment is a hard requirement on every tabular surface.
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.text-jade {
+  color: var(--color-jade) !important;
+}
+.text-coral {
+  color: var(--color-coral) !important;
+}
+.text-amber {
+  color: var(--color-amber) !important;
+}
+
+// Retokenized native primitives — no Bootstrap/Angular default skin ships unstyled.
+button {
+  font-family: var(--font-sans);
+}
+
+input,
+select,
+textarea {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-hairline-strong);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  border-radius: 2px;
+  padding: 6px 8px;
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-amber);
+    box-shadow: 0 0 0 1px var(--color-amber-dim);
+  }
+
+  &::placeholder {
+    color: var(--text-dim);
+  }
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}

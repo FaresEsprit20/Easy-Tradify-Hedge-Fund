@@ -1,0 +1,15 @@
+<div class="ig">
+  @for (i of indicators(); track i.key) {
+    <div class="ig__cell">
+      <div class="ig__cell-head">
+        <span class="ig__label">{{ i.label }}</span>
+        <app-status-pill [label]="i.recommendation" [variant]="variant(i.recommendation)" />
+      </div>
+      <p class="ig__reason">{{ i.reason }}</p>
+      <div class="ig__meta">
+        <span>score <span class="num">{{ i.score }}</span></span>
+        <span>conf <span class="num">{{ i.confidence }}%</span></span>
+      </div>
+    </div>
+  }
+</div>

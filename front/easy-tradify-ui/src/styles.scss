@@ -1,0 +1,30 @@
+// ============================================================================
+// Application entry stylesheet.
+//
+// Layering discipline (per design-master-context §2 / §4 / ★5):
+//   1. Design tokens (the ONLY source of hex/font values, alongside the
+//      @theme block in styles/tailwind.css — see that file's own comment
+//      for why the Tailwind import and @theme block live there, not here)
+//   2. IBM Plex superfamily (the ONLY typefaces)
+//   3. Tailwind (utility-level styling: color, spacing, typography) —
+//      registered as a separate plain-CSS entry, see angular.json
+//   4. Bootstrap grid subset (layout scaffolding ONLY — no component skins)
+//   5. Global base + motion keyframes
+// ============================================================================
+
+@use 'styles/tokens';
+@use 'styles/bootstrap-grid';
+@use 'styles/base';
+@use 'styles/animations';
+@use 'styles/auth-forms';
+
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans-condensed/400.css';
+@import '@fontsource/ibm-plex-sans-condensed/500.css';
+@import '@fontsource/ibm-plex-sans-condensed/600.css';
+@import '@fontsource/ibm-plex-sans-condensed/700.css';

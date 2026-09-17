@@ -1,0 +1,33 @@
+@if (stages().length) {
+  <div class="runner" [class.runner--running]="running()">
+    <div class="runner__head">
+      <span class="runner__caption">
+        @if (running()) {
+          {{ activeLabel() }}
+        } @else {
+          Complete
+        }
+      </span>
+      <span class="runner__count">{{ doneCount() }} / {{ stages().length }}</span>
+    </div>
+
+    <div class="runner__track" role="progressbar" [attr.aria-valuenow]="percent()" aria-valuemin="0" aria-valuemax="100">
+      <div class="runner__fill" [style.width.%]="percent()"></div>
+    </div>
+
+    <ol class="runner__stages">
+      @for (stage of stages(); track stage.label) {
+        <li class="stage" [attr.data-state]="stage.state">
+          <span class="stage__marker" aria-hidden="true">
+            @if (stage.state === 'done') {
+              <svg viewBox="0 0 12 12" class="stage__tick"><path d="M2 6.5 4.6 9 10 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            } @else if (stage.state === 'failed') {
+              <svg viewBox="0 0 12 12" class="stage__tick"><path d="M3 3l6 6M9 3l-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+            }
+          </span>
+          <span class="stage__label">{{ stage.label }}</span>
+        </li>
+      }
+    </ol>
+  </div>
+}

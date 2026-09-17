@@ -1,0 +1,71 @@
+<nav class="sidenav">
+  @for (group of groups; track group.label) {
+    <span class="sidenav__group-label">{{ group.label }}</span>
+    @for (link of group.links; track link.path) {
+      <a
+        class="sidenav__item"
+        [routerLink]="link.path"
+        routerLinkActive="sidenav__item--active"
+        [routerLinkActiveOptions]="{ exact: link.path === '/' }"
+      >
+        <span class="sidenav__icon">
+          @switch (link.icon) {
+            @case ('grid') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="3.5" y="3.5" width="7" height="7" /><rect x="13.5" y="3.5" width="7" height="7" />
+                <rect x="3.5" y="13.5" width="7" height="7" /><rect x="13.5" y="13.5" width="7" height="7" />
+              </svg>
+            }
+            @case ('radar') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.5" /><path d="M12 12 L18 7" />
+              </svg>
+            }
+            @case ('terminal') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="3.5" y="4.5" width="17" height="15" rx="1" /><path d="M7 9.5 L10.5 12 L7 14.5" /><path d="M12.5 14.5 H17" />
+              </svg>
+            }
+            @case ('cpu') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="7" y="7" width="10" height="10" rx="1" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2" />
+              </svg>
+            }
+            @case ('stack') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M12 3.5 L21 8 L12 12.5 L3 8 Z" /><path d="M3 13 L12 17.5 L21 13" /><path d="M3 18 L12 22.5 L21 18" />
+              </svg>
+            }
+            @case ('log') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M4 12 h4 l2 -6 l4 12 l2 -6 h4" />
+              </svg>
+            }
+            @case ('analysis') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <circle cx="10.5" cy="10.5" r="6" /><path d="M15 15 L20.5 20.5" />
+              </svg>
+            }
+            @case ('copy') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="3.5" y="3.5" width="13" height="13" rx="1" /><rect x="7.5" y="7.5" width="13" height="13" rx="1" />
+              </svg>
+            }
+            @case ('monitor') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="3.5" y="4.5" width="17" height="12" rx="1" /><path d="M3.5 20.5h17" />
+                <path d="M6.5 11 L9 11 L11 7 L13 15 L15 11 L17.5 11" stroke-linejoin="round" />
+              </svg>
+            }
+            @case ('shield') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M12 3 L19 6 V11 C19 16 16 19.5 12 21 C8 19.5 5 16 5 11 V6 Z" />
+              </svg>
+            }
+          }
+        </span>
+        <span class="sidenav__label">{{ link.label }}</span>
+      </a>
+    }
+  }
+</nav>

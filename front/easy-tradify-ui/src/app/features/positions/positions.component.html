@@ -1,0 +1,21 @@
+<div class="container-fluid p-0 pos-page">
+  <div class="row">
+    <div class="col-12 pos-page__col">
+      <app-panel
+        title="Positions Blotter"
+        [live]="true"
+        [state]="connection.connectionState()"
+        [updatedAt]="latestUpdate()"
+        [noPadding]="true"
+        class="pos-page__panel pos-page__panel--tall"
+      >
+        <app-close-all-button panelActions />
+        <app-positions-panel [positions]="stream.positions()" />
+      </app-panel>
+
+      <app-panel title="Trade History" [noPadding]="true" class="pos-page__panel pos-page__panel--short">
+        <app-trade-history-panel />
+      </app-panel>
+    </div>
+  </div>
+</div>

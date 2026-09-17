@@ -1,0 +1,82 @@
+<div class="container-fluid p-0 ct-page">
+  @let status = copyTrade.status();
+
+  <div class="row g-3">
+    <div class="col-12">
+      <app-panel title="Copy-Trade Manager Status">
+        <div class="ct-tiles">
+          <div class="ct-tile">
+            <span class="ct-tile__label">Running</span>
+            <span class="ct-tile__value num" [class.text-jade]="status.running" [class.text-coral]="!status.running">{{ status.running ? 'YES' : 'NO' }}</span>
+          </div>
+          <div class="ct-tile">
+            <span class="ct-tile__label">Tracked Positions</span>
+            <span class="ct-tile__value num">{{ status.openTrackedPositions }}</span>
+          </div>
+          <div class="ct-tile">
+            <span class="ct-tile__label">Firebase</span>
+            <span class="ct-tile__value num" [class.text-jade]="status.firebaseConnected" [class.text-coral]="!status.firebaseConnected">
+              {{ status.firebaseConnected ? 'CONNECTED' : 'OFFLINE' }}
+            </span>
+          </div>
+          <div class="ct-tile">
+            <span class="ct-tile__label">Position Cache</span>
+            <span class="ct-tile__value num">{{ status.positionCacheSize }}</span>
+          </div>
+          <div class="ct-tile">
+            <span class="ct-tile__label">Registered</span>
+            <span class="ct-tile__value num">{{ status.stats.tradesRegistered }}</span>
+          </div>
+          <div class="ct-tile">
+            <span class="ct-tile__label">Closed</span>
+            <span class="ct-tile__value num">{{ status.stats.tradesClosed }}</span>
+          </div>
+          <div class="ct-tile">
+            <span class="ct-tile__label">Firebase Saves</span>
+            <span class="ct-tile__value num">{{ status.stats.firebaseSaves }}</span>
+          </div>
+          <div class="ct-tile">
+            <span class="ct-tile__label">Webhook Closes</span>
+            <span class="ct-tile__value num">{{ status.stats.webhookCloses }}</span>
+          </div>
+          <div class="ct-tile">
+            <span class="ct-tile__label">Price Updates</span>
+            <span class="ct-tile__value num">{{ status.stats.priceUpdates }}</span>
+          </div>
+          <div class="ct-tile">
+            <span class="ct-tile__label">Monitor Errors</span>
+            <span class="ct-tile__value num" [class.text-coral]="status.stats.monitorErrors > 0">{{ status.stats.monitorErrors }}</span>
+          </div>
+        </div>
+      </app-panel>
+    </div>
+
+    <div class="col-lg-5">
+      <app-panel title="Verify Before You Execute">
+        <p class="ct-note">Run the same decision-snapshot analysis the Analysis workbench uses, right here, before committing to a copy-trade — same reasoning a trader would want to see first.</p>
+        <div class="ct-analyze-form">
+          <label class="ct-field">
+            <span class="ct-field__label">Symbol</span>
+            <app-symbol-picker [value]="analyzeSymbol()" (change)="analyzeSymbol.set($event)" />
+          </label>
+          <div class="ct-side">
+            <button type="button" class="ct-side-btn ct-side-btn--buy" [class.is-active]="analyzeSide() === 'BUY'" (click)="analyzeSide.set('BUY')">BUY</button>
+            <button type="button" class="ct-side-btn ct-side-btn--sell" [class.is-active]="analyzeSide() === 'SELL'" (click)="analyzeSide.set('SELL')">SELL</button>
+          </div>
+          <button type="button" class="ct-analyze-btn" [disabled]="analyzing()" (click)="runAnalysis()">{{ analyzing() ? 'Analyzing…' : 'Analyze' }}</button>
+        </div>
+        <div class="ct-verdict">
+          <app-quick-verdict-card [snapshot]="analysisResult()" [loading]="analyzing()" />
+        </div>
+        <a class="ct-deep-link" [routerLink]="['/analysis']" [queryParams]="{ symbol: analyzeSymbol() }">Open full workbench for deeper detail →</a>
+      </app-panel>
+    </div>
+
+    <div class="col-lg-7">
+      <app-panel title="Execute &amp; Register">
+        <p class="ct-note">Runs the exact same /trade/execute contract execution_controller.py uses, then registers the resulting ticket with the copy-trade manager — independent of whether the monitor is running.</p>
+        <app-order-ticket-panel [symbol]="analyzeSymbol()" [executor]="executor" actionLabel="Execute & Register" />
+      </app-panel>
+    </div>
+  </div>
+</div>

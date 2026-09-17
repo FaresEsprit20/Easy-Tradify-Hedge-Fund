@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+
+.qv {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+
+  &--loading,
+  &--empty {
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+}
+
+.qv__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.qv__symbol {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.qv__stars {
+  color: var(--color-amber);
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.qv__prob {
+  margin-left: auto;
+  color: var(--text-secondary);
+}
+
+.qv__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: var(--text-dim);
+
+  b {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+}

@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.op {
+  display: flex;
+  flex-direction: column;
+}
+
+.op__row {
+  display: grid;
+  grid-template-columns: 64px 52px 34px 44px 1fr;
+  align-items: center;
+  gap: 8px;
+  height: var(--row-h-compact);
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border-hairline);
+  font-size: 11px;
+}
+
+.op__symbol {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.op__conv,
+.op__gates {
+  text-align: right;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.op__note {
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
