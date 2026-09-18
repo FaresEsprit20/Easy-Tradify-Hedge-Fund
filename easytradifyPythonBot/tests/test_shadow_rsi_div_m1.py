@@ -14,9 +14,12 @@ from engine_v2.run import shadow_rsi_div_m1 as sh
 
 def test_the_setup_is_frozen_as_measured():
     # 2026-09-18: the fixed 1:2 target became the conventional RSI exit (70 / 30)
-    assert (sh.PIV, sh.LOOK, sh.RSI_N, sh.EXTREME, sh.EXIT_BUY, sh.HOLD_BARS) == (50, 1000, 14, 30.0, 70.0, 480)
+    # 80/20 for entry and exit since 2026-09-18 (operator)
+    assert (sh.PIV, sh.LOOK, sh.RSI_N, sh.EXTREME, sh.EXIT_BUY, sh.HOLD_BARS) == (50, 1000, 14, 20.0, 80.0, 480)
     assert not hasattr(sh, "TARGET_R")
-    assert sh.JOURNAL.name == "shadow_rsi_div_m1_v2.jsonl"     # the 1:2 trades do not count
+    # v3: the entry waits for a break of structure -- a different setup, fresh count
+    assert sh.JOURNAL.name == "shadow_rsi_div_m1_v4.jsonl"
+    assert (sh.BOS_BARS, sh.WAIT, sh.MIN_STOP_PIPS) == (5, 60, 2.0)
     assert sh.RISK_USD == 4.0
     assert sh.MIN_TRADES_FOR_VERDICT == 300
     assert all(not s.startswith(("XAU", "XAG")) for s in sh.SYMBOLS) and len(sh.SYMBOLS) == 15
@@ -56,8 +59,8 @@ def _confirmed_at_second_low(c, h, l):
     return sh.detect(h[:n], l[:n], c[:n]), j
 
 
-def test_a_lower_low_with_a_higher_rsi_under_30_is_a_buy():
-    c, h, l = _series(second_low_step=0.0009, ratio_up=1 / 3)
+def test_a_lower_low_with_a_higher_rsi_under_20_is_a_buy():
+    c, h, l = _series(second_low_step=0.0009, ratio_up=2 / 9)
     hit, j = _confirmed_at_second_low(c, h, l)
     assert l[j] < l[250:330].min()                       # price made the lower low
     assert hit is not None and hit[0] == 1 and hit[1] == j
@@ -65,7 +68,7 @@ def test_a_lower_low_with_a_higher_rsi_under_30_is_a_buy():
 
 
 def test_no_regular_divergence_when_the_second_low_is_higher():
-    c, h, l = _series(second_low_step=0.0003, ratio_up=1 / 3)   # shallow: second low stays above the first
+    c, h, l = _series(second_low_step=0.0003, ratio_up=2 / 9)   # shallow: second low stays above the first
     hit, j = _confirmed_at_second_low(c, h, l)
     assert l[j] > l[250:330].min()
     assert hit is None
@@ -79,30 +82,24 @@ def test_rsi_not_at_the_extreme_is_not_a_setup():
 
 
 def test_a_pivot_is_only_reported_once_its_window_has_closed():
-    c, h, l = _series(second_low_step=0.0009, ratio_up=1 / 3)
+    c, h, l = _series(second_low_step=0.0009, ratio_up=2 / 9)
     _, j = _confirmed_at_second_low(c, h, l)
     for n in range(j + 1, j + sh.PIV + 1):               # the 50 confirming bars have not all closed
         hit = sh.detect(h[:n], l[:n], c[:n])
         assert hit is None or hit[1] != j
 
 
-def test_plan_matches_the_study():
-    pip = 0.0001
-    assert sh.plan(1, 1.1010, 1.1000, pip) == pytest.approx(0.0011)       # stop only: the exit is RSI
-    assert sh.plan(1, 1.0995, 1.1000, pip) == pytest.approx(0.0002)       # already through the pivot
-
-
 def test_resolve_stop_first_then_the_rsi_exit_then_the_cap():
     f, stop = 1.1000, 0.0010
     bar = lambda lo, hi, close=1.1000: (1.1000, hi, lo, close, 1.1001, hi + 0.0001, lo + 0.0001, close + 0.0001)
     # the stop wins even on a bar where RSI would also exit
-    r, k = sh.resolve(1, f, stop, [bar(1.0985, 1.1030)], [75.0])
+    r, k = sh.resolve(1, f, stop, [bar(1.0985, 1.1030)], [85.0])
     assert (r, k) == (pytest.approx(-1.0), 1)
-    # RSI reaches 70 on the second bar: out at that bar's bid close
-    r, k = sh.resolve(1, f, stop, [bar(1.0995, 1.1005), bar(1.0999, 1.1020, close=1.1015)], [55.0, 71.0])
+    # RSI reaches 80 on the second bar: out at that bar's bid close
+    r, k = sh.resolve(1, f, stop, [bar(1.0995, 1.1005), bar(1.0999, 1.1020, close=1.1015)], [75.0, 81.0])
     assert (r, k) == (pytest.approx(1.5), 2)
-    # a SELL exits when RSI reaches 30, at the ask close
-    r, k = sh.resolve(-1, f, stop, [bar(1.0985, 1.1005, close=1.0986)], [29.0])
+    # a SELL exits when RSI reaches 20, at the ask close
+    r, k = sh.resolve(-1, f, stop, [bar(1.0985, 1.1005, close=1.0986)], [19.0])
     assert k == 1 and r == pytest.approx((1.1000 - 1.0987) / 0.0010)
     # still open, then the 480-bar cap
     assert sh.resolve(1, f, stop, [bar(1.0995, 1.1005)] * 10, [50.0] * 10) is None

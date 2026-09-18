@@ -63,7 +63,6 @@ from core.asset_analysis_smc import (
     evaluate_bb_mean_reversion_setup,
     evaluate_ema_crossover_setup,
     evaluate_fvg_ifvg_setup,
-    evaluate_rsi_reversal_setup,
     evaluate_smc_trade_setup,
     evaluate_stochastic_reversal_setup,
     evaluate_wave_c_reversal_setup,
@@ -121,12 +120,6 @@ from core.asset_analysis_config import (
     BB_MEAN_REVERSION_SL_MIN_BUFFER_PIPS,
     BB_MEAN_REVERSION_MIN_RR,
     # ✅ NEW: RSI / Stochastic reversal setup config
-    RSI_REVERSAL_SETUP_MIN_CONFIDENCE,
-    RSI_REVERSAL_FIB_DEEP,
-    RSI_REVERSAL_FIB_NORMAL,
-    RSI_REVERSAL_SL_BUFFER_SPREAD_MULT,
-    RSI_REVERSAL_SL_MIN_BUFFER_PIPS,
-    RSI_REVERSAL_MIN_RR,
     STOCH_EXTREME_OVERBOUGHT,
     STOCH_EXTREME_OVERSOLD,
     STOCH_REVERSAL_SETUP_MIN_CONFIDENCE,
@@ -333,8 +326,6 @@ from core.asset_analysis_config import (
     ADX_STRONG_TREND_THRESHOLD,
     _ATR_RANGE_MULTIPLIERS,
     _NORMAL_ATR_RANGES,
-    USE_ADAPTIVE_VOLATILITY_BANDS,
-    USE_ADAPTIVE_OSCILLATOR_BANDS,
     USE_MID_PRICE_FOR_INDICATORS,
     # Stop must clear the market's noise, not just the cost of entry
     SL_MIN_ATR_MULTIPLE,
@@ -407,7 +398,6 @@ from core.indicators import (
     detect_abc_correction,
     detect_all_fvgs,
     get_h1_trend,
-    get_m15_divergence,
     detect_market_regime,
     classify_trading_regime,
     get_stochastic_divergence,
@@ -485,7 +475,6 @@ from core.asset_analysis_config import atr_relative_pips
 from core.calibrated_model import score as calibrated_score, load_model as load_calibrated_model
 from core.edge_features import live_compute as live_edge_features
 from core.order_flow_forensics import build_order_flow_forensics, calculate_order_flow_final_score
-from core.adaptive_thresholds import score_stochastic_adaptive, score_rsi_adaptive, compute_volatility_percentile_band
 from core.gap_slippage_detector import build_gap_slippage_report, calculate_gap_slippage_final_score
 from core.expected_value import score_expected_value
 from core.risk_reward import rr_from_pips
@@ -1920,14 +1909,30 @@ def analyze_institutional_signal(
         h1_current = h1_data["current_price"]
         
         # ============================================================
-        # M15 DIVERGENCE (RSI)
+        # RSI DIVERGENCE -- M1 (core/rsi_divergence_setup.py)
         # ============================================================
-        m15_div_data = ({"divergence_type": "NONE", "divergence_score": 0, "rsi_14": 50,
-                         "timeframe": "M1_ONLY: not read (M15 RSI divergence)"}
-                        if M1_ONLY else get_m15_divergence(symbol))
-        m15_rsi = m15_div_data["rsi_14"]
-        m15_div_score = m15_div_data["divergence_score"]
-        m15_div_type = m15_div_data["divergence_type"]
+        # Operator, 2026-09-18: the M15 RSI divergence is REPLACED by the M1 one --
+        # the measured setup: classic divergence at +-50-bar M1 swings, RSI < 20
+        # (> 80) at the swing, confirmed by a break of structure. Everything that
+        # read the M15 divergence reads this: the probability chain, the RSI
+        # score, the opposing-divergence veto and the published record.
+        from core import rsi_divergence_setup as _rds
+        try:
+            if market_data is not None:
+                _rds_rates = market_data.rates              # replay: only what the replay holds
+            else:
+                _rds_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M1, 0, _rds.HISTORY)
+            _rds_info = mt5.symbol_info(symbol) if market_data is None else None
+            _rds_point = float(_rds_info.point) if _rds_info else _rds.pip_size(symbol) / 10
+            rsi_divergence_state = _rds.state_from_rates(_rds_rates, symbol, _rds_point)
+        except Exception as e:
+            logger.warning(f"[RSI DIVERGENCE] {symbol}: unavailable ({e})")
+            rsi_divergence_state = {"status": "NONE", "reason": f"error: {e}"}
+        _div_side = (rsi_divergence_state.get("side")
+                     if rsi_divergence_state.get("status") in ("CONFIRMED", "AWAITING_BOS") else None)
+        rsi_div_type = {1: "REGULAR_BULLISH", -1: "REGULAR_BEARISH"}.get(_div_side, "NONE")
+        rsi_div_score = {1: 85, -1: -85}.get(_div_side, 0)     # the scale the probability chain and veto use
+        rsi_div_rsi = float(rsi_divergence_state.get("rsi_now", 50.0))
         
         # ============================================================
         # M15 STOCHASTIC DIVERGENCE
@@ -2060,21 +2065,10 @@ def analyze_institutional_signal(
         #
         # Gated on USE_ADAPTIVE_VOLATILITY_BANDS (default False) because
         # switching it on releases trades the static table was suppressing.
+        # The adaptive (percentile) volatility band was removed 2026-09-18 with
+        # core/adaptive_thresholds.py (operator decision): the static
+        # per-instrument table decides volatility protection and the veto.
         atr_percentile_band = None
-        if USE_ADAPTIVE_VOLATILITY_BANDS:
-            try:
-                _static = get_static_atr_ranges(symbol)
-                _, _atr_hist = calculate_atr_long(high_prices, low_prices, period=50)
-                _atr_hist_pips = [v / pip_size for v in _atr_hist] if pip_size > 0 else []
-                atr_percentile_band = compute_volatility_percentile_band(
-                    _atr_hist_pips,
-                    fallback_low=_static["min"],
-                    fallback_high=_static["max"],
-                    fallback_extreme=_static["extreme"],
-                )
-            except Exception as e:
-                logger.warning(f"[VOLATILITY] {symbol}: percentile band failed ({e}) -- static table")
-                atr_percentile_band = None
 
         volatility_check = check_volatility_protection(
             symbol, atr_pips, market_regime, percentile_band=atr_percentile_band
@@ -2095,7 +2089,7 @@ def analyze_institutional_signal(
             symbol=symbol,
             pip_size=pip_size,
             timeframe=timeframe,
-            rsi_divergence_type=m15_div_type,
+            rsi_divergence_type=rsi_div_type,
             stoch_divergence_type=stoch_div_type
         )
         current_trend = trend_data.get("trend", "NEUTRAL")
@@ -2437,8 +2431,8 @@ def analyze_institutional_signal(
             bb_signal=indicators_data.get("bollinger", {}).get("signal", "NEUTRAL"),
             macd_signal=indicators_data.get("macd", {}).get("signal_str", "NEUTRAL"),
             stoch_signal=indicators_data.get("stochastic", {}).get("signal", "NEUTRAL"),
-            rsi_divergence_type=m15_div_type,
-            rsi_divergence_score=m15_div_score,
+            rsi_divergence_type=rsi_div_type,
+            rsi_divergence_score=rsi_div_score,
             candlestick_score=float(candle_data.get("score", 0)),
             price_above_fvg_pips=price_above_fvg_pips, price_below_fvg_pips=price_below_fvg_pips,
             bb_band_width=indicators_data.get("bollinger", {}).get("width", 1.0),
@@ -2473,8 +2467,8 @@ def analyze_institutional_signal(
             bb_signal=indicators_data.get("bollinger", {}).get("signal", "NEUTRAL"),
             macd_signal=indicators_data.get("macd", {}).get("signal_str", "NEUTRAL"),
             stoch_signal=indicators_data.get("stochastic", {}).get("signal", "NEUTRAL"),
-            rsi_divergence_type=m15_div_type,
-            rsi_divergence_score=m15_div_score,
+            rsi_divergence_type=rsi_div_type,
+            rsi_divergence_score=rsi_div_score,
             candlestick_score=float(candle_data.get("score", 0)),
             price_above_fvg_pips=price_above_fvg_pips, price_below_fvg_pips=price_below_fvg_pips,
             bb_band_width=indicators_data.get("bollinger", {}).get("width", 1.0),
@@ -3036,11 +3030,13 @@ def analyze_institutional_signal(
             logger.warning(f"[LIQUIDITY POOL/VP CONFLUENCE] Cross-check failed: {e}")
             order_flow_forensics_data["liquidity_pool_volume_profile_confluence"] = {"available": False, "reason": f"error: {e}"}
         
-        # RSI with divergence impact
-        rsi_indicator = score_rsi_indicator_with_divergence(
+        # RSI with divergence impact: the M1 divergence (above) when there is one --
+        # 95 confirmed by a break of structure, 75 awaiting it -- RSI on its own otherwise
+        _rds_reading = _rds.score_indicator(rsi_divergence_state)
+        rsi_indicator = _rds_reading or score_rsi_indicator_with_divergence(
             indicators_data.get("rsi", {}).get("value", 50),
             best_direction,
-            divergence_type=m15_div_type,
+            divergence_type="NONE",
             # ✅ was using the generic 70/30 while the probability chain
             # uses get_rsi_thresholds(timeframe) -> 80/20 on M1/M5
             timeframe=timeframe
@@ -3056,65 +3052,6 @@ def analyze_institutional_signal(
         # ============================================================
         # ✅ NEW: ADAPTIVE OSCILLATOR BANDS -- computed HERE, not 1600
         # lines downstream in the display block
-        # ============================================================
-        # score_rsi_adaptive / score_stochastic_adaptive were already
-        # running on every bar, but only inside the output payload --
-        # long after rsi_indicator / stoch_indicator above had fed the
-        # probability chain and family voting. The flat 30/70 and 20/80
-        # textbook constants decided the trade; the instrument's own
-        # distribution was published beside them and read by nothing.
-        #
-        # Computed here so the two are comparable at decision time. Which
-        # one is USED is gated on USE_ADAPTIVE_OSCILLATOR_BANDS (default
-        # False, so behaviour is unchanged); the disagreement is recorded
-        # either way, so the switch can be decided from observed frequency
-        # rather than argument. See the config note.
-        _rsi_history = indicators_data.get("history", {}).get("rsi", [])
-        _stoch_history = indicators_data.get("history", {}).get("stochastic_k", [])
-        try:
-            rsi_adaptive = score_rsi_adaptive(
-                rsi=indicators_data.get("rsi", {}).get("value", 50.0),
-                rsi_history=_rsi_history,
-            )
-            stoch_adaptive = score_stochastic_adaptive(
-                k=indicators_data.get("stochastic", {}).get("k", 50),
-                d=indicators_data.get("stochastic", {}).get("d", 50),
-                k_history=_stoch_history,
-                trend=trend_data.get("trend", "NEUTRAL"),
-            )
-        except Exception as e:
-            logger.warning(f"[ADAPTIVE] {symbol}: oscillator bands failed ({e}) -- flat thresholds")
-            rsi_adaptive, stoch_adaptive = None, None
-
-        adaptive_disagreement = {
-            "enabled": USE_ADAPTIVE_OSCILLATOR_BANDS,
-            "rsi": None,
-            "stochastic": None,
-        }
-        for _name, _flat, _adapt in (("rsi", rsi_indicator, rsi_adaptive),
-                                     ("stochastic", stoch_indicator, stoch_adaptive)):
-            if not _adapt:
-                continue
-            _f = str(_flat.get("recommendation", "NEUTRAL")).upper()
-            _a = str(_adapt.get("recommendation", "NEUTRAL")).upper()
-            adaptive_disagreement[_name] = {
-                "flat_recommendation": _f,
-                "adaptive_recommendation": _a,
-                "disagrees": _f != _a,
-                "band": _adapt.get("band", {}),
-            }
-            if _f != _a:
-                logger.info(
-                    f"[ADAPTIVE] {symbol}: {_name} flat={_f} vs adaptive={_a} "
-                    f"({_adapt.get('reason', '')})"
-                )
-
-        if USE_ADAPTIVE_OSCILLATOR_BANDS:
-            if rsi_adaptive:
-                rsi_indicator = dict(rsi_adaptive)
-            if stoch_adaptive:
-                stoch_indicator = dict(stoch_adaptive)
-        
         # Trend with divergence already applied
         trend_indicator = score_trend_indicator(trend, adx_val)
 
@@ -4040,28 +3977,17 @@ def analyze_institutional_signal(
             logger.warning(f"[BB SETUP] Mean-reversion setup evaluation failed: {e}")
             bb_mean_reversion_setup = {"is_perfect_setup": False, "reason": f"evaluation error: {e}"}
         
-        # ✅ NEW: RSI reversal setup - fires only when raw RSI and its
-        # divergence disagree on direction and the divergence wins
-        # (the same rsi_indicator merge already computed above, gated on
-        # its own highest-confidence branch). Advisory only.
+        # RSI setup: the measured M1 divergence confirmed by a break of structure,
+        # stop at the swing, exit at RSI 80/20. No Fibonacci (removed 2026-09-18).
         try:
-            rsi_reversal_setup = evaluate_rsi_reversal_setup(
-                rsi_indicator=rsi_indicator,
-                rsi_value=indicators_data.get("rsi", {}).get("value", 50),
-                symbol=symbol,
-                order_type=effective_order_type,
-                current_price=current_price,
-                pip_size=pip_size,
-                spread_pips=spread,
-                margin_safe_lot=lot_size,
-                recent_swing_high=recent_swing_high,
-                recent_swing_low=recent_swing_low,
-                target_risk_usd=SMC_SETUP_TRADE_SIZE_USD * SMC_SETUP_RISK_PER_TRADE,
-                volume_profile_data=volume_profile_data,
-            )
+            rsi_reversal_setup = _rds.setup_from_state(rsi_divergence_state, effective_order_type,
+                                                       current_price, symbol)
         except Exception as e:
             logger.warning(f"[RSI SETUP] Reversal setup evaluation failed: {e}")
             rsi_reversal_setup = {"is_perfect_setup": False, "reason": f"evaluation error: {e}"}
+        rsi_reversal_setup["divergence_state"] = {k: v for k, v in rsi_divergence_state.items()
+                                                  if k in ("status", "side", "rsi_at_swing", "bars_waited",
+                                                           "stop_price", "reason")}
         
         # ✅ NEW: Stochastic reversal setup - mirror of the RSI one above,
         # using the stoch_indicator merge already computed above.
@@ -4434,8 +4360,8 @@ def analyze_institutional_signal(
             current_price=current_price,
             ema_200=trend_data.get("ema_200", 0),
             h1_trend=h1_trend,
-            m15_div_score=m15_div_score,
-            m15_rsi=m15_rsi,
+            m15_div_score=rsi_div_score,
+            m15_rsi=rsi_div_rsi,
             upper_wick_pips=candle_data.get("upper_wick_pips", 0),
             lower_wick_pips=candle_data.get("lower_wick_pips", 0),
             body_pips=candle_data.get("body_pips", 0),
@@ -4872,15 +4798,6 @@ def analyze_institutional_signal(
         # fallbacks and no fallback_extreme -- two bands from the same data
         # that could disagree, with the displayed one not being the one
         # that decided anything. Reuses the earlier band when it exists.
-        if atr_percentile_band is None:
-            _, atr_long_history = calculate_atr_long(high_prices, low_prices, period=50)
-            atr_long_history_pips = [v / pip_size for v in atr_long_history] if pip_size > 0 else []
-            atr_percentile_band = compute_volatility_percentile_band(
-                atr_long_history_pips,
-                fallback_low=ranges["min"],
-                fallback_high=ranges["max"],
-                fallback_extreme=ranges["extreme"],
-            )
 
         # ✅ Resolved here, BEFORE volatility_debug is built, so this block
         # and vetos.checks below both quote the thresholds VetoEngine
@@ -4926,11 +4843,9 @@ def analyze_institutional_signal(
             "above_classification_below_veto": (
                 ranges["extreme"] < atr_pips <= EXTREME_VOLATILITY_VETO_THRESHOLD
             ),
-            "atr_percentile_band": atr_percentile_band,
             # Which table the penalty above was actually computed from.
             "range_source": volatility_check.get("range_source", "static_table"),
             "ranges_used": volatility_check.get("ranges_used"),
-            "adaptive_bands_enabled": USE_ADAPTIVE_VOLATILITY_BANDS,
             "volatility_level": volatility_check["volatility_level"],
             "safe_to_trade": volatility_check["safe_to_trade"],
             "confidence_penalty": confidence_penalty,
@@ -5114,16 +5029,16 @@ def analyze_institutional_signal(
                     "confidence": rsi_indicator.get("confidence", 0),
                     "recommendation": rsi_indicator.get("recommendation", "NEUTRAL"),
                     "reason": rsi_indicator.get("reason", ""),
+                    # the M1 divergence (core/rsi_divergence_setup.py)
                     "divergence": {
-                        "type": m15_div_type,
-                        "score": m15_div_score,
-                        "timeframe": "M15",
-                        "veto_triggered": (best_direction == "BUY" and m15_div_score < 0 and (m15_rsi < 30 or m15_div_score < -80)) or (best_direction == "SELL" and m15_div_score > 0 and (m15_rsi > 70 or m15_div_score > 80))
+                        "type": rsi_div_type,
+                        "score": rsi_div_score,
+                        "timeframe": "M1",
+                        "veto_triggered": (best_direction == "BUY" and rsi_div_score < 0 and (rsi_div_rsi < 30 or rsi_div_score < -80)) or (best_direction == "SELL" and rsi_div_score > 0 and (rsi_div_rsi > 70 or rsi_div_score > 80))
                     },
                     # ✅ reuses the read computed at decision time above --
                     # was recomputed here independently, so the published
                     # band and the one available to the chain could drift.
-                    "adaptive": rsi_adaptive or {},
                     "reversal_setup": rsi_reversal_setup,
                     "debug": {"rsi_trend": indicators_data.get("rsi_trend", "unknown"), "price_trend": indicators_data.get("price_trend", "unknown")}
                 },
@@ -5143,7 +5058,6 @@ def analyze_institutional_signal(
                         "d": round(stoch_d_m15, 1),
                         "timeframe": "M15",
                     },
-                    "adaptive": stoch_adaptive or {},
                     "reversal_setup": stoch_reversal_setup,
                 },
 
@@ -5353,12 +5267,6 @@ def analyze_institutional_signal(
 
                 "cot_report": {"score": cot_score, "recommendation": cot_rec},
 
-                # ✅ NEW: how often the flat textbook oscillator thresholds
-                # and the instrument's own adaptive bands actually reach
-                # different conclusions. Recorded whether or not
-                # USE_ADAPTIVE_OSCILLATOR_BANDS is on, so the switch can be
-                # decided from observed disagreement frequency instead of
-                # from argument.
             },
             
             "pattern_analysis": {
@@ -5583,7 +5491,7 @@ def analyze_institutional_signal(
                     # -- a config that overrode any of them would have split
                     # the two silently. Same implementation now either way.
                     "rsi_divergence_opposing": _veto_check_safe(
-                        "check_rsi_divergence_opposing", best_direction, m15_div_score, m15_rsi,
+                        "check_rsi_divergence_opposing", best_direction, rsi_div_score, rsi_div_rsi,
                         symbol=symbol),
                     # ✅ FIXED: was flat WICK_REVERSAL_RATIO (3.0) for every
                     # candle regardless of body size. get_wick_reversal_ratio()

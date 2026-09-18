@@ -129,7 +129,7 @@ def test_trading_stops_again_if_the_evidence_turns():
     assert 'confirmed=(v == "CONFIRMED")' in src
 
 
-def test_the_rsi_exit_closes_this_setups_positions_at_70_and_30(monkeypatch):
+def test_the_rsi_exit_closes_this_setups_positions_at_80_and_20(monkeypatch):
     import core.execution as ex
     closed = []
     monkeypatch.setattr(ex, "close_position", lambda ticket, deviation=20: closed.append(ticket) or {"success": True})
@@ -139,10 +139,12 @@ def test_the_rsi_exit_closes_this_setups_positions_at_70_and_30(monkeypatch):
         SimpleNamespace(ticket=3, symbol="EURUSD", magic=1001, type=0, time=0),         # not ours
     ]
     live.rsi_exits(FakeMT5(positions=positions), "EURUSD", 72.0)
-    assert closed == [1]                    # RSI >= 70 closes our BUY only
+    assert closed == []                     # 72 is not the exit any more (80/20)
+    live.rsi_exits(FakeMT5(positions=positions), "EURUSD", 82.0)
+    assert closed == [1]                    # RSI >= 80 closes our BUY only
     closed.clear()
-    live.rsi_exits(FakeMT5(positions=positions), "EURUSD", 28.0)
-    assert closed == [2]                    # RSI <= 30 closes our SELL only
+    live.rsi_exits(FakeMT5(positions=positions), "EURUSD", 18.0)
+    assert closed == [2]                    # RSI <= 20 closes our SELL only
     closed.clear()
     live.rsi_exits(FakeMT5(positions=positions), "EURUSD", 50.0)
     assert closed == []

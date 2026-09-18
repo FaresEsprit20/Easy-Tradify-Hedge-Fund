@@ -16,8 +16,22 @@ SOURCE = (pathlib.Path(__file__).resolve().parents[1] / "core" / "asset_analysis
 REVERSAL_NAMES = ("rsi_adaptive", "round_number_result", "wave_c_indicator", "wave_c_reversal_setup")
 
 
-def test_adaptive_rsi_does_not_replace_rsi():
-    assert cfg.USE_ADAPTIVE_OSCILLATOR_BANDS is False
+def test_the_adaptive_bands_are_gone():
+    """core/adaptive_thresholds.py was deleted 2026-09-18 (operator decision):
+    no adaptive RSI / stochastic band, no adaptive volatility band."""
+    root = pathlib.Path(__file__).resolve().parents[1]
+    assert not (root / "core" / "adaptive_thresholds.py").exists()
+    assert not hasattr(cfg, "USE_ADAPTIVE_OSCILLATOR_BANDS")
+    assert not hasattr(cfg, "USE_ADAPTIVE_VOLATILITY_BANDS")
+    # nothing in the analysis code imports or calls them (comments may record the removal)
+    tree = ast.parse(SOURCE)
+    used = ({n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+            | {n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute)}
+            | {a.name for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) for a in n.names}
+            | {n.module or "" for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)})
+    for name in ("core.adaptive_thresholds", "score_rsi_adaptive", "score_stochastic_adaptive",
+                 "compute_volatility_percentile_band"):
+        assert name not in used, name
 
 
 def test_no_probability_step_reads_a_reversal_vote():

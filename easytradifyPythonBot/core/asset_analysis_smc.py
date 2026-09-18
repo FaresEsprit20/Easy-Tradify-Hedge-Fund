@@ -79,12 +79,6 @@ from core.asset_analysis_config import (
     OB_VOLUME_CONFLUENCE_TOLERANCE_PIPS,
     RSI_EXTREME_OVERBOUGHT,
     RSI_EXTREME_OVERSOLD,
-    RSI_REVERSAL_FIB_DEEP,
-    RSI_REVERSAL_FIB_NORMAL,
-    RSI_REVERSAL_MIN_RR,
-    RSI_REVERSAL_SETUP_MIN_CONFIDENCE,
-    RSI_REVERSAL_SL_BUFFER_SPREAD_MULT,
-    RSI_REVERSAL_SL_MIN_BUFFER_PIPS,
     SD_VOLUME_CONFLUENCE_TOLERANCE_PIPS,
     SMC_SETUP_RISK_PER_TRADE,
     SMC_SETUP_TRADE_SIZE_USD,
@@ -1485,136 +1479,6 @@ def _fib_reversal_target(
         return recent_swing_high - fib_ratio * leg
 
 
-def evaluate_rsi_reversal_setup(
-    rsi_indicator: Dict[str, Any],
-    rsi_value: float,
-    symbol: str,
-    order_type: str,
-    current_price: float,
-    pip_size: float,
-    spread_pips: float,
-    margin_safe_lot: float,
-    recent_swing_high: Optional[float],
-    recent_swing_low: Optional[float],
-    target_risk_usd: float = None,
-    volume_profile_data: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
-    """
-    RSI REVERSAL SETUP: fires only when raw RSI and its divergence
-    DISAGREE on direction and the divergence wins - e.g. RSI is oversold
-    (says BUY on its own) but a REGULAR_BEARISH divergence says SELL.
-    That disagreement, at an extreme, is score_rsi_indicator_with_
-    divergence()'s highest-confidence read (confidence=95) - this
-    function does not re-derive that logic, it just gates on the
-    confidence that logic already produced, so there's exactly one
-    definition of "RSI says X but divergence reverses it to Y".
-
-    Exit rule is RSI-specific, not generic: since RSI has no price of its
-    own, TP is a Fibonacci retracement of the swing leg the divergence
-    formed against, sized by how extreme RSI was (deeper extreme -> the
-    0.618 target instead of 0.5). SL sits beyond the swing extreme that
-    produced the reading plus a spread buffer.
-    """
-    if target_risk_usd is None:
-        target_risk_usd = SMC_SETUP_TRADE_SIZE_USD * SMC_SETUP_RISK_PER_TRADE
-
-    if not rsi_indicator or rsi_indicator.get("confidence", 0) < RSI_REVERSAL_SETUP_MIN_CONFIDENCE:
-        return {
-            "is_perfect_setup": False,
-            "reason": f"RSI/divergence confidence {rsi_indicator.get('confidence', 0) if rsi_indicator else 0} below reversal threshold ({RSI_REVERSAL_SETUP_MIN_CONFIDENCE}) — this isn't the raw-vs-divergence disagreement case",
-        }
-
-    direction = rsi_indicator.get("recommendation")
-    if direction not in ("BUY", "SELL"):
-        return {"is_perfect_setup": False, "reason": "RSI/divergence merge did not resolve to a clear direction"}
-
-    if order_type and order_type.upper() not in (direction, "AUTO", "BOTH", ""):
-        return {"is_perfect_setup": False, "reason": f"RSI reversal direction ({direction}) conflicts with the system's own measured best direction ({order_type})"}
-
-    vp_confluence = _check_volume_profile_confluence(direction, volume_profile_data, current_price)
-    if not vp_confluence["confluent"]:
-        return {
-            "is_perfect_setup": False,
-            "reason": f"RSI reversal not confirmed by volume profile: {vp_confluence['note']}",
-            "direction": direction,
-        }
-
-    if direction == "BUY":
-        fib_ratio = RSI_REVERSAL_FIB_DEEP if rsi_value < RSI_EXTREME_OVERSOLD else RSI_REVERSAL_FIB_NORMAL
-    else:
-        fib_ratio = RSI_REVERSAL_FIB_DEEP if rsi_value > RSI_EXTREME_OVERBOUGHT else RSI_REVERSAL_FIB_NORMAL
-
-    if recent_swing_high is None or recent_swing_low is None or recent_swing_high <= recent_swing_low:
-        return {"is_perfect_setup": False, "reason": "No valid swing leg available to size the RSI reversal exit against", "direction": direction}
-
-    buffer_price = max(spread_pips * RSI_REVERSAL_SL_BUFFER_SPREAD_MULT, RSI_REVERSAL_SL_MIN_BUFFER_PIPS) * pip_size
-    take_profit = round(_fib_reversal_target(direction, recent_swing_high, recent_swing_low, fib_ratio), 5)
-
-    if direction == "BUY":
-        stop_loss = round(recent_swing_low - buffer_price, 5)
-        risk_pips = (current_price - stop_loss) / pip_size
-        reward_pips = (take_profit - current_price) / pip_size
-    else:
-        stop_loss = round(recent_swing_high + buffer_price, 5)
-        risk_pips = (stop_loss - current_price) / pip_size
-        reward_pips = (current_price - take_profit) / pip_size
-
-    if risk_pips <= 0:
-        return {"is_perfect_setup": False, "reason": "Computed stop loss is on the wrong side of entry - setup invalid", "direction": direction}
-    if reward_pips <= 0:
-        return {"is_perfect_setup": False, "reason": "Fibonacci retracement target is not beyond entry - swing leg too tight or already retraced", "direction": direction}
-
-    risk_reward_ratio = round(reward_pips / risk_pips, 2)
-    if risk_reward_ratio < RSI_REVERSAL_MIN_RR:
-        return {
-            "is_perfect_setup": False,
-            "reason": f"Risk:reward {risk_reward_ratio} below minimum {RSI_REVERSAL_MIN_RR} for this setup",
-            "direction": direction,
-        }
-
-    pip_value_per_pip = _get_pip_value_per_pip(symbol, margin_safe_lot, current_price, direction, pip_size)
-    projected_risk_usd = margin_safe_lot * risk_pips * pip_value_per_pip if pip_value_per_pip else None
-    final_lot = margin_safe_lot
-    risk_note = "within target risk budget"
-
-    if projected_risk_usd and target_risk_usd and projected_risk_usd > target_risk_usd:
-        scale = target_risk_usd / projected_risk_usd
-        final_lot = max(0.01, round(margin_safe_lot * scale, 2))
-        risk_note = f"lot reduced from {margin_safe_lot} to {final_lot} to keep risk at the ${target_risk_usd:.2f} target"
-        if pip_value_per_pip:
-            projected_risk_usd = final_lot * risk_pips * pip_value_per_pip
-
-    return {
-        "is_perfect_setup": True,
-        "direction": direction,
-        "rsi_value": round(rsi_value, 1),
-        "divergence_confidence": rsi_indicator.get("confidence"),
-        "reasons": [rsi_indicator.get("reason", "")],
-        "volume_profile_confluence": vp_confluence,
-        "entry_type": "MARKET",
-        "entry_price": round(current_price, 5),
-        "stop_loss": stop_loss,
-        "stop_loss_basis": "swing extreme that produced the RSI reading + spread buffer",
-        "take_profit": take_profit,
-        "take_profit_basis": f"{fib_ratio*100:.1f}% Fibonacci retracement of the divergence swing leg (RSI extremity-scaled)",
-        "risk_pips": round(risk_pips, 1),
-        "reward_pips": round(reward_pips, 1),
-        "risk_reward_ratio": f"1:{risk_reward_ratio}",
-        "lot_size": final_lot,
-        "margin_safe_lot_ceiling": margin_safe_lot,
-        "projected_risk_usd": round(projected_risk_usd, 2) if projected_risk_usd else None,
-        "target_risk_usd": round(target_risk_usd, 2) if target_risk_usd else None,
-        "risk_note": risk_note,
-        "buffer_pips_applied": round(buffer_price / pip_size, 1),
-        "invalidation_note": (
-            "This fires only when raw RSI level and its divergence disagree and the "
-            "divergence wins the direction — RSI 'boom' entries. TP is a Fibonacci "
-            "retracement of the swing leg, not a literal RSI-value target (RSI has "
-            "no price of its own). Not backtested."
-        ),
-    }
-
-
 def evaluate_stochastic_reversal_setup(
     stoch_indicator: Dict[str, Any],
     k_value: float,
@@ -1630,8 +1494,7 @@ def evaluate_stochastic_reversal_setup(
     volume_profile_data: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
-    STOCHASTIC REVERSAL SETUP: mirror of evaluate_rsi_reversal_setup(),
-    for Stochastic %K + its own divergence merge
+    STOCHASTIC REVERSAL SETUP: for Stochastic %K + its own divergence merge
     (score_stochastic_indicator_with_divergence). Same contract: fires
     only on the raw-vs-divergence disagreement at an extreme, exit is a
     Fibonacci retracement of the swing leg scaled by how extreme %K was.

@@ -52,7 +52,10 @@ def test_higher_timeframe_trend_members_are_silent():
 
 def test_every_higher_timeframe_consumer_is_gated_in_the_analysis():
     src = (ROOT / "core" / "asset_analysis.py").read_text(encoding="utf-8")
-    for marker in ("M1_ONLY: not read (H1 trend)", "M1_ONLY: not read (M15 RSI divergence)",
+    # the M15 RSI divergence is not switched off but REPLACED by the M1 one
+    assert "get_m15_divergence" not in src
+    assert "rsi_divergence_state = _rds.state_from_rates(" in src
+    for marker in ("M1_ONLY: not read (H1 trend)",
                    "M1_ONLY: not read (M5-H4 trend cascade)", "M1_ONLY: not read (D1 range)",
                    "M1_ONLY: not read (OU fitted on H1)", "M1_ONLY: not read (GNN reads H1)"):
         assert marker in src, marker

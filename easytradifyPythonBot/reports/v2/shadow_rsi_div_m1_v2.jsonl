@@ -1,0 +1,3 @@
+{"event": "ENTRY", "id": "GBPJPY-1789755180-1", "symbol": "GBPJPY", "side": 1, "detected_at": 1789747443, "entry_bar_time": 1789758240, "pivot_time": 1789755180, "pivot_price": 209.605, "rsi_at_pivot": 28.62, "fill": 209.714, "opp_fill": 209.703, "stop": 0.11350000000002523, "target": null, "stop_pips": 11.35, "frozen": {"piv": 50, "look": 1000, "rsi": 14, "extreme": 30.0, "exit": "RSI 70/30", "hold": 480}}
+{"event": "ORDER", "id": "GBPJPY-1789755180-1", "at": 1789747443, "placed": false, "reason": "not traded until the setup is CONFIRMED -- now PENDING (0/300 resolved)"}
+{"event": "RESOLVED", "id": "GBPJPY-1789755180-1", "resolved_at": 1789757343, "gross_r": 1.973568281937795, "net_r": 1.8766886881052176, "bars": 165, "opp_net_r": -1.0968795938324976}

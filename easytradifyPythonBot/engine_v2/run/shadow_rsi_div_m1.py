@@ -26,13 +26,17 @@ FROZEN (changing any of these makes it a different, unconfirmed setup)
   RSI(14), Wilder smoothing.
   Pivot low/high = the extreme of +-50 M1 bars, known 50 bars after it.
   BUY : the new pivot low is LOWER than the previous pivot low (within 1000 bars)
-        while RSI there is HIGHER, and RSI at the new pivot is < 30.
-  SELL: mirror (higher high, lower RSI high, RSI > 70).
-  Entry: at the tick when the pivot is confirmed (BUY at the ask, SELL at the bid).
-  Stop : the pivot price +- 1 pip (2 pips if price is already through it);
-         must fit $4 at the 0.01 lot.
-  Exit : the conventional RSI exit -- a BUY closes when RSI(14) closes at or
-         above 70, a SELL at or below 30; stop first; 480-bar cap.
+        while RSI there is HIGHER, and RSI at the new pivot is < 20.
+  SELL: the mirror -- higher high, lower RSI high, RSI > 80.
+  Confirmation: a break of structure -- within 60 M1 bars of the divergence, a bar
+         closes above the previous 5 bars' high (below their low for a SELL);
+         cancelled if the stop is reached first. (Added 2026-09-18, the operator's
+         idea; measured best: 56% won, -0.15R / -0.11R vs -0.15R / -0.15R without.)
+  Entry: at the tick after the confirming bar closes (BUY at the ask, SELL at the bid).
+  Stop : the divergence swing -1 pip (+1 for a SELL); at least 2 pips from the
+         fill; must fit $4 at the 0.01 lot.
+  Exit : a BUY closes when RSI(14) closes at or above 80, a SELL at or below 20
+         (80/20 for entry and exit: operator, 2026-09-18); stop first; 480-bar cap.
          (Was a fixed 1:2 target until 2026-09-18. Operator: "stick to the
          conventional RSI divergence rules". Measured on the same history --
          tradify_study/trend_m1_v1/conventional_rsi_div.py, 50 textbook
@@ -65,90 +69,25 @@ import numpy as np
 
 from engine_v2.run import rsi_div_live
 
-# v2 journal: the exit changed from a fixed 1:2 to the conventional RSI exit, which
-# makes it a different setup -- its trades must not mix with the 1:2 ones
-JOURNAL = Path(__file__).resolve().parents[2] / "reports" / "v2" / "shadow_rsi_div_m1_v2.jsonl"
+# The setup is defined ONCE, in core/rsi_divergence_setup.py, and the app's RSI
+# score and RSI setup read the same module. v3 journal: since 2026-09-18 the entry
+# waits for a break of structure (the operator's confirmation idea, the best
+# measured variant) -- a different setup, so its trades do not mix with v1/v2.
+from core.rsi_divergence_setup import (  # noqa: E402
+    BOS_BARS, EXIT_BUY, EXTREME, HISTORY, HOLD_BARS, LOOK, PIV, RSI_N, WAIT,
+    current_setup, detect, divergence_state, mid_arrays, pip_size, pivot_flags,
+    rsi_exit_hit, rsi_wilder,
+)
+
+# v4: levels 80/20 for entry and exit (operator, 2026-09-18) -- a different setup
+JOURNAL = Path(__file__).resolve().parents[2] / "reports" / "v2" / "shadow_rsi_div_m1_v4.jsonl"
 HEARTBEAT = JOURNAL.with_name("shadow_rsi_div_m1_heartbeat.json")
 
 SYMBOLS = ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "NZDUSD", "USDCAD", "USDCHF", "EURGBP", "EURCAD",
            "AUDNZD", "AUDCAD", "AUDCHF", "GBPAUD", "GBPJPY", "EURJPY"]
-PIV = 50
-LOOK = 1000
-RSI_N = 14
-EXTREME = 30.0
-EXIT_BUY = 70.0          # a BUY closes when RSI closes >= 70 (SELL: <= 30)
-HOLD_BARS = 480          # the study's cap: close at market if neither stop nor RSI exit
-HISTORY = 1600          # closed M1 bars fetched per cycle (LOOK + 2*PIV + RSI warm-up)
 RISK_USD = 4.0
+MIN_STOP_PIPS = 2.0      # the study's floor: a stop closer than 2 pips is not a real order
 MIN_TRADES_FOR_VERDICT = 300
-
-
-def pip_size(symbol: str) -> float:
-    return 0.01 if symbol.endswith("JPY") else 0.0001
-
-
-# ---------------------------------------------------------------------------
-# the frozen detector -- pure functions, no MT5
-# ---------------------------------------------------------------------------
-
-def rsi_wilder(c: np.ndarray, n: int = RSI_N) -> np.ndarray:
-    d = np.diff(c, prepend=c[0])
-    up, dn = np.clip(d, 0, None), np.clip(-d, 0, None)
-    au, ad = np.empty_like(c), np.empty_like(c)
-    au[0], ad[0] = up[0], dn[0]
-    for i in range(1, c.size):
-        au[i] = (au[i - 1] * (n - 1) + up[i]) / n
-        ad[i] = (ad[i - 1] * (n - 1) + dn[i]) / n
-    return 100 - 100 / (1 + au / np.maximum(ad, 1e-12))
-
-
-def pivot_flags(x: np.ndarray, low: bool) -> np.ndarray:
-    """x[i] is the extreme of x[i-PIV : i+PIV+1]; False where the window is incomplete."""
-    out = np.zeros(x.size, bool)
-    if x.size < 2 * PIV + 1:
-        return out
-    w = np.lib.stride_tricks.sliding_window_view(x, 2 * PIV + 1)
-    ext = w.min(axis=1) if low else w.max(axis=1)
-    out[PIV:x.size - PIV] = x[PIV:x.size - PIV] == ext
-    return out
-
-
-def detect(high: np.ndarray, low: np.ndarray, close: np.ndarray):
-    """On CLOSED bars (last element = the bar that just closed): the setup whose
-    pivot is confirmed by that bar, or None. Returns (side, pivot_index, ref, rsi)."""
-    n = close.size
-    j = n - 1 - PIV
-    if j - PIV <= 0:
-        return None
-    r = rsi_wilder(close)
-    for is_low in (True, False):
-        px = low if is_low else high
-        piv = pivot_flags(px, is_low)
-        if not piv[j]:
-            continue
-        start = max(0, j - LOOK)
-        prev = np.flatnonzero(piv[start:j - PIV])
-        if not prev.size:
-            continue
-        p = start + int(prev[-1])
-        if is_low and px[j] < px[p] and r[j] > r[p] and r[j] < EXTREME:
-            return 1, j, float(px[j]), float(r[j])
-        if not is_low and px[j] > px[p] and r[j] < r[p] and r[j] > 100 - EXTREME:
-            return -1, j, float(px[j]), float(r[j])
-    return None
-
-
-def plan(side: int, entry_mid: float, ref: float, pip: float) -> float:
-    """Stop distance (price), exactly as in the study. There is no price target:
-    the trade exits on RSI (EXIT_BUY / 100 - EXIT_BUY)."""
-    stop = max(abs(entry_mid - ref) + pip, pip)
-    if (side == 1 and ref >= entry_mid) or (side == -1 and ref <= entry_mid):
-        stop = 2 * pip
-    return stop
-
-
-def rsi_exit_hit(side: int, rsi_value: float) -> bool:
-    return rsi_value >= EXIT_BUY if side == 1 else rsi_value <= 100 - EXIT_BUY
 
 
 def _stop_hit(side, b, stop_px):
@@ -248,6 +187,7 @@ def cycle(mt5) -> dict:
             mid_h = bid["high"] + sp / 2
             mid_l = bid["low"] + sp / 2
             mid_c = bid["close"] + sp / 2
+            stop_low, stop_high = bid["low"], bid["high"] + sp     # what a stop is judged on
             rsi_now = rsi_wilder(mid_c)
             # the RSI exit on real demo positions (nothing to do while none are open)
             for ex in rsi_div_live.rsi_exits(mt5, sym, float(rsi_now[-1])):
@@ -266,38 +206,54 @@ def cycle(mt5) -> dict:
                     c = f.commission_r(tr["stop"])
                     _append({"event": "RESOLVED", "id": tr["id"], "resolved_at": int(time.time()),
                              "gross_r": res[0], "net_r": res[0] - c, "bars": res[1],
+                             "exit_bar_time": int(tr["entry_bar_time"]) + 60 * (res[1] - 1),
                              "opp_net_r": opp[0] - c})
                     open_by_sym.pop(sym)
                 report["symbols"][sym] = "open" if sym in open_by_sym else "resolved"
                 if sym in open_by_sym:
                     continue
 
-            # 2. a new setup confirmed by the bar that just closed
-            hit = detect(mid_h, mid_l, mid_c)
+            # 2. a divergence confirmed by a break of structure on the bar that just closed
+            pip = pip_size(sym)
+            # one trade per market at a time, as in the study: divergences known
+            # before the previous trade's exit do not count
+            last_exit = max((t_["exit_bar_time"] for t_ in trades.values()
+                             if t_.get("symbol") == sym and "exit_bar_time" in t_), default=None)
+            not_before = None
+            if last_exit is not None:
+                idx = int(np.searchsorted(t, last_exit, side="right")) - 1
+                not_before = idx if idx >= 0 else None
+            hit = current_setup(mid_h, mid_l, mid_c, stop_low, stop_high, pip, not_before=not_before)
             if hit is None:
                 report["symbols"].setdefault(sym, "watching")
                 continue
-            side, j, ref, rsi_at = hit
+            side, j, ref, rsi_at = hit["side"], hit["swing_index"], hit["swing_price"], hit["rsi_at_swing"]
             sid = f"{sym}-{int(t[j])}-{side}"
             if sid in trades:
                 continue
             tick = mt5.symbol_info_tick(sym)
             if tick is None:
                 continue
-            pip = pip_size(sym)
-            entry_mid = (tick.bid + tick.ask) / 2
-            stop = plan(side, entry_mid, ref, pip)
+            fill_now = tick.ask if side == 1 else tick.bid
+            stop = side * (fill_now - hit["stop_price"])           # distance from the fill to the swing stop
+            if stop < MIN_STOP_PIPS * pip:
+                _append({"event": "SKIPPED", "id": sid, "symbol": sym, "stop_pips": round(stop / pip, 2),
+                         "reason": f"stop closer than {MIN_STOP_PIPS:g} pips to the fill"})
+                continue
             if f.risk_usd_at_min_lot(stop) > RISK_USD * 1.12:
                 _append({"event": "SKIPPED", "id": sid, "symbol": sym, "reason": "stop does not fit $4 at 0.01 lot",
                          "stop_pips": stop / pip})
                 continue
             entry = {"event": "ENTRY", "id": sid, "symbol": sym, "side": side,
                      "detected_at": int(time.time()), "entry_bar_time": int(t[-1]) + 60,
-                     "pivot_time": int(t[j]), "pivot_price": ref, "rsi_at_pivot": round(rsi_at, 2),
+                     "pivot_time": int(t[j]), "pivot_price": ref, "rsi_at_pivot": rsi_at,
+                     "known_time": int(t[hit["known_index"]]), "bos_time": int(t[hit["bos_index"]]),
+                     "stop_price": hit["stop_price"],
                      "fill": tick.ask if side == 1 else tick.bid,
                      "opp_fill": tick.bid if side == 1 else tick.ask,
                      "stop": stop, "target": None, "stop_pips": round(stop / pip, 2),
                      "frozen": {"piv": PIV, "look": LOOK, "rsi": RSI_N, "extreme": EXTREME,
+                                "confirm": f"BOS {BOS_BARS} bars within {WAIT}",
                                 "exit": f"RSI {EXIT_BUY:g}/{100 - EXIT_BUY:g}", "hold": HOLD_BARS}}
             _append(entry)
             trades[sid] = entry

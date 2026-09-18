@@ -1200,7 +1200,7 @@ _ATR_RANGE_MULTIPLIERS = {
 # argument. The band degrades to the static table on its own whenever
 # fewer than 20 usable bars exist or the distribution is degenerate, so
 # the table remains the safety net it was always meant to be.
-USE_ADAPTIVE_VOLATILITY_BANDS = True
+# USE_ADAPTIVE_VOLATILITY_BANDS: removed 2026-09-18 with core/adaptive_thresholds.py
 
 # ============================================================
 # ✅ NEW: ADAPTIVE OSCILLATOR BANDS (OPT-IN)
@@ -1239,7 +1239,7 @@ USE_ADAPTIVE_VOLATILITY_BANDS = True
 # where the measured behaviour is continuation. Round numbers (33%) and
 # wave C (38%) are the same kind of call; none of the three feeds the
 # probability or the entry decision (see tests/test_reversal_votes_removed.py).
-USE_ADAPTIVE_OSCILLATOR_BANDS = False
+# USE_ADAPTIVE_OSCILLATOR_BANDS: removed 2026-09-18 with core/adaptive_thresholds.py
 
 # ============================================================
 # ✅ NEW: MID PRICE FOR INDICATOR COMPARISONS (OPT-IN)
@@ -2194,38 +2194,9 @@ BB_MEAN_REVERSION_MIN_RR = 1.2
 
 
 # ============================================================
-# ✅ NEW: RSI REVERSAL SETUP
-# ============================================================
-# Dedicated to evaluate_rsi_reversal_setup(). Fires ONLY on the specific
-# case the RSI+divergence merge already flags as its highest-confidence
-# read: raw RSI is at an extreme (says "oversold -> BUY" / "overbought
-# -> SELL" on its own) but a REGULAR divergence says the opposite - the
-# divergence wins the direction call (score_rsi_indicator_with_divergence
-# already does this), and that reversal-against-the-raw-reading IS the
-# "perfect entry" signal, not a coincidence to filter out.
-# ============================================================
-
-# score_rsi_indicator_with_divergence() only reaches this confidence on
-# the REGULAR_BULLISH/REGULAR_BEARISH-at-extreme branches (confidence 95)
-# - gating on confidence alone (rather than re-deriving divergence logic
-# here) keeps a single source of truth for what counts as the reversal.
-RSI_REVERSAL_SETUP_MIN_CONFIDENCE = 90
-
-# Exit rule: RSI has no price of its own to target, so the exit is sized
-# by HOW extreme the reading was, as a Fibonacci retracement of the swing
-# leg that produced the divergence (recent_swing_high <-> recent_swing_low,
-# already computed elsewhere in the pipeline for the hybrid TP). Deeper
-# RSI extreme = deeper expected retracement = bigger target.
-RSI_REVERSAL_FIB_DEEP = 0.618    # rsi_value beyond the EXTREME threshold (80/20)
-RSI_REVERSAL_FIB_NORMAL = 0.5    # rsi_value beyond the normal threshold only (70/30)
-
-# SL: the swing low/high that produced the extreme RSI reading, plus a
-# spread-based buffer - a further breach means the extreme (and the
-# divergence measured against it) wasn't real support/resistance.
-RSI_REVERSAL_SL_BUFFER_SPREAD_MULT = 1.5
-RSI_REVERSAL_SL_MIN_BUFFER_PIPS = 2.0
-
-RSI_REVERSAL_MIN_RR = 1.2
+# The RSI reversal setup (Fibonacci targets) was removed 2026-09-18: the RSI
+# setup is core/rsi_divergence_setup.py -- M1 divergence confirmed by a break
+# of structure, stop at the swing, exit at RSI 80/20.
 
 
 # ============================================================
