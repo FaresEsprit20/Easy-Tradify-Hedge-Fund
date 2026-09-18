@@ -26,10 +26,13 @@ BEARISH_BAR = {"open": 1.0851, "high": 1.0852, "low": 1.0839, "close": 1.0840,
                "body_pips": 11.0, "upper_wick_pips": 1.0, "lower_wick_pips": 1.0,
                "candle_type": "normal"}
 
-# price sitting on a grade-B demand zone, BUY: every rule can pass
+# price sitting on a grade-B demand zone, BUY: every rule can pass.
+# The bar is BEARISH on purpose: confirmation is inverted (measured -- a bar that
+# already confirmed the side means the move has happened), so the bar that PASSES
+# the rule is the one that does not confirm.
 AT_ZONE = dict(symbol="EURUSD", best_direction="BUY", current_price=1.08400,
                zone_level=1.08400, zone_type="DEMAND", zone_grade="B",
-               candle_data=BULLISH_BAR, volume_spike=True, at_poi=False,
+               candle_data=BEARISH_BAR, volume_spike=True, at_poi=False,
                best_probability=78.0, pip_size=0.0001, atr_pips=10.0,
                probability_floor=75.0)
 
@@ -51,7 +54,7 @@ def test_every_rule_is_published_on_every_decision_even_when_the_first_blocks():
     d = _decide(_engine(), zone_level=None)
     assert list(d["rules"]) == list(RULE_ORDER)
     for name, r in d["rules"].items():
-        assert set(r) == {"passed", "mode", "value", "threshold", "why"}, name
+        assert set(r) == {"passed", "mode", "value", "threshold", "why", "polarity"}, name
     assert d["entry_status"] == "INVALID_ZONE"
     # later rules were still judged: the probability and the candle are measurable without a zone
     assert d["rules"]["probability"]["passed"] is True
@@ -67,7 +70,8 @@ def test_all_rules_holding_enters_as_a_confirmed_discount():
 
 
 def test_the_first_blocking_rule_names_the_status_and_all_blockers_are_listed():
-    d = _decide(_engine(MICRO_QUIET), current_price=1.08600, candle_data=BEARISH_BAR,
+    # BULLISH bar on a BUY: it confirms, which the inverted rule counts as a failure
+    d = _decide(_engine(MICRO_QUIET), current_price=1.08600, candle_data=BULLISH_BAR,
                 volume_spike=False, best_probability=70.0)
     assert d["should_enter"] is False
     assert d["blocked_by"] == ["signals", "probability", "discount", "confirmation", "timing"]
@@ -79,7 +83,8 @@ def test_the_first_blocking_rule_names_the_status_and_all_blockers_are_listed():
     ("zone", dict(zone_grade="E"), "INVALID_ZONE"),
     ("probability", dict(best_probability=70.0), "INSUFFICIENT_PROBABILITY"),
     ("discount", dict(current_price=1.08600), "WAITING_DISCOUNT"),
-    ("confirmation", dict(candle_data=BEARISH_BAR), "WAITING_CONFIRMATION"),
+    # inverted: the bar that CONFIRMS is the one that blocks, under its own name
+    ("confirmation", dict(candle_data=BULLISH_BAR), "ALREADY_CONFIRMED"),
 ])
 def test_each_rule_alone_blocks_with_its_own_status(rule, overrides, status):
     d = _decide(_engine(), **overrides)

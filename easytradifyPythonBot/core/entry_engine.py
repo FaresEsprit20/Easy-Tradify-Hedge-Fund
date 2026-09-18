@@ -92,7 +92,6 @@ RULE_STATUS = {
 # BECAUSE the bar confirmed (asset_analysis_config.ENTRY_RULE_POLARITY).
 RULE_STATUS_INVERTED = {
     "confirmation": "ALREADY_CONFIRMED",     # the move already happened; too late
-    "discount": "ALREADY_AT_DISCOUNT",       # price sits at the zone; measured worse
 }
 
 # Tier 0 -- an entry with NO golden signal -- is disabled (2026-09-15).
@@ -832,8 +831,15 @@ class EntryEngine:
         else:
             rule("discount_quality", None, why="zone direction unknown")
 
-        rule("confirmation", is_confirmed, value=confirmation_type, threshold=confirmation_score,
-             why=f"required: {required_confirmation}" if required_confirmation else "closed bar confirms")
+        # No closed bar (or no side) means the rule cannot be judged at all. This
+        # matters more since confirmation was inverted: without this, "no bar
+        # data" would read as "the bar did not confirm", and the inversion would
+        # turn missing data into a PASS.
+        confirmation_measurable = bool(candle_data) and direction in ("BUY", "SELL")
+        rule("confirmation", is_confirmed if confirmation_measurable else None,
+             value=confirmation_type, threshold=confirmation_score,
+             why=("no closed bar to read" if not confirmation_measurable else
+                  f"required: {required_confirmation}" if required_confirmation else "closed bar confirms"))
 
         # momentum is a strength reading on whatever the decision trades, not a
         # strategy of its own (asset_analysis_config.MOMENTUM_STRENGTH_MIN)

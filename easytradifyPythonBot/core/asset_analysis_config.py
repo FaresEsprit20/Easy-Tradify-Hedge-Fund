@@ -273,7 +273,7 @@ ENTRY_RULE_MODES = {
     "signals": "observe",         # golden signals >= ENTRY_MIN_SIGNALS          -> NO_POTENTIAL
     "probability": "block",       # floor <= probability <= MAX_PROBABILITY_FOR_ENTRY -> INSUFFICIENT_PROBABILITY
     "setup": "block",             # the winning group's own trade setup is valid -> NO_STRATEGY_SETUP
-    "discount": "block",          # INVERTED (see ENTRY_RULE_POLARITY)           -> ALREADY_AT_DISCOUNT
+    "discount": "observe",        # measured inconclusive once geometry is controlled
     "discount_quality": "block",  # zone on the trade's side, quality and score  -> POOR_DISCOUNT
     "confirmation": "block",      # INVERTED (see ENTRY_RULE_POLARITY)           -> ALREADY_CONFIRMED
     "timing": "observe",          # tick micro-structure timing confidence       -> POOR_TIMING
@@ -293,15 +293,20 @@ ENTRY_RULE_MODES = {
 #                 Mechanism: waiting for a confirmation candle means entering
 #                 after the move has already happened.
 #
-#   discount      price at the discount      -> 26.4% won, -0.314R gross
-#                 price away from it         -> 29.3% won, -0.243R gross
-#                 same direction, every category, both halves.
+#   discount      REJECTED. On raw win rate it looked identical to confirmation
+#                 (26.4% at the zone vs 29.3% away). Once each band is judged
+#                 against its OWN free barrier rate the pattern falls apart: it
+#                 holds only in aggregate (1.5 points, and the "at a discount"
+#                 group is 3% of decisions), FLIPS in SMC (early best True,
+#                 later best False) and is FLAT in TREND. It is not inverted and
+#                 it does not block. Raw win rate moves when the target moves;
+#                 that is what made it look real.
 #
 # polarity -1 => the rule passes when its condition is FALSE. The condition is
 # still measured and recorded exactly as before; only what counts as passing is
 # flipped. Worth about +0.05R gross. Gates only block where they are measured to
 # help -- that standard is what found these, and it is what they now satisfy.
-ENTRY_RULE_POLARITY = {"confirmation": -1, "discount": -1}
+ENTRY_RULE_POLARITY = {"confirmation": -1}
 
 # ---------------------------------------------------------------------------
 # Direction inversion -- the engine's chosen side loses to its own opposite

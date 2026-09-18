@@ -480,6 +480,7 @@ from core.decision_log import record as record_decision
 from core.strategy_setups import pick as pick_strategy_setup
 from core.asset_analysis_config import USE_STRATEGY_GROUP_PROBABILITY, STRATEGY_GROUP_MIN_PROBABILITY
 from core.asset_analysis_config import USE_CALIBRATED_PROBABILITY, USE_MARKET_STOP, MAX_RISK_PER_TRADE
+from core.asset_analysis_config import INVERT_ENTRY_DIRECTION
 from core.asset_analysis_config import atr_relative_pips
 from core.calibrated_model import score as calibrated_score, load_model as load_calibrated_model
 from core.edge_features import live_compute as live_edge_features
@@ -2660,6 +2661,31 @@ def analyze_institutional_signal(
                 f"[TREND CASCADE] {symbol}: analysis chose {analysis_direction}, cascade is "
                 f"{trend_cascade_result.get('direction')} ({trend_cascade_result.get('score'):+.2f}) "
                 f"-- trading {best_direction}")
+        # ---- measured direction inversion (2026-09-17) -----------------------
+        # The engine's own side loses to its opposite by 2.7 points of win rate
+        # on 60,853 decisions scored both ways on the same bars, in both halves
+        # and both live categories (asset_analysis_config.INVERT_ENTRY_DIRECTION
+        # carries the table). Flipped HERE -- after the auction and the cascade,
+        # before the setups and the entry rules -- so the strategy setup, the
+        # zone, the geometry and every rule are evaluated for the side actually
+        # traded. It reduces the loss; it does not make the system profitable.
+        if INVERT_ENTRY_DIRECTION:
+            _pre_inversion_direction = best_direction
+            best_direction = "SELL" if str(best_direction).upper() == "BUY" else "BUY"
+            _prob_before_inversion = best_probability
+            best_probability = side_probability(best_direction, probability_buy, probability_sell,
+                                                fallback=best_probability)
+            _ledger_step(probability_ledger, "measured_direction_inversion",
+                         _prob_before_inversion, best_probability,
+                         f"side {_pre_inversion_direction} -> {best_direction}: the engine's own "
+                         f"side is measured 2.7 points worse than its opposite; probability is now "
+                         f"{best_direction}'s own")
+            directional_veto_info["chosen_direction_was_vetoed"] = (
+                (best_direction == "BUY" and buy_vetoed) or (best_direction == "SELL" and sell_vetoed))
+            logger.warning(
+                f"[DIRECTION INVERTED] {symbol}: analysis chose {_pre_inversion_direction}, "
+                f"trading {best_direction} (measured: the opposite side wins 32.0% vs 29.2%)")
+
         if _cascade_side is not None:
             # The veto record was written for the analysis's side. After the
             # flip it must describe the side actually traded, or coherence
