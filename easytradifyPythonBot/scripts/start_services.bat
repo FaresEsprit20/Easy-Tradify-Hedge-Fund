@@ -15,3 +15,7 @@ REM   data jobs         results for the decision log, daily MT5 vs Mongo check
 cd /d "%~dp0\.."
 start "engine_v2 shadow (no orders)" cmd /k python -m engine_v2.run.shadow
 start "data jobs (no orders)" cmd /k python -m ai.data_jobs
+REM   RSI-extreme divergence  the one M1 setup that beat its own opposite side in
+REM                           the trend audit; confirmed or killed on live M1 data
+REM                           (report: python -m engine_v2.run.shadow_rsi_div_m1 --report)
+start "RSI divergence M1 shadow (no orders)" cmd /k python -m engine_v2.run.shadow_rsi_div_m1

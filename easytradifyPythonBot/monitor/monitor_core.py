@@ -843,8 +843,13 @@ class MultiSymbolMonitor:
         except Exception as e:
             print(f"   M1: Error - {e}")
 
+        # M5 / H1 re-analysis at close: skipped under M1 only
+        from core.asset_analysis_config import M1_ONLY as _M1_ONLY
+
         # M5 Analysis at Close
         try:
+            if _M1_ONLY:
+                raise RuntimeError("M1_ONLY: M5 re-analysis at close not run")
             m5_result = analyze_institutional_signal(
                 symbol=mt5_symbol,
                 order_type=order_type,
@@ -861,6 +866,8 @@ class MultiSymbolMonitor:
 
         # H1 Analysis at Close
         try:
+            if _M1_ONLY:
+                raise RuntimeError("M1_ONLY: H1 re-analysis at close not run")
             h1_result = analyze_institutional_signal(
                 symbol=mt5_symbol,
                 order_type=order_type,
@@ -1892,6 +1899,11 @@ class MultiSymbolMonitor:
             if not is_valid:
                 return TradeResult(symbol, False, error=validation_msg)
 
+            from core.asset_analysis_config import GENERIC_ENTRIES_ENABLED as _GENERIC_ON
+            if not _GENERIC_ON:
+                print(f"🔕 {symbol} {order_type}: generic entry not placed -- only the RSI divergence "
+                      f"setup trades (asset_analysis_config.GENERIC_ENTRIES_ENABLED)")
+                return TradeResult(symbol, False, error="generic entries off")
             print(f"   Direction: {order_type}, Entry: {entry_price}, SL: {stop_loss}, TP1: {take_profit_1}")
             print(f"💹 EXECUTING: {symbol} {order_type}")
 

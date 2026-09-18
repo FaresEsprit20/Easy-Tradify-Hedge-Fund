@@ -329,6 +329,46 @@ ENTRY_RULE_POLARITY = {"confirmation": -1}
 # at the bid, and a bar touching both levels counts as the stop). Demo only.
 INVERT_ENTRY_DIRECTION = True
 
+# ---------------------------------------------------------------------------
+# M1 ONLY (operator rule, 2026-09-18: "timeframe only M1")
+# ---------------------------------------------------------------------------
+# Every signal, filter and trend reading is computed on M1 bars. A spy on one
+# live analysis (EURUSD) found 18 M1 bar requests and 38 on other timeframes,
+# from seven consumers -- all of them switched off here:
+#
+#   M5/M15/H1/H4  trend cascade      gated 25 members (_trend_confirmed), was a
+#                                    TREND member, and could flip the direction
+#   H1            "H1 trend"         TREND member, H1 alignment in probability
+#   D1            ADR exhaustion     probability adjustment
+#   H1            OU mean reversion  the mean-reversion gate
+#   M15           RSI divergence     probability input
+#   M15           stochastic div.    -> now read on M1 (the function takes a timeframe)
+#   H1 (x29)      GNN                cross-asset, advisory
+#   and the M5/H1 re-analyses the monitor ran when a trade closed.
+#
+# A switched-off reading reports itself as not read ("M1_ONLY") -- it is never
+# replaced with a guess. The trend confirmation that 25 members depend on now
+# uses the M1 trend (price vs EMA200 on M1) instead of the M5-H4 cascade.
+M1_ONLY = True
+
+# ---------------------------------------------------------------------------
+# What places live (demo) orders -- operator decision, 2026-09-18
+# ---------------------------------------------------------------------------
+# The generic engine's entries are OFF: no edge was found in them, and the
+# replay of the live M1-only engine measured about -0.6R per trade. The demo bot
+# trades ONLY the frozen RSI-extreme divergence setup
+# (engine_v2/run/shadow_rsi_div_m1.py + rsi_div_live.py), which refuses to send
+# anything on a non-demo account. The monitor keeps analysing and recording.
+GENERIC_ENTRIES_ENABLED = False
+RSI_DIV_M1_LIVE = True
+# Operator priority, 2026-09-18: "the most important is to win money, I want to
+# stop losing." So the setup is ARMED but places no order until its own
+# pre-registered shadow verdict reads CONFIRMED (>= 300 resolved trades, net R
+# per trade > 0, and beating the same levels on the opposite side). Checked on
+# every setup: if later evidence pulls the verdict below CONFIRMED, trading stops
+# again by itself. Until then the bot does not trade, so it does not lose.
+RSI_DIV_M1_REQUIRE_CONFIRMED = True
+
 # Golden signals an entry needs (momentum burst, absorption, volume spike, at a
 # point of interest, volume imbalance). Entries with none were right 17% of the
 # time on the stored trades (core/entry_engine.ALLOW_UNCONFIRMED_ENTRIES).

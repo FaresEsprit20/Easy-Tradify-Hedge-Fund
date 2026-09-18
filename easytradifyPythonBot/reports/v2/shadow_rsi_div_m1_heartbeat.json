@@ -1,0 +1,21 @@
+{
+ "at": 1789745883,
+ "verdict": "PENDING (0/300 resolved)",
+ "symbols": {
+  "EURUSD": "watching",
+  "GBPUSD": "watching",
+  "USDJPY": "watching",
+  "AUDUSD": "watching",
+  "NZDUSD": "watching",
+  "USDCAD": "watching",
+  "USDCHF": "watching",
+  "EURGBP": "watching",
+  "EURCAD": "watching",
+  "AUDNZD": "watching",
+  "AUDCAD": "watching",
+  "AUDCHF": "watching",
+  "GBPAUD": "watching",
+  "GBPJPY": "watching",
+  "EURJPY": "watching"
+ }
+}

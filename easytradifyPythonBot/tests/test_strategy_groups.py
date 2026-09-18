@@ -21,6 +21,7 @@ def payload():
         },
         "trend_cascade": {"available": True, "direction": "BULLISH", "score": 0.7},
         "higher_timeframe": {"trend": "BULLISH"},
+        "trend_confirmation": {"m1_price_vs_ema200": "above"},  # the same trend on M1 (what confirmation reads under M1_ONLY)
         "ttm_squeeze": {"momentum_direction": "UP"},
         "final_verdict": {"adr_exhaustion_final_score": {"adjustment": -12.0},
                           "gap_slippage_final_score": {"gap_slippage_penalty": 3.5}},
@@ -103,6 +104,7 @@ def test_the_hour_of_day_is_published_but_does_not_move_the_probability():
 def test_smc_members_are_trend_confirmed():
     smc = _members("SMC")
     p = {"trend_cascade": {"available": True, "direction": "BULLISH", "score": 1.0},
+         "trend_confirmation": {"m1_price_vs_ema200": "above"},  # the same trend on M1 (what confirmation reads under M1_ONLY)
          "indicators": {"ict_concepts": {"type": "BEARISH"}}}
     assert smc["ICT FVG type (trend-confirmed)"](p) is None
     p["indicators"]["ict_concepts"]["type"] = "BULLISH"
@@ -111,7 +113,8 @@ def test_smc_members_are_trend_confirmed():
 
 def test_no_opposition_leaves_the_max_untouched():
     p = {"indicators": {"trend": {"recommendation": "BUY", "confidence": 100}},
-         "trend_cascade": {"available": True, "direction": "BULLISH", "score": 1.0}}
+         "trend_cascade": {"available": True, "direction": "BULLISH", "score": 1.0},
+         "trend_confirmation": {"m1_price_vs_ema200": "above"}}
     result = sg.score_groups(p, "BUY")
     assert result["opposition"] == 0.0 and result["final_probability"] == result["best_score"]
 
@@ -127,6 +130,7 @@ def _members(group):
 
 def test_zone_readings_count_only_with_the_trend():
     base = {"trend_cascade": {"available": True, "direction": "BEARISH", "score": -1.0},
+            "trend_confirmation": {"m1_price_vs_ema200": "below"},  # the same trend on M1 (what confirmation reads under M1_ONLY)
             "indicators": {"supply_demand": {"recommendation": "IMMEDIATE_BUY", "confidence": 85}}}
     sd = _members("STRUCTURE")["supply / demand (trend-confirmed)"]
     assert sd(base) is None                      # demand zone against a bearish cascade: silent
@@ -135,6 +139,7 @@ def test_zone_readings_count_only_with_the_trend():
 def _ou(tradeable=True, side=-1):
     """A bar where the fitted process does (or does not) earn a counter-trend fade."""
     return {"trend_cascade": {"available": True, "direction": "BULLISH", "score": 1.0},
+            "trend_confirmation": {"m1_price_vs_ema200": "above"},
             "ou_reversion": {"available": True, "tradeable": tradeable, "side": side,
                              "size_multiple": 1.8, "z": -1.8, "forward_t": 4.1},
             "indicators": {"rsi": {"recommendation": "SELL", "confidence": 60},
@@ -174,7 +179,8 @@ def test_every_mean_reversion_member_needs_the_fit():
 def test_bollinger_and_premium_read_as_continuation():
     p = {"indicators": {"bollinger_bands": {"recommendation": "SELL", "confidence": 100}},
          "smc": {"analysis": {"premium_discount": {"zone": "PREMIUM"}}},
-         "trend_cascade": {"available": True, "direction": "BULLISH", "score": 1.0}}
+         "trend_cascade": {"available": True, "direction": "BULLISH", "score": 1.0},
+         "trend_confirmation": {"m1_price_vs_ema200": "above"}}
     # a band walk is a continuation thesis, so it sits with the continuation
     # readings -- inside MEAN_REVERSION it was inverted against that group's
     # own members and the three cancelled each other toward 50
@@ -245,8 +251,10 @@ def test_mean_reversion_members_are_all_ou_bound():
 def test_momentum_votes_with_the_trend_only():
     macd = _members("MOMENTUM")["MACD momentum (trend-confirmed)"]
     up = {"indicators": {"macd": {"signal": "BULLISH", "confidence": 80}},
-          "trend_cascade": {"available": True, "direction": "BULLISH", "score": 0.7}}
-    down = dict(up, trend_cascade={"available": True, "direction": "BEARISH", "score": -0.7})
+          "trend_cascade": {"available": True, "direction": "BULLISH", "score": 0.7},
+          "trend_confirmation": {"m1_price_vs_ema200": "above"}}
+    down = dict(up, trend_cascade={"available": True, "direction": "BEARISH", "score": -0.7},
+                trend_confirmation={"m1_price_vs_ema200": "below"})
     assert macd(up) == (1, 0.8)
     assert macd(down) is None
 

@@ -244,6 +244,24 @@ def _price_vs_ema200(payload):
     return (1 if side == "above" else -1), 0.5
 
 
+def _m1_only() -> bool:
+    from core.asset_analysis_config import M1_ONLY
+    return bool(M1_ONLY)
+
+
+def _trend_reference(payload):
+    """The trend a "trend-confirmed" member must agree with: the M1 trend (price
+    vs EMA200 on M1) under M1_ONLY, the M5-H4 cascade otherwise."""
+    return _price_vs_ema200(payload) if _m1_only() else _cascade(payload)
+
+
+def _not_under_m1_only(reader: Callable) -> Callable:
+    """A member built on another timeframe: silent under M1_ONLY."""
+    def read(payload):
+        return None if _m1_only() else reader(payload)
+    return read
+
+
 def _vwap_side(payload):
     above = _get(payload, "vwap.above_vwap")
     if not isinstance(above, bool):
@@ -339,8 +357,8 @@ def _gnn_direction(payload):
 def _trend_confirmed(reader: Callable) -> Callable:
     def read(payload):
         reading = reader(payload)
-        cascade = _cascade(payload)
-        if reading is None or cascade is None or reading[0] == 0 or reading[0] != cascade[0]:
+        trend = _trend_reference(payload)
+        if reading is None or trend is None or reading[0] == 0 or reading[0] != trend[0]:
             return None
         return reading
     return read
@@ -401,7 +419,9 @@ def _loud_smc(direction: str) -> Dict[str, Any]:
             "indicators": {"ict_concepts": {"type": "BULLISH" if d == "BUY" else "BEARISH"},
                            "fvg_ifvg": {"recommendation": d, "confidence": 100}},
             "trend_cascade": {"available": True, "direction": "BULLISH" if d == "BUY" else "BEARISH",
-                              "score": 1.0}}
+                              "score": 1.0},
+            # the same trend on M1 -- what trend confirmation reads under M1_ONLY
+            "trend_confirmation": {"m1_price_vs_ema200": "above" if d == "BUY" else "below"}}
 
 
 def _smc_can_win() -> bool:
@@ -427,6 +447,7 @@ def _silenced_group_cannot_win() -> bool:
 def _ou_payload(tradeable: bool) -> Dict[str, Any]:
     """A payload whose OU reading says a counter-trend fade is (or is not) earned."""
     return {"trend_cascade": {"available": True, "direction": "BULLISH", "score": 1.0},
+            "trend_confirmation": {"m1_price_vs_ema200": "above"},
             "ou_reversion": {"available": True, "tradeable": tradeable, "side": -1,
                              "size_multiple": 1.8, "z": -1.8, "half_life_bars": 90.0,
                              "forward_beta": 0.42, "forward_t": 4.1, "price_share": 0.71},
@@ -491,8 +512,8 @@ def _in_regime(reader: Callable, prefix: str) -> Callable:
 MEMBERS: List[Tuple[str, str, Callable]] = [
     ("TREND", "trend indicator (trend-confirmed)",
      _trend_confirmed(_direction_member("indicators.trend.recommendation", "indicators.trend.confidence"))),
-    ("TREND", "trend cascade M5-H4", _cascade),
-    ("TREND", "H1 trend", _direction_member("higher_timeframe.trend")),
+    ("TREND", "trend cascade M5-H4", _not_under_m1_only(_cascade)),
+    ("TREND", "H1 trend", _not_under_m1_only(_direction_member("higher_timeframe.trend"))),
     ("TREND", "price vs EMA200 (trend-confirmed)", _trend_confirmed(_price_vs_ema200)),
 
     ("MOMENTUM", "MACD momentum (trend-confirmed)", _trend_confirmed(_macd_momentum)),
@@ -777,9 +798,12 @@ def get_status() -> Dict[str, Any]:
 
 
 def self_check() -> Dict[str, Any]:
-    # Trend says BUY (cascade + H1); cross-asset says SELL (GNN in a ranging market).
+    # Trend says BUY (cascade + H1, and on M1: price above EMA200 and the M1 trend
+    # indicator); cross-asset says SELL (GNN in a ranging market).
     payload = {"trend_cascade": {"available": True, "direction": "BULLISH", "score": 1.0},
                "higher_timeframe": {"trend": "BULLISH"},
+               "trend_confirmation": {"m1_price_vs_ema200": "above"},
+               "indicators": {"trend": {"recommendation": "BUY", "confidence": 100}},
                "volatility_protection": {"trading_regime": {"state": "RANGING_CALM"}},
                "gnn": {"analysis": {"gnn_direction": -0.2, "recommendation": "SELL"}}}
     buy = score_groups(payload, "BUY")

@@ -1,122 +1,122 @@
 {
- "at": 1789691420,
+ "at": 1789745420,
  "symbols": {
   "EURUSD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "GBPUSD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "USDJPY": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "AUDUSD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "NZDUSD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "USDCAD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "USDCHF": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "EURGBP": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "EURCAD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "AUDNZD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "AUDCAD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "AUDCHF": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "GBPAUD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "GBPJPY": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
-   "not_tradeable": 0,
+   "not_tradeable": 1,
    "new_journaled": 0,
    "errors": {}
   },
   "EURJPY": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "XAUUSD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
    "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   },
   "XAGUSD": {
-   "as_of": 1789700400,
+   "as_of": 1789754400,
    "live_setups": 0,
-   "not_tradeable": 1,
+   "not_tradeable": 0,
    "new_journaled": 0,
    "errors": {}
   }

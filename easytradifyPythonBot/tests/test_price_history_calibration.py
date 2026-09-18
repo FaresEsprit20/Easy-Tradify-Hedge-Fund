@@ -12,6 +12,7 @@ import math
 import numpy as np
 import pytest
 
+from core import asset_analysis_config as cfg
 from core import edge_features
 from core.calibrated_model import raw_reader, readings, score, _transform
 from core.strategy_groups import MEMBERS
@@ -97,13 +98,20 @@ def test_readings_keys_match_the_study_columns():
                "indicators": {"rsi": {"recommendation": "BUY", "confidence": 70}}}
     values = readings(payload, {"mom_60": 1.5, "version": "1.0"})
     assert values["m_used_" + slug("RSI extreme (OU-gated)")] == pytest.approx(0.7)
-    assert values["m_raw_" + slug("trend cascade M5-H4")] == pytest.approx(0.8)
+    # M1 only (2026-09-18): the M5-H4 cascade member is silent, so it produces
+    # no column -- the live model is not scored under M1_ONLY for this reason
+    assert cfg.M1_ONLY and "m_raw_" + slug("trend cascade M5-H4") not in values
     assert values["e_mom_60"] == 1.5 and "e_version" not in values
 
 
-def test_runtime_score_equals_the_fitted_model():
-    """Fit on a synthetic frame, export, and score one row both ways."""
+def test_runtime_score_equals_the_fitted_model(monkeypatch):
+    """Fit on a synthetic frame, export, and score one row both ways.
+
+    This pins the scoring MATHS on an arbitrary planted feature (the cascade
+    member). The member is silent under M1_ONLY, so the switch is off here --
+    the arithmetic under test does not depend on which feature is planted."""
     import ai.component_calibration as cc
+    monkeypatch.setattr(cfg, "M1_ONLY", False)
 
     rng = np.random.default_rng(3)
     n = 4000

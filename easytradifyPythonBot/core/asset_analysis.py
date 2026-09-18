@@ -480,7 +480,7 @@ from core.decision_log import record as record_decision
 from core.strategy_setups import pick as pick_strategy_setup
 from core.asset_analysis_config import USE_STRATEGY_GROUP_PROBABILITY, STRATEGY_GROUP_MIN_PROBABILITY
 from core.asset_analysis_config import USE_CALIBRATED_PROBABILITY, USE_MARKET_STOP, MAX_RISK_PER_TRADE
-from core.asset_analysis_config import INVERT_ENTRY_DIRECTION
+from core.asset_analysis_config import INVERT_ENTRY_DIRECTION, M1_ONLY
 from core.asset_analysis_config import atr_relative_pips
 from core.calibrated_model import score as calibrated_score, load_model as load_calibrated_model
 from core.edge_features import live_compute as live_edge_features
@@ -1904,7 +1904,11 @@ def analyze_institutional_signal(
         # computed from the H1 slice the feed has already cut at the
         # decision timestamp.
         h1_data = None
-        if market_data is not None:
+        if M1_ONLY:
+            # the neutral shape get_h1_trend itself returns when H1 is unavailable
+            h1_data = {"trend": "NEUTRAL", "adx": 0, "ema_200": 0, "current_price": 0,
+                       "available": False, "reason": "M1_ONLY: not read (H1 trend)"}
+        elif market_data is not None:
             h1_data = market_data.h1_data
             if h1_data is None and market_data.multi_tf_rates.get("H1") is not None:
                 h1_data = get_h1_trend(symbol, h1_rates=market_data.multi_tf_rates["H1"])
@@ -1918,7 +1922,9 @@ def analyze_institutional_signal(
         # ============================================================
         # M15 DIVERGENCE (RSI)
         # ============================================================
-        m15_div_data = get_m15_divergence(symbol)
+        m15_div_data = ({"divergence_type": "NONE", "divergence_score": 0, "rsi_14": 50,
+                         "timeframe": "M1_ONLY: not read (M15 RSI divergence)"}
+                        if M1_ONLY else get_m15_divergence(symbol))
         m15_rsi = m15_div_data["rsi_14"]
         m15_div_score = m15_div_data["divergence_score"]
         m15_div_type = m15_div_data["divergence_type"]
@@ -1926,7 +1932,7 @@ def analyze_institutional_signal(
         # ============================================================
         # M15 STOCHASTIC DIVERGENCE
         # ============================================================
-        stoch_div_data = get_stochastic_divergence(symbol, "M15")
+        stoch_div_data = get_stochastic_divergence(symbol, "M1" if M1_ONLY else "M15")
         stoch_div_type = stoch_div_data.get("divergence_type", "NONE")
         stoch_div_score = stoch_div_data.get("divergence_score", 0)
         stoch_k_m15 = stoch_div_data.get("stoch_k", 50)
@@ -2640,7 +2646,12 @@ def analyze_institutional_signal(
         # so there is no case for gating on a number that describes the side the
         # cascade just rejected. See core/trend_cascade.py.
         try:
-            trend_cascade_result = get_trend_cascade(symbol, pip_size)
+            if M1_ONLY:
+                # unavailable -> cascade_direction_override never flips the side
+                trend_cascade_result = {"available": False, "score": 0.0, "direction": "NEUTRAL",
+                                        "reason": "M1_ONLY: not read (M5-H4 trend cascade)"}
+            else:
+                trend_cascade_result = get_trend_cascade(symbol, pip_size)
         except Exception as e:
             logger.warning(f"[TREND CASCADE] {symbol}: failed: {e}")
             trend_cascade_result = {"available": False, "score": 0.0, "direction": "NEUTRAL", "reason": f"error: {e}"}
@@ -3370,7 +3381,10 @@ def analyze_institutional_signal(
         # odds (mean-reversion). See core/adr_exhaustion.py.
         # ============================================================
         try:
-            adr_result = get_adr_exhaustion(symbol, pip_size, current_price)
+            if M1_ONLY:
+                adr_result = {"available": False, "exhausted": False, "reason": "M1_ONLY: not read (D1 range)"}
+            else:
+                adr_result = get_adr_exhaustion(symbol, pip_size, current_price)
         except Exception as e:
             logger.warning(f"[ADR EXHAUSTION] {symbol}: failed: {e}")
             adr_result = {"available": False, "exhausted": False, "reason": f"error: {e}"}
@@ -3580,7 +3594,9 @@ def analyze_institutional_signal(
         # ============================================================
         
         gnn_result = None
-        if use_gnn and is_gnn_available():
+        if M1_ONLY:
+            logger.info(f"[GNN] Skipped: M1_ONLY: not read (GNN reads H1)")
+        elif use_gnn and is_gnn_available():
             try:
                 logger.info(f"[GNN] Running GNN analysis for {symbol}")
                 gnn_result = analyze_gnn_correlations(symbol, best_direction, trade_id)
@@ -3861,8 +3877,12 @@ def analyze_institutional_signal(
         # rather than the baseline doing the reverting, and the expected gain
         # beating the round trip. MEAN_REVERSION votes only when this says yes.
         try:
-            from core.ou_mean_reversion import live as _ou_live
-            ou_reversion_result = _ou_live(symbol, spread_price=(spread or 0) * pip_size)
+            if M1_ONLY:
+                # the process is fitted on H1 closes; nothing trades on it under M1 only
+                ou_reversion_result = {"available": False, "reason": "M1_ONLY: not read (OU fitted on H1)"}
+            else:
+                from core.ou_mean_reversion import live as _ou_live
+                ou_reversion_result = _ou_live(symbol, spread_price=(spread or 0) * pip_size)
         except Exception as e:
             logger.warning(f"[OU] {symbol}: unavailable ({e})")
             ou_reversion_result = {"available": False, "reason": f"error: {e}"}
@@ -5815,7 +5835,8 @@ def analyze_institutional_signal(
             "gnn": {
                 "available": gnn_result.get("available", False) if gnn_result else False,
                 "analysis": gnn_result if gnn_result else {"available": False},
-                "divergence": get_gnn_divergence(symbol) if is_gnn_available() else {"available": False},
+                "divergence": ({"available": False, "reason": "M1_ONLY: not read (GNN reads H1)"} if M1_ONLY
+                               else get_gnn_divergence(symbol) if is_gnn_available() else {"available": False}),
             },
             "smc": {
                 "available": smc_result.get("available", False) if smc_result else False,
@@ -5872,9 +5893,11 @@ def analyze_institutional_signal(
                 "ranging_market_adx_threshold": RANGING_MARKET_ADX_THRESHOLD,
                 "trade_probability_minimum": TRADE_PROBABILITY_MINIMUM,
                 "valid_zone_grades": VALID_ZONE_GRADES,
-                "gnn_enabled": use_gnn and is_gnn_available(),
-                "gnn_available": is_gnn_available(),
-                "gnn_ab_test_enabled": is_gnn_available() and get_gnn_ab_test().get("enabled", False) if is_gnn_available() else False,
+                # under M1 only the GNN is never touched: even asking whether it is
+                # available builds its graph from H1 bars
+                "gnn_enabled": False if M1_ONLY else (use_gnn and is_gnn_available()),
+                "gnn_available": False if M1_ONLY else is_gnn_available(),
+                "gnn_ab_test_enabled": False if M1_ONLY else (is_gnn_available() and get_gnn_ab_test().get("enabled", False) if is_gnn_available() else False),
                 "gnn_weight": GNN_WEIGHT,
                 "gnn_confidence_threshold": GNN_CONFIDENCE_THRESHOLD,
                 "pattern_weight": PATTERN_WEIGHT,
@@ -5897,7 +5920,11 @@ def analyze_institutional_signal(
             # validated model decides the entry; the legacy funnel above only
             # informs it. Runs before the defensive core, which can still
             # turn a YES into a NO.
-            _cal_model = load_calibrated_model() if USE_CALIBRATED_PROBABILITY else None
+            # Under M1_ONLY the installed model (fitted 2026-09-15 on the M5-H4
+            # cascade, H1 and GNN features) is not scored: it runs in shadow
+            # mode and decides nothing, and fed neutral values for the inputs
+            # it weights, its recorded score would look valid and mean nothing.
+            _cal_model = load_calibrated_model() if USE_CALIBRATED_PROBABILITY and not M1_ONLY else None
             _sg = result.get("strategy_groups") or {}
             if _cal_model and _cal_model.get("version") == 2 and _sg.get("edges") is not None:
                 try:
