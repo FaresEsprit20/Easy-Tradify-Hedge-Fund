@@ -1,0 +1,200 @@
+"""The RSI divergence setup -- ONE definition, used by the app and the shadow runner.
+
+Operator, 2026-09-18: "edit my current code in RSI so it applies exactly that last
+config: no Fibonacci, BOS, etc." This module is that config; nothing else in the
+app defines RSI-divergence entries or exits any more.
+
+Where it comes from: the M1 RSI-divergence studies of 2026-09-18
+(tradify_study/trend_m1_v1/), ~300 configurations on true bid/ask M1 bars. The
+best measured -- and the only kind that beat its own opposite side in both halves
+of history -- is below. It was still net NEGATIVE in the study (about -0.15R /
+-0.11R per trade, 56% of trades won), which is why the demo account trades it
+only once the live shadow verdict reads CONFIRMED (engine_v2/run/shadow_rsi_div_m1.py).
+
+THE SETUP (M1 only; mid = bid + half the bar's spread; closed bars only)
+  1. Divergence (classic / regular -- the reversal kind):
+       BUY : a swing low that is the lowest of +-50 M1 bars, LOWER than the
+             previous such swing low (within 1000 bars), while RSI(14) there is
+             HIGHER than at the previous one, and RSI < 30 at the new swing.
+       SELL: mirror (higher high, lower RSI high, RSI > 70).
+     It is known 50 bars after the swing (when the swing is confirmed).
+  2. Confirmation -- break of structure (BOS): within the next 60 M1 bars, an M1
+     bar CLOSES above the highest high of the previous 5 bars (below the lowest
+     low for a SELL). Entry at the next price.
+     Cancelled if price reaches the stop before the BOS; expires after 60 bars.
+  3. Stop: the divergence swing -1 pip (+1 for a SELL). No Fibonacci, no price target.
+  4. Exit: RSI(14) closes at or above 70 (a SELL: at or below 30); stop first;
+     480-bar cap.
+"""
+from __future__ import annotations
+
+from typing import Any, Dict, Optional
+
+import numpy as np
+
+SETUP_NAME = "RSI divergence + BOS (M1)"
+PIV = 50              # swing = extreme of +-50 M1 bars
+LOOK = 1000           # the previous swing may be up to 1000 bars back
+RSI_N = 14
+EXTREME = 30.0        # RSI < 30 at the swing (> 70 for a SELL)
+BOS_BARS = 5          # break of the previous 5 bars' high / low
+WAIT = 60             # bars allowed for the BOS after the divergence is known
+EXIT_BUY = 70.0       # a BUY exits when RSI >= 70 (a SELL when RSI <= 30)
+HOLD_BARS = 480       # cap
+HISTORY = 1600        # closed M1 bars needed: LOOK + 2*PIV + WAIT + RSI warm-up
+
+
+def pip_size(symbol: str) -> float:
+    return 0.01 if symbol.endswith("JPY") else 0.0001
+
+
+def rsi_wilder(c: np.ndarray, n: int = RSI_N) -> np.ndarray:
+    c = np.asarray(c, dtype=float)
+    d = np.diff(c, prepend=c[0])
+    up, dn = np.clip(d, 0, None), np.clip(-d, 0, None)
+    au, ad = np.empty_like(c), np.empty_like(c)
+    au[0], ad[0] = up[0], dn[0]
+    for i in range(1, c.size):
+        au[i] = (au[i - 1] * (n - 1) + up[i]) / n
+        ad[i] = (ad[i - 1] * (n - 1) + dn[i]) / n
+    return 100 - 100 / (1 + au / np.maximum(ad, 1e-12))
+
+
+def pivot_flags(x: np.ndarray, low: bool) -> np.ndarray:
+    """x[i] is the extreme of x[i-PIV : i+PIV+1]; False where the window is incomplete."""
+    x = np.asarray(x, dtype=float)
+    out = np.zeros(x.size, bool)
+    if x.size < 2 * PIV + 1:
+        return out
+    w = np.lib.stride_tricks.sliding_window_view(x, 2 * PIV + 1)
+    ext = w.min(axis=1) if low else w.max(axis=1)
+    out[PIV:x.size - PIV] = x[PIV:x.size - PIV] == ext
+    return out
+
+
+def divergence_at(j: int, high, low, r, lo_piv, hi_piv):
+    """The classic divergence whose swing is at bar j, or None: (side, swing price, rsi)."""
+    for is_low in (True, False):
+        piv = lo_piv if is_low else hi_piv
+        if j < 0 or j >= piv.size or not piv[j]:
+            continue
+        # the IMMEDIATELY preceding swing, as in the study; a pair closer than
+        # PIV bars or further than LOOK bars apart is not compared at all
+        prev = np.flatnonzero(piv[:j])
+        if not prev.size:
+            continue
+        p = int(prev[-1])
+        if not PIV < j - p <= LOOK:
+            continue
+        px = low if is_low else high
+        if is_low and px[j] < px[p] and r[j] > r[p] and r[j] < EXTREME:
+            return 1, float(px[j]), float(r[j])
+        if not is_low and px[j] > px[p] and r[j] < r[p] and r[j] > 100 - EXTREME:
+            return -1, float(px[j]), float(r[j])
+    return None
+
+
+def detect(high, low, close):
+    """A divergence whose swing is confirmed by the bar that just closed (the last
+    element), or None: (side, swing index, swing price, rsi at the swing)."""
+    high, low, close = (np.asarray(a, dtype=float) for a in (high, low, close))
+    j = close.size - 1 - PIV
+    if j - PIV <= 0:
+        return None
+    r = rsi_wilder(close)
+    hit = divergence_at(j, high, low, r, pivot_flags(low, True), pivot_flags(high, False))
+    return None if hit is None else (hit[0], j, hit[1], hit[2])
+
+
+def bos(side: int, k: int, high, low, close) -> bool:
+    """Bar k closes beyond the previous BOS_BARS bars' extreme in the trade's direction."""
+    if k < BOS_BARS:
+        return False
+    if side == 1:
+        return close[k] > np.max(high[k - BOS_BARS:k])
+    return close[k] < np.min(low[k - BOS_BARS:k])
+
+
+def current_setup(high, low, close, stop_low, stop_high, pip: float,
+                  not_before: Optional[int] = None) -> Optional[Dict[str, Any]]:
+    """The setup to enter NOW, or None.
+
+    A divergence known within the last WAIT bars whose FIRST break of structure is
+    on the bar that just closed (the last element), with the stop not reached in
+    between. Oldest divergence first. Stateless: the same bars give the same answer.
+
+    high/low/close: MID prices of closed M1 bars. stop_low/stop_high: the prices a
+    stop is judged on (bid lows for a BUY, ask highs for a SELL).
+    not_before: ignore divergences known at or before this bar index (the exit of
+    the previous trade -- one trade per market at a time, as in the study).
+    """
+    high, low, close = (np.asarray(a, dtype=float) for a in (high, low, close))
+    n = close.size
+    if n < 2 * PIV + 2 * BOS_BARS:
+        return None
+    last = n - 1
+    r = rsi_wilder(close)
+    lo_piv, hi_piv = pivot_flags(low, True), pivot_flags(high, False)
+    for known in range(max(2 * PIV, last - WAIT), last):
+        if not_before is not None and known <= not_before:
+            continue
+        j = known - PIV
+        hit = divergence_at(j, high, low, r, lo_piv, hi_piv)
+        if hit is None:
+            continue
+        side, swing, rsi_at = hit
+        stop_px = swing - side * pip
+        still_waiting = True
+        for k in range(known + 1, last + 1):
+            if (side == 1 and stop_low[k] <= stop_px) or (side == -1 and stop_high[k] >= stop_px):
+                still_waiting = False                          # stopped before confirming: cancelled
+                break
+            if bos(side, k, high, low, close):
+                if k == last:
+                    return {"side": side, "swing_index": j, "known_index": known, "bos_index": k,
+                            "swing_price": swing, "stop_price": stop_px, "rsi_at_swing": round(rsi_at, 2)}
+                still_waiting = False                          # confirmed earlier: not a new entry
+                break
+        if still_waiting:
+            return None        # an older divergence is still waiting for its BOS: it has priority
+    return None
+
+
+def rsi_exit_hit(side: int, rsi_value: float) -> bool:
+    return rsi_value >= EXIT_BUY if side == 1 else rsi_value <= 100 - EXIT_BUY
+
+
+def mid_arrays(rates, point: float):
+    """MT5 M1 rates (bid OHLC + spread in points) -> mid high/low/close and the
+    bid-low / ask-high a stop is judged on."""
+    sp = rates["spread"].astype(float) * point
+    bh, bl, bc = (rates[k].astype(float) for k in ("high", "low", "close"))
+    return bh + sp / 2, bl + sp / 2, bc + sp / 2, bl, bh + sp
+
+
+def evaluate_setup(rates, symbol: str, order_type: str, current_price: float, spread_pips: float,
+                   point: float) -> Dict[str, Any]:
+    """The app's RSI setup, in the shape core.strategy_setups.pick expects. `rates`:
+    CLOSED M1 bars (the last element is the bar that just closed)."""
+    base = {"setup": SETUP_NAME, "is_perfect_setup": False}
+    if rates is None or len(rates) < HISTORY // 2:
+        return {**base, "reason": f"needs ~{HISTORY} closed M1 bars, has {0 if rates is None else len(rates)}"}
+    pip = pip_size(symbol)
+    h, l, c, stop_low, stop_high = mid_arrays(rates, point)
+    s = current_setup(h, l, c, stop_low, stop_high, pip)
+    if s is None:
+        return {**base, "reason": "no RSI divergence confirmed by a break of structure on the last closed bar"}
+    direction = "BUY" if s["side"] == 1 else "SELL"
+    if order_type and order_type.upper() not in (direction, "AUTO", "BOTH", ""):
+        return {**base, "direction": direction,
+                "reason": f"setup is {direction}, the analysis trades {order_type}"}
+    stop = s["stop_price"]
+    risk_pips = (current_price - stop) / pip if direction == "BUY" else (stop - current_price) / pip
+    if risk_pips <= 0:
+        return {**base, "direction": direction, "reason": "price is already through the divergence swing"}
+    return {**base, "is_perfect_setup": True, "direction": direction,
+            "entry_price": round(current_price, 5), "stop_loss": round(stop, 5), "take_profit": None,
+            "risk_pips": round(risk_pips, 1), "reward_pips": None, "risk_reward_ratio": None,
+            "exit_type": "RSI_70_30", "stop_loss_basis": "the divergence swing -1 pip",
+            "take_profit_basis": "none: exits when RSI(14) reaches 70 (30 for a SELL)",
+            "rsi_at_swing": s["rsi_at_swing"], "reason": f"{SETUP_NAME}: {direction} confirmed"}
