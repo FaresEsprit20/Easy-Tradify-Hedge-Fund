@@ -19,3 +19,7 @@ REM   RSI-extreme divergence  the one M1 setup that beat its own opposite side i
 REM                           the trend audit; confirmed or killed on live M1 data
 REM                           (report: python -m engine_v2.run.shadow_rsi_div_m1 --report)
 start "RSI divergence M1 shadow (no orders)" cmd /k python -m engine_v2.run.shadow_rsi_div_m1
+REM   RSI divergence, +-1600 M1 swings  never places orders; the one DEV pass of
+REM                           rsi_div_huge_swings.py, not confirmed, watched live
+REM                           (report: python -m engine_v2.run.shadow_rsi_div_huge --report)
+start "RSI divergence huge swings shadow (never orders)" cmd /k python -m engine_v2.run.shadow_rsi_div_huge
