@@ -2947,57 +2947,9 @@ def get_h1_trend(symbol: str, h1_rates=None) -> Dict[str, Any]:
         return {"trend": "NEUTRAL", "adx": 0, "ema_200": 0, "current_price": 0}
 
 
-# ============================================================
-# M15 DIVERGENCE (ENHANCED WITH FALLBACK)
-# ============================================================
-
-def get_m15_divergence(symbol: str) -> Dict[str, Any]:
-    try:
-        from core.calculations import get_m15_divergence_with_debug, get_m15_divergence_fallback
-        
-        result = get_m15_divergence_with_debug(symbol, debug=False)
-        
-        if M15_FALLBACK_ENABLED and result.get("debug") != "ok" and result.get("divergence_type") == "NONE":
-            fallback_result = get_m15_divergence_fallback(symbol)
-            return {
-                "divergence_type": fallback_result.get("divergence_type", "NONE"),
-                "divergence_score": fallback_result.get("divergence_score", 0),
-                "rsi_14": fallback_result.get("rsi_14", 50),
-                "timeframe": "M15"
-            }
-        
-        return {
-            "divergence_type": result.get("divergence_type", "NONE"),
-            "divergence_score": result.get("divergence_score", 0),
-            "rsi_14": result.get("rsi_14", 50),
-            "timeframe": "M15"
-        }
-        
-    except ImportError:
-        try:
-            m15_tf = mt5.TIMEFRAME_M15
-            m15_rates = mt5.copy_rates_from_pos(symbol, m15_tf, 0, 200)
-            
-            if m15_rates is None or len(m15_rates) < 100:
-                return {"divergence_type": "NONE", "divergence_score": 0, "rsi_14": 50, "timeframe": "M15"}
-            
-            price_arrays = _extract_price_arrays(m15_rates)
-            m15_close = price_arrays["close"]
-            
-            m15_rsi = _calculate_rsi(m15_close, 14)
-            m15_rsi_val = m15_rsi[-1] if m15_rsi else 50
-            m15_divergence = _detect_rsi_divergence(m15_close, m15_rsi, "M15")
-            
-            return {
-                "divergence_type": m15_divergence.get("type", "NONE"), 
-                "divergence_score": m15_divergence.get("score", 0), 
-                "rsi_14": m15_rsi_val, 
-                "timeframe": "M15"
-            }
-        except Exception as e:
-            logger.warning(f"[M15_DIVERGENCE] Failed for {symbol}: {e}")
-            return {"divergence_type": "NONE", "divergence_score": 0, "rsi_14": 50, "timeframe": "M15"}
-
+# RSI divergence is detected on M1 ONLY (operator, 2026-09-18: "forever").
+# The M15 divergence functions that lived here were deleted; the one
+# definition is core/rsi_divergence_setup.py.
 
 # Bars of true range used as the volatility baseline that ATR(14) is
 # compared against. Must exceed 14 for the comparison to mean anything.

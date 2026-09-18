@@ -803,7 +803,7 @@ def _analyze_indicators_component(
     # _detect_rsi_divergence() on the SAME timeframe here and stash it as
     # "rsi_divergence" purely for the report. It was never the divergence
     # actually used to score RSI — the real scoring divergence is the
-    # cross-timeframe M15 one (m15_div_type, from get_m15_divergence()),
+    # M1 one (core/rsi_divergence_setup.py; M1 only since 2026-09-18),
     # fed into score_rsi_indicator_with_divergence() at the call site.
     # Keeping both meant the report could show e.g. "divergence: NONE"
     # for the same-timeframe check while the RSI score actually used

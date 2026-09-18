@@ -14,11 +14,11 @@ from engine_v2.run import shadow_rsi_div_m1 as sh
 
 def test_the_setup_is_frozen_as_measured():
     # 2026-09-18: the fixed 1:2 target became the conventional RSI exit (70 / 30)
-    # 80/20 for entry and exit since 2026-09-18 (operator)
-    assert (sh.PIV, sh.LOOK, sh.RSI_N, sh.EXTREME, sh.EXIT_BUY, sh.HOLD_BARS) == (50, 1000, 14, 20.0, 80.0, 480)
+    # 30/70 for entry and exit (operator, 2026-09-18)
+    assert (sh.PIV, sh.LOOK, sh.RSI_N, sh.EXTREME, sh.EXIT_BUY, sh.HOLD_BARS) == (50, 1000, 14, 30.0, 70.0, 480)
     assert not hasattr(sh, "TARGET_R")
     # v3: the entry waits for a break of structure -- a different setup, fresh count
-    assert sh.JOURNAL.name == "shadow_rsi_div_m1_v4.jsonl"
+    assert sh.JOURNAL.name == "shadow_rsi_div_m1_v3.jsonl"
     assert (sh.BOS_BARS, sh.WAIT, sh.MIN_STOP_PIPS) == (5, 60, 2.0)
     assert sh.RISK_USD == 4.0
     assert sh.MIN_TRADES_FOR_VERDICT == 300
@@ -96,10 +96,10 @@ def test_resolve_stop_first_then_the_rsi_exit_then_the_cap():
     r, k = sh.resolve(1, f, stop, [bar(1.0985, 1.1030)], [85.0])
     assert (r, k) == (pytest.approx(-1.0), 1)
     # RSI reaches 80 on the second bar: out at that bar's bid close
-    r, k = sh.resolve(1, f, stop, [bar(1.0995, 1.1005), bar(1.0999, 1.1020, close=1.1015)], [75.0, 81.0])
+    r, k = sh.resolve(1, f, stop, [bar(1.0995, 1.1005), bar(1.0999, 1.1020, close=1.1015)], [65.0, 71.0])
     assert (r, k) == (pytest.approx(1.5), 2)
     # a SELL exits when RSI reaches 20, at the ask close
-    r, k = sh.resolve(-1, f, stop, [bar(1.0985, 1.1005, close=1.0986)], [19.0])
+    r, k = sh.resolve(-1, f, stop, [bar(1.0985, 1.1005, close=1.0986)], [29.0])
     assert k == 1 and r == pytest.approx((1.1000 - 1.0987) / 0.0010)
     # still open, then the 480-bar cap
     assert sh.resolve(1, f, stop, [bar(1.0995, 1.1005)] * 10, [50.0] * 10) is None

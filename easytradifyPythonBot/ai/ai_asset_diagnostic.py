@@ -178,10 +178,10 @@ class ParameterRegistry:
             'location': 'asset_analysis.py line ~114',
             'priority': 'MEDIUM'
         },
-        'm15_divergence_weight': {
+        'rsi_divergence_m1_weight': {
             'current': 0.04,
             'range': [0.01, 0.10],
-            'description': 'Weight for M15 Divergence component',
+            'description': 'Weight for the M1 RSI divergence component',
             'category': 'weights',
             'location': 'asset_analysis.py line ~116',
             'priority': 'HIGH'
@@ -834,7 +834,7 @@ class MathValidator:
             'session': ('session_analysis', 'is_market_open'),
             'support_resistance': ('5_support_resistance', 'score'),
             'ict_fvg': ('2_ict_concepts', 'type'),
-            'm15_divergence': ('m15_divergence', 'score'),
+            'rsi_divergence_m1': ('analysis', 'MEAN_REVERSION', 'data', 'rsi', 'divergence', 'score'),
             'veto_system': ('vetos', 'triggered'),
             'breakout': ('6_breakout', 'is_breakout'),
             'candlestick': ('7_candlestick', 'score'),

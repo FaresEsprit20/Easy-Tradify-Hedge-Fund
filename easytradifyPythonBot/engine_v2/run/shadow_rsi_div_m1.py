@@ -35,8 +35,8 @@ FROZEN (changing any of these makes it a different, unconfirmed setup)
   Entry: at the tick after the confirming bar closes (BUY at the ask, SELL at the bid).
   Stop : the divergence swing -1 pip (+1 for a SELL); at least 2 pips from the
          fill; must fit $4 at the 0.01 lot.
-  Exit : a BUY closes when RSI(14) closes at or above 80, a SELL at or below 20
-         (80/20 for entry and exit: operator, 2026-09-18); stop first; 480-bar cap.
+  Exit : a BUY closes when RSI(14) closes at or above 70, a SELL at or below 30
+         (30/70 for entry and exit: operator, 2026-09-18); stop first; 480-bar cap.
          (Was a fixed 1:2 target until 2026-09-18. Operator: "stick to the
          conventional RSI divergence rules". Measured on the same history --
          tradify_study/trend_m1_v1/conventional_rsi_div.py, 50 textbook
@@ -79,8 +79,9 @@ from core.rsi_divergence_setup import (  # noqa: E402
     rsi_exit_hit, rsi_wilder,
 )
 
-# v4: levels 80/20 for entry and exit (operator, 2026-09-18) -- a different setup
-JOURNAL = Path(__file__).resolve().parents[2] / "reports" / "v2" / "shadow_rsi_div_m1_v4.jsonl"
+# v3: 30/70 + break of structure. (v4, 80/20, was defined and dropped the same
+# day before any trade; the operator went back to 30/70.)
+JOURNAL = Path(__file__).resolve().parents[2] / "reports" / "v2" / "shadow_rsi_div_m1_v3.jsonl"
 HEARTBEAT = JOURNAL.with_name("shadow_rsi_div_m1_heartbeat.json")
 
 SYMBOLS = ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "NZDUSD", "USDCAD", "USDCHF", "EURGBP", "EURCAD",

@@ -23,15 +23,16 @@ THE SETUP (M1 only; mid = bid + half the bar's spread; closed bars only)
      low for a SELL). Entry at the next price.
      Cancelled if price reaches the stop before the BOS; expires after 60 bars.
   3. Stop: the divergence swing -1 pip (+1 for a SELL). No Fibonacci, no price target.
-  4. Exit: a BUY when RSI(14) closes at or above 80; a SELL at or below 20;
+  4. Exit: a BUY when RSI(14) closes at or above 70; a SELL at or below 30;
      stop first; 480-bar cap.
 
-LEVELS 80/20 (operator decision, 2026-09-18, for entry AND exit). The study
-measured the best version at 30/70. At 80/20 on +-50-bar swings the divergence
-appeared only ~20 times in 3.5 months across 15 markets -- too few to measure --
-so the shadow verdict (300 trades) will take a long time to arrive; on +-5-bar
-swings 20/80 lost -0.35 to -0.65R per trade. Exiting at 80 instead of 70 measured
-about the same (-0.16/-0.13R vs -0.15/-0.15R).
+LEVELS 30/70 for entry and exit (operator, 2026-09-18, back from 80/20: 80/20
+appeared only ~20 times in 3.5 months across 15 markets and lost more where it
+did). Measured on true bid/ask M1, 15 markets, 2026-05-25..09-15
+(tradify_study/trend_m1_v1/rsi_div_side_split_report.txt): 574 trades, 56% won,
+-0.15R / -0.11R per trade in the two halves (still negative); BUY 275 trades
+-0.16R, SELL 299 trades -0.10R. Divergence detected on M15 instead lost
+-0.36 to -0.40R per trade (27-32% won), so detection stays on M1.
 """
 from __future__ import annotations
 
@@ -43,10 +44,10 @@ SETUP_NAME = "RSI divergence + BOS (M1)"
 PIV = 50              # swing = extreme of +-50 M1 bars
 LOOK = 1000           # the previous swing may be up to 1000 bars back
 RSI_N = 14
-EXTREME = 20.0        # BUY: RSI < 20 at the swing low; SELL: RSI > 80 at the swing high
+EXTREME = 30.0        # BUY: RSI < 30 at the swing low; SELL: RSI > 70 at the swing high
 BOS_BARS = 5          # break of the previous 5 bars' high / low
 WAIT = 60             # bars allowed for the BOS after the divergence is known
-EXIT_BUY = 80.0       # a BUY exits when RSI >= 80; a SELL when RSI <= 20
+EXIT_BUY = 70.0       # a BUY exits when RSI >= 70; a SELL when RSI <= 30
 HOLD_BARS = 480       # cap
 HISTORY = 1600        # closed M1 bars needed: LOOK + 2*PIV + WAIT + RSI warm-up
 
@@ -247,7 +248,7 @@ def setup_from_state(state: Mapping[str, Any], order_type: str, current_price: f
     return {**base, "is_perfect_setup": True, "direction": direction,
             "entry_price": round(current_price, 5), "stop_loss": round(stop, 5), "take_profit": None,
             "risk_pips": round(risk_pips, 1), "reward_pips": None, "risk_reward_ratio": None,
-            "exit_type": "RSI_80_20", "stop_loss_basis": "the divergence swing -1 pip",
+            "exit_type": "RSI_70_30", "stop_loss_basis": "the divergence swing -1 pip",
             "take_profit_basis": "none: a BUY exits when RSI(14) reaches 80, a SELL at 20",
             "rsi_at_swing": state["rsi_at_swing"], "reason": f"{SETUP_NAME}: {direction} confirmed"}
 

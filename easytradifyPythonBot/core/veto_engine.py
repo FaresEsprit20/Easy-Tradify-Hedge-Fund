@@ -605,16 +605,16 @@ class VetoEngine:
     def check_rsi_divergence_opposing(
         self,
         best_direction: str,
-        m15_div_score: float,
-        m15_rsi: float
+        rsi_div_score: float,
+        rsi_div_rsi: float
     ) -> Tuple[bool, str]:
-        """Veto if M15 RSI divergence opposes trade direction."""
-        if best_direction == "BUY" and m15_div_score < 0:
-            if m15_rsi < self.rsi_oversold_for_buy or abs(m15_div_score) > self.divergence_extreme_score:
-                return True, f"M15 RSI divergence opposing BUY (score={m15_div_score}, RSI={m15_rsi:.1f})"
-        elif best_direction == "SELL" and m15_div_score > 0:
-            if m15_rsi > self.rsi_overbought_for_sell or m15_div_score > self.divergence_extreme_score:
-                return True, f"M15 RSI divergence opposing SELL (score={m15_div_score}, RSI={m15_rsi:.1f})"
+        """Veto if the M1 RSI divergence (core/rsi_divergence_setup.py) opposes the trade."""
+        if best_direction == "BUY" and rsi_div_score < 0:
+            if rsi_div_rsi < self.rsi_oversold_for_buy or abs(rsi_div_score) > self.divergence_extreme_score:
+                return True, f"M1 RSI divergence opposing BUY (score={rsi_div_score}, RSI={rsi_div_rsi:.1f})"
+        elif best_direction == "SELL" and rsi_div_score > 0:
+            if rsi_div_rsi > self.rsi_overbought_for_sell or rsi_div_score > self.divergence_extreme_score:
+                return True, f"M1 RSI divergence opposing SELL (score={rsi_div_score}, RSI={rsi_div_rsi:.1f})"
         return False, ""
     
     def check_wick_reversal(
@@ -866,8 +866,8 @@ class VetoEngine:
         current_price: float,
         ema_200: float,
         h1_trend: str,
-        m15_div_score: float,
-        m15_rsi: float,
+        rsi_div_score: float,
+        rsi_div_rsi: float,
         upper_wick_pips: float,
         lower_wick_pips: float,
         body_pips: float,
@@ -1000,7 +1000,7 @@ class VetoEngine:
             # for no gain. Left inert deliberately, not by oversight.
             
             # V6: RSI divergence opposing
-            veto, reason = self.check_rsi_divergence_opposing(best_direction, m15_div_score, m15_rsi)
+            veto, reason = self.check_rsi_divergence_opposing(best_direction, rsi_div_score, rsi_div_rsi)
             self._rec(symbol, "rsi_divergence_opposing", veto, reason)
             if veto and self._veto_active("rsi_divergence_opposing"):
                 return True, reason, modified_sl_pips
@@ -1184,8 +1184,8 @@ def check_all_vetos(
     current_price: float,
     ema_200: float,
     h1_trend: str,
-    m15_div_score: float,
-    m15_rsi: float,
+    rsi_div_score: float,
+    rsi_div_rsi: float,
     upper_wick_pips: float,
     lower_wick_pips: float,
     body_pips: float,
@@ -1218,8 +1218,8 @@ def check_all_vetos(
         current_price=current_price,
         ema_200=ema_200,
         h1_trend=h1_trend,
-        m15_div_score=m15_div_score,
-        m15_rsi=m15_rsi,
+        rsi_div_score=rsi_div_score,
+        rsi_div_rsi=rsi_div_rsi,
         upper_wick_pips=upper_wick_pips,
         lower_wick_pips=lower_wick_pips,
         body_pips=body_pips,

@@ -3,14 +3,14 @@ core/rsi_divergence_setup.py -- the ONE definition of the RSI divergence setup
 (2026-09-18). The app's RSI score, the app's RSI setup and the shadow runner all
 read it, so these tests pin exactly what was measured:
 
-  classic divergence at +-50-bar M1 swings, RSI < 20 (> 80) at the swing,
+  classic divergence at +-50-bar M1 swings, RSI < 30 (> 70) at the swing,
   confirmed by a break of structure within 60 bars (cancelled if the stop is
-  reached first), stop at the swing -1 pip, no Fibonacci, exit at RSI 80/20 --
+  reached first), stop at the swing -1 pip, no Fibonacci, exit at RSI 70/30 --
   for BUY and its mirror SELL.
 
 Parity with the study (tradify_study/trend_m1_v1/parity_rsi_div_setup.py): at
 the measured 30/70 levels, 157 of 158 study trades were reproduced bar by bar;
-80/20 (operator, 2026-09-18) uses the same code with the two levels changed.
+30/70 is the measured level (the operator tried 80/20 and went back, 2026-09-18).
 """
 
 import pathlib
@@ -26,13 +26,13 @@ PIP = 0.0001
 
 def test_the_setup_is_the_measured_one():
     assert (rds.PIV, rds.LOOK, rds.RSI_N, rds.BOS_BARS, rds.WAIT) == (50, 1000, 14, 5, 60)
-    # 80/20 for entry and exit (operator, 2026-09-18)
-    assert (rds.EXTREME, rds.EXIT_BUY, rds.HOLD_BARS) == (20.0, 80.0, 480)
+    # 30/70 for entry and exit (operator, 2026-09-18)
+    assert (rds.EXTREME, rds.EXIT_BUY, rds.HOLD_BARS) == (30.0, 70.0, 480)
 
 
 def _series(tail):
     """flat -> hard drop into swing 1 (RSI near 0) -> bounce -> zigzag into a LOWER
-    swing 2 with RSI ~18 (below 20, higher than at swing 1) -> 50 rising bars that confirm
+    swing 2 with RSI ~18 (below 30, higher than at swing 1) -> 50 rising bars that confirm
     swing 2 -> `tail` (a list of per-bar price changes)."""
     p = [1.1000 + (0.0001 if i % 2 else -0.0001) for i in range(250)]
     for _ in range(50):
@@ -105,7 +105,7 @@ def test_the_rsi_reading_and_the_setup_follow_the_state():
     assert rds.score_indicator({"status": "NONE"}) is None          # RSI then scored on its own
     s = rds.setup_from_state(confirmed, "AUTO", float(c[-1]), "EURUSD")
     assert s["is_perfect_setup"] is True and s["direction"] == "BUY"
-    assert s["take_profit"] is None and s["exit_type"] == "RSI_80_20"   # no Fibonacci
+    assert s["take_profit"] is None and s["exit_type"] == "RSI_70_30"   # no Fibonacci
     assert s["stop_loss"] == pytest.approx(confirmed["stop_price"], abs=1e-5)
     assert rds.setup_from_state(confirmed, "SELL", float(c[-1]), "EURUSD")["is_perfect_setup"] is False
     assert rds.setup_from_state(waiting, "AUTO", float(c[-1]), "EURUSD")["is_perfect_setup"] is False
@@ -114,7 +114,7 @@ def test_the_rsi_reading_and_the_setup_follow_the_state():
 def test_the_sell_is_the_mirror_of_the_buy():
     waiting, _, _ = _mirror_state([0.0] * 5)
     assert waiting["status"] == "AWAITING_BOS" and waiting["side"] == -1
-    assert waiting["rsi_at_swing"] > 100 - rds.EXTREME                  # RSI > 80 at the swing high
+    assert waiting["rsi_at_swing"] > 100 - rds.EXTREME                  # RSI > 70 at the swing high
     confirmed, j, c = _mirror_state([0.0] * 5 + [0.0010])
     assert confirmed["status"] == "CONFIRMED" and confirmed["side"] == -1
     assert confirmed["stop_price"] > c[j]                                # stop ABOVE the swing high
@@ -122,8 +122,8 @@ def test_the_sell_is_the_mirror_of_the_buy():
     assert r["recommendation"] == "SELL" and r["score"] < 0 and r["confidence"] == 95
     s = rds.setup_from_state(confirmed, "AUTO", float(c[-1]), "EURUSD")
     assert s["is_perfect_setup"] is True and s["direction"] == "SELL" and s["take_profit"] is None
-    assert rds.rsi_exit_hit(-1, 19.9) and not rds.rsi_exit_hit(-1, 20.1)   # a SELL exits at RSI 20
-    assert rds.rsi_exit_hit(1, 80.0) and not rds.rsi_exit_hit(1, 79.9)     # a BUY at RSI 80
+    assert rds.rsi_exit_hit(-1, 29.9) and not rds.rsi_exit_hit(-1, 30.1)   # a SELL exits at RSI 30
+    assert rds.rsi_exit_hit(1, 70.0) and not rds.rsi_exit_hit(1, 69.9)     # a BUY at RSI 70
 
 
 def test_the_app_reads_the_m1_divergence_everywhere_and_no_fibonacci():
@@ -154,6 +154,17 @@ def test_the_app_reads_the_m1_divergence_everywhere_and_no_fibonacci():
 def test_the_shadow_runner_uses_the_same_definition():
     from engine_v2.run import shadow_rsi_div_m1 as sh
     assert sh.current_setup is rds.current_setup and sh.detect is rds.detect
-    assert sh.JOURNAL.name == "shadow_rsi_div_m1_v4.jsonl"
+    assert sh.JOURNAL.name == "shadow_rsi_div_m1_v3.jsonl"
     src = pathlib.Path(sh.__file__).read_text(encoding="utf-8")
     assert "hit = current_setup(mid_h, mid_l, mid_c, stop_low, stop_high, pip, not_before=not_before)" in src
+
+
+def test_rsi_divergence_is_m1_only_forever():
+    """Operator, 2026-09-18: RSI divergence on M1 only. Measured: detected on M15
+    it lost -0.36 to -0.40R per trade (27-32% won) against -0.13R on M1."""
+    for rel in ("core/indicators.py", "core/calculations.py", "core/asset_analysis.py",
+                "core/veto_engine.py", "core/asset_analysis_config.py"):
+        src = (ROOT / rel).read_text(encoding="utf-8")
+        for name in ("def get_m15_divergence", "m15_div_score", "m15_rsi", '"m15_divergence"'):
+            assert name not in src, (rel, name)
+    assert rds.SETUP_NAME.endswith("(M1)")

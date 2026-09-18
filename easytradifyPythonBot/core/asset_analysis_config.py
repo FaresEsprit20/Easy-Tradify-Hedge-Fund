@@ -774,7 +774,7 @@ COMPONENT_WEIGHTS = {
     "volatility": 0.05,
     "support_resistance": 0.08,
     "ict_fvg": 0.06,
-    "m15_divergence": 0.04,
+    "rsi_divergence_m1": 0.04,
     "veto_system": 0.10,
     "breakout": 0.04,
     "candlestick": 0.04

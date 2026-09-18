@@ -179,7 +179,7 @@ def test_a_setup_at_one_percent_of_the_minute_is_not_vetoed_for_its_age():
     engine = VetoEngine({"choppy_market_mode": "off"})
     veto, reason, _ = engine.check_all_vetos(
         symbol="EURUSD", best_direction="BUY", adx_val=30.0, atr_pips=5.0, trend="BULLISH",
-        current_price=1.0850, ema_200=1.0800, h1_trend="BULLISH", m15_div_score=0, m15_rsi=50.0,
+        current_price=1.0850, ema_200=1.0800, h1_trend="BULLISH", rsi_div_score=0, rsi_div_rsi=50.0,
         upper_wick_pips=0.2, lower_wick_pips=0.2, body_pips=2.0, volume_ratio=1.5,
         spread_valid=True, spread_pips=0.2, max_allowed_spread=3, entry_triggered=False,
         candle_progress_pct=1.0, is_already_in_trade=False, session_result={},
@@ -212,7 +212,7 @@ def _news_says_veto(symbol, direction, tolerance):
 
 def _vetos(engine, **overrides):
     args = dict(symbol="EURUSD", best_direction="BUY", adx_val=30.0, atr_pips=5.0, trend="BULLISH",
-                current_price=1.0850, ema_200=1.0800, h1_trend="BULLISH", m15_div_score=0, m15_rsi=50.0,
+                current_price=1.0850, ema_200=1.0800, h1_trend="BULLISH", rsi_div_score=0, rsi_div_rsi=50.0,
                 upper_wick_pips=0.2, lower_wick_pips=0.2, body_pips=2.0, volume_ratio=1.5,
                 spread_valid=True, spread_pips=0.2, max_allowed_spread=3, entry_triggered=True,
                 candle_progress_pct=50.0, is_already_in_trade=False, session_result={},

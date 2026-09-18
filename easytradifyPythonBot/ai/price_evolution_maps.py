@@ -339,7 +339,7 @@ def _build_fields() -> Tuple[Field, ...]:
         # the entry rule table (core/entry_engine.py, entry foundation v2)
         (f"rules.{rule}.{key}", f"r_{rc}_{kc}")
         for rule, rc in ENTRY_RULE_CODES.items()
-        for key, kc in (("passed", "p"), ("mode", "m"), ("value", "v"), ("threshold", "t"), ("why", "w"))),
+        for key, kc in (("passed", "p"), ("mode", "m"), ("value", "v"), ("threshold", "t"), ("why", "w"), ("polarity", "pl"))),
         compact=("se", "eq", "es", "sa", "ex", "sr", "qu", "tc", "tr", "pep", "g_sc",
                  "s_nm", "s_sc", "s_fp", "m_av", "m_tr")
                 + tuple(f"r_{rc}_p" for rc in ENTRY_RULE_CODES.values()))
