@@ -168,3 +168,16 @@ def test_rsi_divergence_is_m1_only_forever():
         for name in ("def get_m15_divergence", "m15_div_score", "m15_rsi", '"m15_divergence"'):
             assert name not in src, (rel, name)
     assert rds.SETUP_NAME.endswith("(M1)")
+
+
+def test_the_rsi_is_logarithmic():
+    """Operator, 2026-09-18: RSI(14) of log returns, Wilder smoothing."""
+    rng = np.random.default_rng(7)
+    c = 1.1 * np.exp(np.cumsum(rng.normal(0, 0.0003, 500)))
+    d = np.diff(np.log(c), prepend=np.log(c[0]))
+    up, dn = np.clip(d, 0, None), np.clip(-d, 0, None)
+    au, ad = up[0], dn[0]
+    for i in range(1, c.size):
+        au = (au * 13 + up[i]) / 14
+        ad = (ad * 13 + dn[i]) / 14
+    assert rds.rsi_wilder(c)[-1] == pytest.approx(100 - 100 / (1 + au / ad), abs=1e-9)

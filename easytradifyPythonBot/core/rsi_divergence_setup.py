@@ -57,8 +57,13 @@ def pip_size(symbol: str) -> float:
 
 
 def rsi_wilder(c: np.ndarray, n: int = RSI_N) -> np.ndarray:
+    """Logarithmic RSI: Wilder's RSI(n) of the log returns ln(c_t / c_t-1)
+    (operator, 2026-09-18). On M1 it gives the same divergences as the RSI of
+    plain price changes -- all 658 of 658 on 15 pairs, 2026-05..09, largest
+    gap 0.07 RSI points (tradify_study/trend_m1_v1/rsi_variants_scan.py)."""
     c = np.asarray(c, dtype=float)
-    d = np.diff(c, prepend=c[0])
+    lc = np.log(np.maximum(c, 1e-12))
+    d = np.diff(lc, prepend=lc[0])
     up, dn = np.clip(d, 0, None), np.clip(-d, 0, None)
     au, ad = np.empty_like(c), np.empty_like(c)
     au[0], ad[0] = up[0], dn[0]
