@@ -23,3 +23,7 @@ REM   RSI divergence, +-1600 M1 swings  never places orders; the one DEV pass of
 REM                           rsi_div_huge_swings.py, not confirmed, watched live
 REM                           (report: python -m engine_v2.run.shadow_rsi_div_huge --report)
 start "RSI divergence huge swings shadow (never orders)" cmd /k python -m engine_v2.run.shadow_rsi_div_huge
+REM   RSI divergence H4  DEMO ORDERS (operator 2026-09-18): the one H1/H4 cell that passed
+REM                      development + holdout; stops its own new orders on a STOP verdict
+REM                      (40 trades) or at -10R (report: python -m engine_v2.run.rsi_div_h4 --report)
+start "RSI divergence H4 (demo orders)" cmd /k python -m engine_v2.run.rsi_div_h4

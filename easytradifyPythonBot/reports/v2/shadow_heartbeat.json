@@ -1,56 +1,124 @@
 {
- "at": 1789770620,
+ "at": 1789774220,
  "symbols": {
   "EURUSD": {
-   "error": "RuntimeError(\"no H1 rates for EURUSD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "GBPUSD": {
-   "error": "RuntimeError(\"no H1 rates for GBPUSD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "USDJPY": {
-   "error": "RuntimeError(\"no H1 rates for USDJPY: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "AUDUSD": {
-   "error": "RuntimeError(\"no H1 rates for AUDUSD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "NZDUSD": {
-   "error": "RuntimeError(\"no H1 rates for NZDUSD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "USDCAD": {
-   "error": "RuntimeError(\"no H1 rates for USDCAD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "USDCHF": {
-   "error": "RuntimeError(\"no H1 rates for USDCHF: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "EURGBP": {
-   "error": "RuntimeError(\"no H1 rates for EURGBP: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "EURCAD": {
-   "error": "RuntimeError(\"no H1 rates for EURCAD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "AUDNZD": {
-   "error": "RuntimeError(\"no H1 rates for AUDNZD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "AUDCAD": {
-   "error": "RuntimeError(\"no H1 rates for AUDCAD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "AUDCHF": {
-   "error": "RuntimeError(\"no H1 rates for AUDCHF: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "GBPAUD": {
-   "error": "RuntimeError(\"no H1 rates for GBPAUD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "GBPJPY": {
-   "error": "RuntimeError(\"no H1 rates for GBPJPY: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 1,
+   "new_journaled": 0,
+   "errors": {}
   },
   "EURJPY": {
-   "error": "RuntimeError(\"no H1 rates for EURJPY: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "XAUUSD": {
-   "error": "RuntimeError(\"no H1 rates for XAUUSD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   },
   "XAGUSD": {
-   "error": "RuntimeError(\"no H1 rates for XAGUSD: (-10001, 'IPC send failed')\")"
+   "as_of": 1789772400,
+   "live_setups": 0,
+   "not_tradeable": 0,
+   "new_journaled": 0,
+   "errors": {}
   }
  }
 }

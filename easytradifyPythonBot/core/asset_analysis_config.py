@@ -369,6 +369,13 @@ RSI_DIV_M1_LIVE = True
 # again by itself. Until then the bot does not trade, so it does not lose.
 RSI_DIV_M1_REQUIRE_CONFIRMED = True
 
+# RSI divergence on H4, DEMO orders (engine_v2/run/rsi_div_h4.py). Operator,
+# 2026-09-18: the one H1/H4 cell that passed development halves AND the
+# untouched holdout (+0.17R holdout, +0.21R on real bid/ask); traded on demo
+# now. The runner stops new orders itself on its pre-registered STOP verdict
+# (40 trades) or at -10R cumulative. False = no order is ever sent.
+RSI_DIV_H4_LIVE = True
+
 # Golden signals an entry needs (momentum burst, absorption, volume spike, at a
 # point of interest, volume imbalance). Entries with none were right 17% of the
 # time on the stored trades (core/entry_engine.ALLOW_UNCONFIRMED_ENTRIES).
